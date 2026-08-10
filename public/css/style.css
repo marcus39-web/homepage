@@ -44,7 +44,8 @@ h2 {
 }
 
 .wrap {
-  width: min(1120px, 92vw);
+  /* Breiter Container fuer ein flaechigeres, seitenfuellendes Layout. */
+  width: min(1480px, 96vw);
   margin: 0 auto;
 }
 
@@ -221,7 +222,7 @@ main section {
 }
 
 .intro {
-  margin-top: -1.5rem;
+  margin-top: 1.4rem;
   padding: 2.2rem;
   border: 1px solid var(--line);
   border-radius: 20px;
@@ -587,7 +588,7 @@ textarea:focus {
   }
 
   .intro {
-    margin-top: -0.4rem;
+    margin-top: 0.9rem;
     padding: 1.35rem;
   }
 }
