@@ -2,14 +2,18 @@
 
 declare(strict_types=1);
 
+// currentPage steuert, welcher Navigationslink auf der aktuellen Seite ausgeblendet wird.
 $currentPage = isset($currentPage) && is_string($currentPage) ? $currentPage : '';
+// navContext unterscheidet Hero-Navigation (Startseite) und Subpages.
 $navContext = isset($navContext) && is_string($navContext) ? $navContext : 'subpage';
 $isHomeHero = $navContext === 'hero';
 ?>
 <nav class="site-nav wrap" aria-label="Hauptnavigation">
   <div class="brand-block">
+    <!-- Im Hero springt die Marke zum Seitenanfang, sonst zur Startseite. -->
     <a class="brand" href="<?= $isHomeHero ? '#top' : '/' ?>">Marcus Reiser</a>
     <?php if ($isHomeHero): ?>
+      <!-- Profilbild wird nur im Hero-Kontext angezeigt. -->
       <img class="brand-avatar" src="/public/assets/images/profilbild_neu_freigestellt.png" alt="Freigestelltes Profilbild von Marcus Reiser">
     <?php endif; ?>
   </div>

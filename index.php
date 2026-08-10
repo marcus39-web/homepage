@@ -14,6 +14,7 @@ if (PHP_SAPI === 'cli-server') {
 
 require __DIR__ . '/bootstrap.php';
 
+// Request-Metadaten normalisieren, damit Routing eindeutig funktioniert.
 $method = strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'));
 $requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 $path = is_string($requestPath) ? rtrim($requestPath, '/') : '/';
@@ -21,10 +22,12 @@ if ($path === '') {
     $path = '/';
 }
 
+// POST auf /contact wird sofort serverseitig verarbeitet und beendet den Request mit Redirect.
 if ($path === '/contact' && $method === 'POST') {
     handle_contact_form_submission();
 }
 
+// Abbildung von URL-Pfaden auf Seiten-Templates.
 $routes = [
     '/' => 'home.php',
     '/galerie' => 'galerie.php',
@@ -35,10 +38,12 @@ $routes = [
     '/contact' => 'contact.php',
 ];
 
+// Unbekannte Pfade liefern eine minimale 404-Seite.
 if (!isset($routes[$path])) {
     http_response_code(404);
     echo '<!doctype html><html lang="de"><head><meta charset="utf-8"><title>404</title></head><body><h1>Seite nicht gefunden</h1></body></html>';
     exit;
 }
 
+// Das gefundene Seiten-Template rendert die komplette Seite inklusive Layout.
 require __DIR__ . '/Components/pages/' . $routes[$path];

@@ -12,6 +12,7 @@ $isHttps = (
 	|| (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower((string) $_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https')
 );
 
+// Session-Cookies sicher konfigurieren und Session einmalig starten.
 if (session_status() !== PHP_SESSION_ACTIVE) {
 	ini_set('session.use_strict_mode', '1');
 	session_set_cookie_params([
@@ -108,6 +109,7 @@ function flash(string $key): ?string
  */
 function handle_contact_form_submission(): void
 {
+	// Rohdaten aus dem Request lesen und für Redirect-Validierung zwischenspeichern.
 	$name = trim((string) ($_POST['name'] ?? ''));
 	$email = trim((string) ($_POST['email'] ?? ''));
 	$message = trim((string) ($_POST['message'] ?? ''));
@@ -123,6 +125,7 @@ function handle_contact_form_submission(): void
 	]);
 
 	$errors = [];
+	// Sicherheits- und Plausibilitätsprüfungen für alle Pflichtfelder.
 	if (!csrf_token_is_valid($token)) {
 		$errors[] = 'Sicherheitsprüfung fehlgeschlagen.';
 	}
@@ -143,11 +146,13 @@ function handle_contact_form_submission(): void
 	}
 
 	if ($errors !== []) {
+		// Fehler werden in der Session gehalten und nach Redirect auf /contact angezeigt.
 		$_SESSION['form_errors'] = $errors;
 		header('Location: /contact', true, 302);
 		exit;
 	}
 
+	// Header-Injection verhindern, bevor Werte in Log oder Mail landen.
 	$safeName = str_replace(["\r", "\n"], '', $name);
 	$safeEmail = str_replace(["\r", "\n"], '', $email);
 
@@ -159,6 +164,7 @@ function handle_contact_form_submission(): void
 	$entry = sprintf("[%s] %s <%s>\n%s\n----\n", date('c'), $safeName, $safeEmail, $message);
 	file_put_contents($messagesDir . '/contact.log', $entry, FILE_APPEND);
 
+	// Versand per mail() ist best effort; das lokale Log bleibt die verlässliche Basis.
 	$mailSent = false;
 	$to = 'info@marcusreiser.de';
 	$subject = 'Kontaktformular marcusreiser.de | Neue Anfrage von ' . $safeName;
@@ -179,6 +185,7 @@ function handle_contact_form_submission(): void
 		set_flash('success', 'Danke! Deine Nachricht wurde gespeichert. Der E-Mail-Versand konnte aktuell nicht bestätigt werden.');
 	}
 
+	// Aufräumen und Token-Rotation verhindern Mehrfach-Submit mit altem CSRF-Token.
 	unset($_SESSION['form_old'], $_SESSION['form_errors']);
 	csrf_token_rotate();
 

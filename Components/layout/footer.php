@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+// Optionales ID-Attribut erlaubt Sprungmarken oder seitenbezogene Hooks.
 $footerId = isset($footerId) && is_string($footerId) ? trim($footerId) : '';
 $footerIdAttribute = $footerId !== ''
     ? ' id="' . htmlspecialchars($footerId, ENT_QUOTES, 'UTF-8') . '"'
@@ -9,6 +10,7 @@ $footerIdAttribute = $footerId !== ''
 ?>
 <footer class="site-footer"<?= $footerIdAttribute ?>>
   <div class="wrap footer-grid">
+    <!-- Kontaktblock mit direktem Mail-Link und Formular-Einstieg. -->
     <div>
       <h2>Kontakt</h2>
       <p>
