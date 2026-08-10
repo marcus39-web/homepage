@@ -7,9 +7,11 @@ $pageDescription = 'Interne Uebersicht ueber Besuche und Kalender-Bestellungen.'
 $bodyClass = 'subpage';
 $currentPage = '';
 
+// Kennzahlen werden aus Dateispeicher geladen (visits.json + orders.log).
 $stats = get_visit_stats();
 $orders = get_calendar_orders();
 
+// Aufbereitung fuer die KPI-Karten in der Uebersicht.
 $today = date('Y-m-d');
 $todayVisits = (int) (($stats['daily'][$today] ?? 0));
 $todayUnique = (int) (($stats['unique_daily'][$today] ?? 0));

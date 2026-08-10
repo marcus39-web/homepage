@@ -31,6 +31,7 @@ if ($path === '/kalender-bestellung' && $method === 'POST') {
     handle_calendar_order_submission();
 }
 
+// Login/Logout-Endpoints fuer den internen Statistikbereich.
 if ($path === '/statistik-login' && $method === 'POST') {
     handle_statistics_login_submission();
 }

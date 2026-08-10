@@ -7,6 +7,7 @@ $pageDescription = 'Passwortgeschuetzter Zugang zur internen Statistik.';
 $bodyClass = 'subpage';
 $currentPage = '';
 
+// Feedback aus dem letzten Login-/Logout-Versuch.
 $loginError = flash('stats_login_error');
 $loginSuccess = flash('stats_login_success');
 
@@ -33,6 +34,7 @@ require BASE_PATH . '/Components/layout/header.php';
       <p class="notice error"><?= e($loginError) ?></p>
     <?php endif; ?>
 
+    <!-- Passwort wird serverseitig gegen STATS_PASSWORD aus .env geprueft. -->
     <form method="post" action="/statistik-login" class="form-grid" novalidate>
       <input type="hidden" name="_csrf" value="<?= e(csrf_token()) ?>">
 

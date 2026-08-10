@@ -6,6 +6,7 @@ $pageTitle = 'Marcus Reiser - Fotografie und IT';
 $pageDescription = 'Marcus Reiser aus Weimar/Legefeld - Fotografie, Kalender 2026 und IT-Projekte auf einer modernen Startseite.';
 $currentPage = 'home';
 
+// Oeffentliche Anzeige: nur Gesamtbesuche im Hero.
 $visitStats = get_visit_stats();
 $visitsTotal = (int) ($visitStats['total'] ?? 0);
 

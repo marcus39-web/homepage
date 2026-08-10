@@ -7,6 +7,7 @@ $pageDescription = 'Fotokalender 2026 von Marcus Reiser mit Motiven aus Thüring
 $bodyClass = 'subpage';
 $currentPage = 'kalender';
 
+// Meldungen aus der vorherigen Formularverarbeitung (POST -> Redirect -> GET).
 $orderErrors = (array) ($_SESSION['order_errors'] ?? []);
 $orderSuccess = flash('order_success');
 
