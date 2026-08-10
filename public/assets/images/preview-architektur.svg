@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-labelledby="title">
+  <title id="title">Architektur</title>
+  <defs>
+    <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#b9c6d1"/>
+      <stop offset="100%" stop-color="#73889b"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#g2)"/>
+  <rect x="120" y="130" width="150" height="290" fill="#334f61"/>
+  <rect x="300" y="90" width="180" height="330" fill="#264150"/>
+  <rect x="520" y="170" width="170" height="250" fill="#3a5b70"/>
+  <g fill="#e5edf2" opacity="0.8">
+    <rect x="140" y="160" width="18" height="18"/>
+    <rect x="170" y="160" width="18" height="18"/>
+    <rect x="200" y="160" width="18" height="18"/>
+  </g>
+</svg>

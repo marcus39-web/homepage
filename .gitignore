@@ -1,0 +1,12 @@
+# Logs und lokale Runtime-Daten
+data/logs/*
+data/messages/*
+
+# IDE und OS
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Lokale Konfiguration und vertrauliche Hinweise
+.env
+zugangslink.txt

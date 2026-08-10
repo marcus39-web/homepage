@@ -1,0 +1,16 @@
+RewriteEngine On
+
+# Kanonische URL: .php-Aufrufe dauerhaft auf saubere URLs ohne Endung umleiten.
+RewriteCond %{THE_REQUEST} \s/+index\.php(?:[\s?]|$) [NC]
+RewriteRule ^index\.php$ / [R=301,L]
+
+RewriteCond %{THE_REQUEST} \s/+([A-Za-z0-9_-]+)\.php(?:[\s?]|$) [NC]
+RewriteRule ^([A-Za-z0-9_-]+)\.php$ /$1 [R=301,L]
+
+# Vorhandene Dateien und Ordner direkt ausliefern.
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Alle Anfragen über den Front-Controller leiten.
+RewriteRule ^ index.php [L,QSA]

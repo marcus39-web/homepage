@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-labelledby="title">
+  <title id="title">Tiere</title>
+  <defs>
+    <linearGradient id="g3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#d5c3a1"/>
+      <stop offset="100%" stop-color="#8e7150"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#g3)"/>
+  <ellipse cx="390" cy="280" rx="140" ry="85" fill="#503a26"/>
+  <circle cx="315" cy="230" r="45" fill="#503a26"/>
+  <circle cx="285" cy="185" r="22" fill="#503a26"/>
+  <circle cx="348" cy="184" r="22" fill="#503a26"/>
+  <circle cx="302" cy="228" r="7" fill="#fff"/>
+  <circle cx="332" cy="228" r="7" fill="#fff"/>
+</svg>

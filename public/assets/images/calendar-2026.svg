@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 640" role="img" aria-labelledby="title">
+  <title id="title">Kalender 2026</title>
+  <rect width="900" height="640" fill="#f0dfcc"/>
+  <rect x="110" y="70" width="680" height="500" rx="26" fill="#fff8ef" stroke="#caaf8f" stroke-width="8"/>
+  <rect x="110" y="70" width="680" height="96" rx="26" fill="#c7653d"/>
+  <text x="450" y="132" font-size="52" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff" text-anchor="middle">Kalender 2026</text>
+  <g fill="#7c6955" font-family="Segoe UI, Arial, sans-serif" font-size="34">
+    <text x="170" y="230">JAN</text><text x="335" y="230">FEB</text><text x="500" y="230">MAR</text><text x="665" y="230">APR</text>
+    <text x="170" y="300">MAI</text><text x="335" y="300">JUN</text><text x="500" y="300">JUL</text><text x="665" y="300">AUG</text>
+    <text x="170" y="370">SEP</text><text x="335" y="370">OKT</text><text x="500" y="370">NOV</text><text x="665" y="370">DEZ</text>
+  </g>
+</svg>
