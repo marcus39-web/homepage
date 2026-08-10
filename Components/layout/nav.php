@@ -34,6 +34,10 @@ $isHomeHero = $navContext === 'hero';
       <a href="/it-projekte">IT-Projekte</a>
     <?php endif; ?>
 
+    <?php if (is_stats_authenticated()): ?>
+      <a href="/statistik">Statistik</a>
+      <a href="/statistik-logout">Logout</a>
+    <?php endif; ?>
     <a href="/contact">Kontakt</a>
   </div>
 </nav>

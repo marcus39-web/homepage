@@ -27,12 +27,26 @@ if ($path === '/contact' && $method === 'POST') {
     handle_contact_form_submission();
 }
 
+if ($path === '/kalender-bestellung' && $method === 'POST') {
+    handle_calendar_order_submission();
+}
+
+if ($path === '/statistik-login' && $method === 'POST') {
+    handle_statistics_login_submission();
+}
+
+if ($path === '/statistik-logout' && $method === 'GET') {
+    handle_statistics_logout();
+}
+
 // Abbildung von URL-Pfaden auf Seiten-Templates.
 $routes = [
     '/' => 'home.php',
     '/galerie' => 'galerie.php',
     '/kalender' => 'kalender.php',
     '/it-projekte' => 'it-projekte.php',
+    '/statistik-login' => 'statistik-login.php',
+    '/statistik' => 'statistik.php',
     '/impressum' => 'impressum.php',
     '/datenschutz' => 'datenschutz.php',
     '/contact' => 'contact.php',
@@ -43,6 +57,22 @@ if (!isset($routes[$path])) {
     http_response_code(404);
     echo '<!doctype html><html lang="de"><head><meta charset="utf-8"><title>404</title></head><body><h1>Seite nicht gefunden</h1></body></html>';
     exit;
+}
+
+// Interne Statistik nur nach erfolgreichem Login freigeben.
+if ($path === '/statistik' && !is_stats_authenticated()) {
+    header('Location: /statistik-login', true, 302);
+    exit;
+}
+
+if ($path === '/statistik-login' && is_stats_authenticated()) {
+    header('Location: /statistik', true, 302);
+    exit;
+}
+
+// Nur erfolgreiche Seitenaufrufe werden als Besuch gezählt.
+if ($method === 'GET') {
+    track_page_visit($path);
 }
 
 // Das gefundene Seiten-Template rendert die komplette Seite inklusive Layout.

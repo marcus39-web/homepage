@@ -6,6 +6,9 @@ $pageTitle = 'Marcus Reiser - Fotografie und IT';
 $pageDescription = 'Marcus Reiser aus Weimar/Legefeld - Fotografie, Kalender 2026 und IT-Projekte auf einer modernen Startseite.';
 $currentPage = 'home';
 
+$visitStats = get_visit_stats();
+$visitsTotal = (int) ($visitStats['total'] ?? 0);
+
 require BASE_PATH . '/Components/layout/header.php';
 ?>
 <header class="hero" id="top">
@@ -13,6 +16,12 @@ require BASE_PATH . '/Components/layout/header.php';
   $navContext = 'hero';
   require BASE_PATH . '/Components/layout/nav.php';
   ?>
+
+  <div class="hero-visit-stats wrap" aria-label="Besucherzahlen">
+    <div class="hero-visit-box">
+      <p>Besucher Gesamt: <strong><?= e((string) $visitsTotal) ?></strong></p>
+    </div>
+  </div>
 
   <div class="hero-media" role="img" aria-label="Blumen als Hintergrundbild">
     <img src="/public/assets/images/Blumen.jpg" alt="Blumenbild als Hintergrund">
