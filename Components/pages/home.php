@@ -82,7 +82,7 @@ require BASE_PATH . '/Components/layout/header.php';
     <div class="calendar-text">
       <h2 id="kalender-title">Fotokalender 2026 - Thüringen in Bildern</h2>
       <p>
-        12 ausgewählte Motive aus deiner Canon R10.
+        12 ausgewählte Motive aus deiner Fotografie.
         Gedruckt auf hochwertigem Papier, direkt bestellbar.
       </p>
       <a class="btn btn-secondary" href="/kalender">Kalender ansehen</a>

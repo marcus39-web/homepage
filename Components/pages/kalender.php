@@ -24,7 +24,7 @@ require BASE_PATH . '/Components/layout/header.php';
   <section class="subpage-head panel">
     <p class="eyebrow-lite">Fotokalender</p>
     <h1>Kalender 2026 - Thüringen in Bildern</h1>
-    <p>12 ausgewählte Motive aus der Canon R10. Hochwertiger Druck, ideal als Geschenk oder für Zuhause.</p>
+    <p>12 ausgewählte Motive aus deiner Fotografie. Hochwertiger Druck, ideal als Geschenk oder für Zuhause.</p>
     <div class="hero-actions">
       <a class="btn btn-secondary" href="#bestellen">Jetzt bestellen</a>
       <a class="btn btn-primary" href="/">Zur Startseite</a>
