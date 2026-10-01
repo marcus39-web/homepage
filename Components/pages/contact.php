@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 $pageTitle = 'Kontakt - Marcus Reiser';
-$pageDescription = 'Kontaktformular für Anfragen zu IT-Vertrieb, Projekten und Zusammenarbeit.';
+$pageDescription = 'Kontaktformular für Anfragen und Bestellungen.';
 $bodyClass = 'subpage';
 $currentPage = 'contact';
 
@@ -32,7 +32,7 @@ require BASE_PATH . '/Components/layout/header.php';
       <p class="eyebrow-lite">Kontakt</p>
       <h1>Kontaktformular</h1>
       <p>
-        Du möchtest mich für IT-Vertrieb, Projekte oder eine Zusammenarbeit kontaktieren?
+        Du möchtest mich zu meinen Fotografien, zum Kalender oder zu einer Zusammenarbeit kontaktieren?
         Dann sende mir hier direkt deine Nachricht.
       </p>
       <div class="contact-facts">

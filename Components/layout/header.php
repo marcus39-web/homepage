@@ -5,11 +5,11 @@ declare(strict_types=1);
 // Fallback-Metadaten greifen, wenn die Seite keine eigenen Werte setzt.
 $pageTitle = isset($pageTitle) && is_string($pageTitle) && $pageTitle !== ''
     ? $pageTitle
-    : 'Marcus Reiser - Fotografie und IT';
+    : 'Marcus Reiser - Fotografie';
 
 $pageDescription = isset($pageDescription) && is_string($pageDescription) && $pageDescription !== ''
     ? $pageDescription
-    : 'Persönliche Website von Marcus Reiser über Fotografie, Kalender und IT-Projekte.';
+    : 'Persönliche Website von Marcus Reiser über Fotografie in Weimar.';
 
 // Optionales Body-Attribut für seitenbezogene CSS-Varianten.
 $bodyClass = isset($bodyClass) && is_string($bodyClass) ? trim($bodyClass) : '';

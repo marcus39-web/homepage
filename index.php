@@ -7,7 +7,7 @@ if (PHP_SAPI === 'cli-server') {
     $requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
     $filePath = is_string($requestPath) ? __DIR__ . $requestPath : '';
 
-    if ($filePath !== '' && is_file($filePath)) {
+    if ($requestPath !== '/public/photo.php' && $filePath !== '' && is_file($filePath)) {
         return false;
     }
 }
@@ -20,6 +20,11 @@ $requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 $path = is_string($requestPath) ? rtrim($requestPath, '/') : '/';
 if ($path === '') {
     $path = '/';
+}
+
+if ($path === '/public/photo.php') {
+    require __DIR__ . '/public/photo.php';
+    exit;
 }
 
 // POST auf /contact wird sofort serverseitig verarbeitet und beendet den Request mit Redirect.
@@ -45,7 +50,6 @@ $routes = [
     '/' => 'home.php',
     '/galerie' => 'galerie.php',
     '/kalender' => 'kalender.php',
-    '/it-projekte' => 'it-projekte.php',
     '/statistik-login' => 'statistik-login.php',
     '/statistik' => 'statistik.php',
     '/impressum' => 'impressum.php',

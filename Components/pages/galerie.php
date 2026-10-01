@@ -6,6 +6,21 @@ $pageTitle = 'Galerie - Marcus Reiser';
 $pageDescription = 'Fotogalerie von Marcus Reiser: Natur, Architektur, Tiere und Portraits.';
 $bodyClass = 'subpage';
 $currentPage = 'galerie';
+$photoCategories = get_photo_categories();
+$requestedFolder = isset($_GET['ordner']) && is_string($_GET['ordner']) ? $_GET['ordner'] : '';
+$selectedCategory = null;
+
+foreach ($photoCategories as $category) {
+  if ($category['name'] === $requestedFolder) {
+    $selectedCategory = $category;
+    break;
+  }
+}
+
+if ($selectedCategory !== null) {
+  $photoCategories = [$selectedCategory];
+  $pageTitle = 'Fotografien: ' . $selectedCategory['label'] . ' - Marcus Reiser';
+}
 
 require BASE_PATH . '/Components/layout/header.php';
 ?>
@@ -19,29 +34,31 @@ require BASE_PATH . '/Components/layout/header.php';
 <main class="subpage-main wrap">
   <section class="subpage-head panel">
     <p class="eyebrow-lite">Fotografie</p>
-    <h1>Galerie</h1>
-    <p>Eine Auswahl aus Natur, Architektur, Tierfotografie und Portraits. Die Bilder kannst du später durch deine Originalaufnahmen ersetzen.</p>
-    <a class="btn btn-primary" href="/">Zur Startseite</a>
+    <h1><?= $selectedCategory !== null ? e($selectedCategory['label']) : 'Galerie' ?></h1>
+    <p><?= $selectedCategory !== null ? 'Fotografien aus diesem Ordner.' : 'Aufnahmen aus meinen Bilderordnern, nach Themen sortiert.' ?></p>
+    <a class="btn btn-primary" href="/#fotografie">Alle Fotoordner</a>
   </section>
 
-  <section class="gallery-grid gallery-full" aria-label="Galerie Kategorien">
-    <article class="gallery-card">
-      <img src="/public/assets/images/preview-natur.svg" alt="Natur und Landschaft">
-      <h3>Natur und Landschaft</h3>
-    </article>
-    <article class="gallery-card">
-      <img src="/public/assets/images/preview-architektur.svg" alt="Architektur">
-      <h3>Architektur</h3>
-    </article>
-    <article class="gallery-card">
-      <img src="/public/assets/images/preview-tiere.svg" alt="Tierfotografie">
-      <h3>Tiere</h3>
-    </article>
-    <article class="gallery-card">
-      <img src="/public/assets/images/preview-portraits.svg" alt="Portraitfotografie">
-      <h3>Portraits</h3>
-    </article>
-  </section>
+  <?php if ($photoCategories === []): ?>
+    <p class="panel">Im Fotoarchiv sind noch keine öffentlichen Bilder verfügbar.</p>
+  <?php else: ?>
+    <?php foreach ($photoCategories as $category): ?>
+      <section class="gallery-category" id="ordner-<?= e($category['name']) ?>" aria-labelledby="category-<?= e($category['name']) ?>">
+        <div class="section-head">
+          <h2 id="category-<?= e($category['name']) ?>"><?= e($category['label']) ?></h2>
+          <p><?= count($category['photos']) ?> Bilder</p>
+        </div>
+        <div class="photo-grid">
+          <?php foreach ($category['photos'] as $photo): ?>
+            <figure class="photo-item">
+              <img src="<?= e($photo['url']) ?>" alt="<?= e($photo['alt']) ?>" loading="lazy">
+              <figcaption><?= e($photo['alt']) ?></figcaption>
+            </figure>
+          <?php endforeach; ?>
+        </div>
+      </section>
+    <?php endforeach; ?>
+  <?php endif; ?>
 </main>
 
 <?php require BASE_PATH . '/Components/layout/footer.php'; ?>

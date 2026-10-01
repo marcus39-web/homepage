@@ -73,6 +73,7 @@ function app_env(string $key, string $default = ''): string
 }
 
 load_env_file(BASE_PATH . '/.env');
+require_once BASE_PATH . '/src/PhotoLibrary.php';
 
 /**
  * HTML-sicheres Escaping.

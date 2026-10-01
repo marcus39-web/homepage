@@ -30,7 +30,6 @@ $footerIdAttribute = $footerId !== ''
     <nav aria-label="Social Media">
       <h2>Social Media</h2>
       <a href="#">Instagram</a>
-      <a href="#">GitHub</a>
     </nav>
   </div>
 </footer>

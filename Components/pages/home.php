@@ -2,9 +2,23 @@
 
 declare(strict_types=1);
 
-$pageTitle = 'Marcus Reiser - Fotografie und IT';
-$pageDescription = 'Marcus Reiser aus Weimar/Legefeld - Fotografie, Kalender 2026 und IT-Projekte auf einer modernen Startseite.';
+$pageTitle = 'Marcus Reiser - Fotografie';
+$pageDescription = 'Fotografie aus Weimar und Thüringen, Bildgalerie, Fototassen und Fotokalender von Marcus Reiser.';
 $currentPage = 'home';
+$photoCategories = get_photo_categories();
+$featuredPhoto = null;
+foreach ($photoCategories as $category) {
+  if ($category['name'] !== '07_Blumen') {
+    continue;
+  }
+
+  foreach ($category['photos'] as $photo) {
+    if (strcasecmp($photo['alt'], 'Marcus Sonnenblumen 2') === 0) {
+      $featuredPhoto = $photo;
+      break 2;
+    }
+  }
+}
 
 // Oeffentliche Anzeige: nur Gesamtbesuche im Hero.
 $visitStats = get_visit_stats();
@@ -24,89 +38,70 @@ require BASE_PATH . '/Components/layout/header.php';
     </div>
   </div>
 
-  <div class="hero-media" role="img" aria-label="Blumen als Hintergrundbild">
-    <img src="/public/assets/images/Blumen.jpg" alt="Blumenbild als Hintergrund">
-  </div>
+  <?php if ($featuredPhoto !== null): ?>
+    <div class="hero-media" aria-hidden="true">
+      <img src="<?= e($featuredPhoto['url']) ?>" alt="">
+    </div>
+  <?php endif; ?>
 
   <div class="hero-content wrap">
-    <p class="hero-kicker">Thüringen in Bildern · Projekte · Kalender</p>
-    <h1>Marcus Reiser - Fotografie und IT</h1>
-    <p class="hero-subline">Klar. Modern. Persönlich. Von der Kamera bis zur technischen Umsetzung.</p>
+    <p class="hero-kicker">Fotografie aus Thüringen · Motive für Zuhause</p>
+    <p class="hero-subline">Ausgewählte Motive aus Weimar, Thüringen und darüber hinaus.</p>
     <div class="hero-actions">
       <a class="btn btn-primary" href="/galerie">Fotografie ansehen</a>
-      <a class="btn btn-secondary" href="/kalender">Kalender 2026 bestellen</a>
-      <a class="btn btn-ghost" href="/it-projekte">IT-Projekte</a>
+      <a class="btn btn-secondary" href="#angebote">Angebote entdecken</a>
     </div>
   </div>
 </header>
 
 <main>
   <section class="intro wrap" aria-labelledby="intro-title">
-    <h2 id="intro-title">Willkommen auf meiner Homepage.</h2>
+    <h1 id="intro-title">Fotografie aus Weimar und Thüringen</h1>
     <p>
-      Ich bin Marcus Reiser aus Weimar/Legefeld - Fotograf aus Leidenschaft und IT-Spezialist
-      mit langjähriger Erfahrung in Erwachsenenbildung, Technik und Projekten.
-      Auf dieser Seite findest du meine besten Fotos, meinen jährlichen Fotokalender sowie ausgewählte IT-Projekte.
+      Ich bin Marcus Reiser aus Weimar/Legefeld und Fotograf aus Leidenschaft.
+      Hier findest du ausgewählte Aufnahmen und nach und nach auch Produkte,
+      auf denen meine Motive weiterleben.
     </p>
   </section>
 
   <section class="gallery-preview wrap" id="fotografie" aria-labelledby="galerie-title">
     <div class="section-head">
-      <h2 id="galerie-title">Fotografie-Vorschau</h2>
-      <p>Vier Themen, ein Stil: präzise Bildkompositionen aus Thüringen und darüber hinaus.</p>
+      <h2 id="galerie-title">Ausgewählte Fotografien</h2>
+      <p>Wähle einen Fotoordner aus, um alle Fotografien dieses Themas anzusehen.</p>
     </div>
 
     <div class="gallery-grid">
-      <article class="gallery-card">
-        <img src="/public/assets/images/preview-natur.svg" alt="Natur und Landschaft">
-        <h3>Natur und Landschaft</h3>
-      </article>
-      <article class="gallery-card">
-        <img src="/public/assets/images/preview-architektur.svg" alt="Architektur">
-        <h3>Architektur</h3>
-      </article>
-      <article class="gallery-card">
-        <img src="/public/assets/images/preview-tiere.svg" alt="Tiere">
-        <h3>Tiere</h3>
-      </article>
-      <article class="gallery-card">
-        <img src="/public/assets/images/preview-portraits.svg" alt="Portraits">
-        <h3>Portraits</h3>
-      </article>
-    </div>
-
-    <a class="btn btn-primary" href="/galerie">Zur Galerie</a>
-  </section>
-
-  <section class="calendar-teaser wrap" id="kalender" aria-labelledby="kalender-title">
-    <div class="calendar-text">
-      <h2 id="kalender-title">Fotokalender 2026 - Thüringen in Bildern</h2>
-      <p>
-        12 ausgewählte Motive aus deiner Fotografie.
-        Gedruckt auf hochwertigem Papier, direkt bestellbar.
-      </p>
-      <a class="btn btn-secondary" href="/kalender">Kalender ansehen</a>
-    </div>
-    <div class="calendar-image">
-      <img src="/public/assets/images/calendar-2026.svg" alt="Teaserbild Fotokalender 2026">
+      <?php foreach ($photoCategories as $category): ?>
+        <?php $previewPhoto = $category['photos'][0]; ?>
+        <a class="gallery-card" href="/galerie?ordner=<?= rawurlencode($category['name']) ?>">
+          <img src="<?= e($previewPhoto['url']) ?>" alt="<?= e($previewPhoto['alt']) ?>" loading="lazy">
+          <h3><?= e($category['label']) ?></h3>
+        </a>
+      <?php endforeach; ?>
     </div>
   </section>
 
-  <section class="it-projects wrap" id="it-projekte" aria-labelledby="it-title">
-    <div class="section-head">
-      <h2 id="it-title">IT-Projekte</h2>
-      <p>Praxisnahe Lösungen zwischen Infrastruktur, Workflows und Automationen.</p>
+  <section class="offer-band" id="angebote" aria-labelledby="angebote-title">
+    <div class="wrap">
+      <p class="offer-kicker">Meine Motive zum Mitnehmen</p>
+      <h2 id="angebote-title">Fotografie für deinen Alltag</h2>
+      <div class="offer-grid">
+        <article class="offer-item" id="tassen">
+          <p class="offer-index">01 / Fototassen</p>
+          <h3>Tassen mit meinen Motiven</h3>
+          <p>Ausgewählte Fotografien als Druckmotiv auf einer Tasse. Die Motiv-Auswahl und Bestellmöglichkeiten ergänze ich Schritt für Schritt.</p>
+          <a class="offer-link" href="/contact">Interesse an einer Fototasse?</a>
+        </article>
+        <article class="offer-item" id="fotokalender">
+          <p class="offer-index">02 / Kalender</p>
+          <h3>Mein Fotokalender</h3>
+          <p>Ein Jahr voller ausgewählter Aufnahmen aus Thüringen, zusammengestellt in meinem eigenen Kalender.</p>
+          <a class="offer-link" href="/kalender">Zum Fotokalender</a>
+        </article>
+      </div>
     </div>
-
-    <ul class="project-list">
-      <li>Cloud und Hosting (resier.de / marcusreiser.de)</li>
-      <li>Windows und iPadOS Workflows</li>
-      <li>Fotografie-Automationen</li>
-      <li>Schulungsunterlagen und technische Dokumentation</li>
-    </ul>
-
-    <a class="btn btn-ghost" href="/it-projekte">IT-Projekte ansehen</a>
   </section>
+
 </main>
 
 <?php

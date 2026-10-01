@@ -1,6 +1,6 @@
 # marcusreiser.de
 
-Persoenliche Homepage von Marcus Reiser mit Fokus auf Fotografie und IT.
+Persoenliche Homepage von Marcus Reiser mit Fokus auf Fotografie.
 
 ## Ueberblick
 
@@ -21,9 +21,7 @@ Components/
 	layout/             # Header, Navigation, Footer
 	pages/              # Seiteninhalte (home, galerie, kontakt, ...)
 data/
-	certificates.php    # Zertifikatsdaten
 	profile.php         # Profildaten
-	projects.php        # Projektdaten
 public/
 	assets/images/      # Oeffentlich ausgelieferte Bilder
 	css/style.css       # Zentrales Styling
@@ -64,7 +62,6 @@ Die lokalen Aufrufe funktionieren trotzdem, weil das Routing ueber den Frontcont
 - `GET /galerie` -> Galerie-Seite
 - `GET /kalender` -> Kalender-Seite
 - `POST /kalender-bestellung` -> Verarbeitung Kalender-Bestellung
-- `GET /it-projekte` -> IT-Projekte-Seite
 - `GET /statistik-login` -> Login fuer interne Statistik
 - `POST /statistik-login` -> Login-Verarbeitung
 - `GET /statistik-logout` -> Logout aus Statistikbereich
@@ -102,6 +99,14 @@ Datei:
 - `data/logs/visits.json`
 
 Auf der Startseite wird im Hero dezent `Besucher Gesamt` angezeigt.
+
+## Fotogalerie
+
+Die Galerie liest JPG-, PNG- und WebP-Bilder automatisch aus den Unterordnern des Fotoarchivs.
+Der lokale Standardpfad ist `D:/10_Fotoarchiv/Canon_R10_Bilder/01_Bibiothek_JPG` und kann mit `PHOTO_LIBRARY_PATH` in `.env` überschrieben werden.
+Neue öffentliche Themenordner, zum Beispiel ein Weihnachtsmarkt-Ordner, erscheinen automatisch, sobald sie Bilder enthalten.
+Ordner mit `Privat` im Namen werden weder angezeigt noch über den Bild-Endpunkt ausgeliefert.
+Für den Live-Betrieb muss das Archiv auf dem Webserver verfügbar sein; alternativ ist `PHOTO_LIBRARY_PATH` dort auf einen eingebundenen Ordner zu setzen.
 
 ## Kalender-Bestellungen
 
@@ -144,5 +149,4 @@ Ablauf:
 - Intro-Abschnitt
 - Fotografie-Vorschau
 - Kalender-Teaser
-- IT-Projekte-Teaser
 - Footer mit Kontakt- und Rechtliches-Links

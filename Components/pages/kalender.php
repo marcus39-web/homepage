@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-$pageTitle = 'Kalender 2026 - Marcus Reiser';
-$pageDescription = 'Fotokalender 2026 von Marcus Reiser mit Motiven aus Thüringen.';
+$pageTitle = 'Kalender 2027 - Marcus Reiser';
+$pageDescription = 'Fotokalender 2027 von Marcus Reiser mit Motiven aus Thüringen.';
 $bodyClass = 'subpage';
 $currentPage = 'kalender';
 
@@ -23,7 +23,7 @@ require BASE_PATH . '/Components/layout/header.php';
 <main class="subpage-main wrap">
   <section class="subpage-head panel">
     <p class="eyebrow-lite">Fotokalender</p>
-    <h1>Kalender 2026 - Thüringen in Bildern</h1>
+    <h1>Kalender 2027 - Thüringen in Bildern</h1>
     <p>12 ausgewählte Motive aus deiner Fotografie. Hochwertiger Druck, ideal als Geschenk oder für Zuhause.</p>
     <div class="hero-actions">
       <a class="btn btn-secondary" href="#bestellen">Jetzt bestellen</a>
@@ -40,9 +40,6 @@ require BASE_PATH . '/Components/layout/header.php';
         <li>Hochwertiges Papier mit starker Farbwiedergabe</li>
         <li>Direkte Bestellung per Kontaktanfrage</li>
       </ul>
-    </div>
-    <div class="calendar-image">
-      <img src="/public/assets/images/calendar-2026.svg" alt="Kalender 2026 Vorschau">
     </div>
   </section>
 

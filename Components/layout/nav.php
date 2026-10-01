@@ -11,11 +11,15 @@ $isHomeHero = $navContext === 'hero';
 <nav class="site-nav wrap" aria-label="Hauptnavigation">
   <div class="brand-block">
     <!-- Im Hero springt die Marke zum Seitenanfang, sonst zur Startseite. -->
-    <a class="brand" href="<?= $isHomeHero ? '#top' : '/' ?>">Marcus Reiser</a>
-    <?php if ($isHomeHero): ?>
-      <!-- Profilbild wird nur im Hero-Kontext angezeigt. -->
-      <img class="brand-avatar" src="/public/assets/images/profilbild_neu_freigestellt.png" alt="Freigestelltes Profilbild von Marcus Reiser">
-    <?php endif; ?>
+    <a class="brand" href="<?= $isHomeHero ? '#top' : '/' ?>">
+      <?php if ($isHomeHero): ?>
+        <span class="brand-logo-crop">
+          <img class="brand-logo" src="/public/assets/images/marcus-reiser-logo.png" alt="Marcus Reiser Fotografie">
+        </span>
+      <?php else: ?>
+        Marcus Reiser
+      <?php endif; ?>
+    </a>
   </div>
   <div class="site-nav-links">
     <?php if (!$isHomeHero): ?>
@@ -26,15 +30,13 @@ $isHomeHero = $navContext === 'hero';
       <a href="/galerie">Fotografie</a>
     <?php endif; ?>
 
+    <a href="/#tassen">Tassen</a>
+
     <?php if ($currentPage !== 'kalender'): ?>
-      <a href="/kalender">Kalender 2026</a>
+      <a href="/kalender">Kalender</a>
     <?php endif; ?>
 
-    <?php if ($currentPage !== 'it-projekte'): ?>
-      <a href="/it-projekte">IT-Projekte</a>
-    <?php endif; ?>
-
-    <?php if (is_stats_authenticated()): ?>
+      <?php if (is_stats_authenticated()): ?>
       <a href="/statistik">Statistik</a>
       <a href="/statistik-logout">Logout</a>
     <?php endif; ?>
