@@ -19,12 +19,19 @@ require BASE_PATH . '/Components/layout/header.php';
 <main class="subpage-main wrap">
   <section class="panel legal-block">
     <h1>Impressum</h1>
-    <p>Diese Vorlage bitte mit deinen verbindlichen Impressumsdaten ergänzen.</p>
-    <p>
+    <h2>Angaben gemäß § 5 DDG</h2>
+    <address>
       Marcus Reiser<br>
-      Weimar / Legefeld<br>
-      E-Mail: info@marcusreiser.de
-    </p>
+      Lerchenweg 16<br>
+      99428 Weimar-Legefeld
+    </address>
+
+    <h2>Kontakt</h2>
+    <p>E-Mail: <a href="mailto:info@marcusreiser.de">info@marcusreiser.de</a></p>
+
+    <h2>Verantwortlich für den Inhalt</h2>
+    <p>Marcus Reiser, Anschrift wie oben.</p>
+
     <a class="btn btn-primary" href="/">Zur Startseite</a>
   </section>
 </main>
