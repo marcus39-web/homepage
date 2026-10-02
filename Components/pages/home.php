@@ -40,7 +40,7 @@ require BASE_PATH . '/Components/layout/header.php';
 
   <?php if ($featuredPhoto !== null): ?>
     <div class="hero-media">
-      <img src="<?= e($featuredPhoto['url']) ?>" alt="">
+      <img src="<?= e(photo_library_image_variant_url($featuredPhoto['url'], 'gallery')) ?>" alt="">
       <a class="hero-logo" href="#top" aria-label="Marcus Reiser Fotografie, Seitenanfang">
         <img src="/public/assets/images/marcus-reiser-logo.png" alt="">
       </a>
@@ -77,7 +77,7 @@ require BASE_PATH . '/Components/layout/header.php';
       <?php foreach ($photoCategories as $category): ?>
         <?php $previewPhoto = $category['photos'][0]; ?>
         <a class="gallery-card" href="/galerie?ordner=<?= rawurlencode($category['name']) ?>">
-          <img src="<?= e($previewPhoto['url']) ?>" alt="<?= e($previewPhoto['alt']) ?>" loading="lazy">
+          <img src="<?= e(photo_library_image_variant_url($previewPhoto['url'], 'preview')) ?>" alt="<?= e($previewPhoto['alt']) ?>" loading="lazy">
           <h3><?= e($category['label']) ?></h3>
         </a>
       <?php endforeach; ?>

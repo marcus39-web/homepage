@@ -129,7 +129,7 @@ require BASE_PATH . '/Components/layout/header.php';
       <section class="folder-grid" aria-label="Unterordner in <?= e($selectedCategory['label']) ?>">
         <?php foreach ($subfolders as $subfolder): ?>
           <a class="folder-card" href="/galerie?<?= e(http_build_query(['ordner' => $selectedCategory['name'], 'unterordner' => $subfolder['path']])) ?>">
-            <img class="folder-card-image" src="<?= e($subfolder['preview']['url']) ?>" alt="" loading="lazy">
+            <img class="folder-card-image" src="<?= e(photo_library_image_variant_url($subfolder['preview']['url'], 'preview')) ?>" alt="" loading="lazy">
             <h3><?= e($subfolder['name']) ?></h3>
             <p class="folder-count"><?= (int) $subfolder['count'] ?> <?= $subfolder['count'] === 1 ? 'Bild' : 'Bilder' ?></p>
           </a>
@@ -141,7 +141,7 @@ require BASE_PATH . '/Components/layout/header.php';
       <section class="photo-grid" aria-label="Fotografien aus <?= e($selectedSubfolder !== '' ? basename($selectedSubfolder) : $selectedCategory['label']) ?>">
         <?php foreach ($visiblePhotos as $photo): ?>
           <figure class="photo-item">
-            <img src="<?= e($photo['url']) ?>" alt="<?= e($photo['alt']) ?>" loading="lazy">
+            <img src="<?= e(photo_library_image_variant_url($photo['url'], 'gallery')) ?>" alt="<?= e($photo['alt']) ?>" loading="lazy">
             <figcaption><?= e($photo['alt']) ?></figcaption>
           </figure>
         <?php endforeach; ?>
@@ -161,7 +161,7 @@ require BASE_PATH . '/Components/layout/header.php';
         <div class="photo-grid">
           <?php foreach ($category['photos'] as $photo): ?>
             <figure class="photo-item">
-              <img src="<?= e($photo['url']) ?>" alt="<?= e($photo['alt']) ?>" loading="lazy">
+              <img src="<?= e(photo_library_image_variant_url($photo['url'], 'gallery')) ?>" alt="<?= e($photo['alt']) ?>" loading="lazy">
               <figcaption><?= e($photo['alt']) ?></figcaption>
             </figure>
           <?php endforeach; ?>

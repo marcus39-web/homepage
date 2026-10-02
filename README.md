@@ -83,6 +83,17 @@ Ordner oder Unterordner, deren Name `Privat` enthaelt, werden sowohl beim Scanne
 
 `data/` wird durch `.htaccess` gegen direkten HTTP-Zugriff gesperrt. Bilder aus `data/photos/` werden daher ausschliesslich durch `public/photo.php` ausgeliefert. Der Endpunkt erlaubt nur die unterstuetzten Bildtypen und blockiert private Ordner sowie Pfad-Traversal.
 
+### Optimierte Web-Fotos
+
+Die Druck-Originale bleiben unveraendert. Vor dem Deployment erzeugt Pillow WebP-Dateien: Vorschauen sind auf maximal 800 Pixel bei Qualitaet 78 begrenzt, Galerie- und Titelbilder auf maximal 1800 Pixel bei Qualitaet 82.
+
+```powershell
+python -m pip install Pillow
+python tools/generate_photo_variants.py --source "D:\10_Fotoarchiv\Canon_R10_Bilder\01_Bibiothek_JPG"
+```
+
+Die Varianten landen unter `data/photo-cache/`. Lade diesen Ordner zusammen mit den benoetigten Originalen nach `data/` auf den Webspace. Fehlt eine Variante, liefert `public/photo.php` weiterhin das Original aus; fuer die Ladezeit-Optimierung muessen die erzeugten Cache-Dateien daher mit deployed werden. Einzelne Bilder lassen sich zum Test mit `--match Marcus_Sonnenblumen_2.JPG` verarbeiten.
+
 ## Formulare und gespeicherte Daten
 
 Kontakt- und Kalenderformulare verwenden CSRF-Token, serverseitige Validierung und ein Honeypot-Feld. Kontaktanfragen werden lokal in `data/messages/contact.log` protokolliert; Kalenderbestellungen werden zeilenweise als JSON in `data/messages/orders.log` gespeichert. Der Kontakt-Mailversand ueber `mail()` ist best effort; das lokale Log ist die dauerhafte Speicherung.
@@ -110,9 +121,10 @@ Die Testdomain ist `fotografie.marcusreiser.de`; das Webroot soll im WCP auf `ht
 2. Den Inhalt des Projekts nach `httpdocs/R10/` hochladen. `index.php`, `bootstrap.php`, `.htaccess`, `Components/`, `src/`, `public/` und benoetigte Dateien unter `data/` muessen an dieser Ebene liegen.
 3. `public/css/style.css`, `public/photo.php` und `public/assets/images/marcus-reiser-logo.png` in ihrer Projektstruktur belassen.
 4. Ausgewaehlte, oeffentliche Foto-Kategorien nach `R10/data/photos/` hochladen. Das Windows-Laufwerk `D:` ist vom Webserver nicht erreichbar.
-5. Eine Server-`.env` mit eigenem Statistikpasswort anlegen; lokale `.env`, `.git/`, `zugangslink.txt` und private Bilder nicht hochladen.
-6. Pruefen, dass `data/logs/` und `data/messages/` durch PHP beschreibbar sind. Keine pauschalen `777`-Rechte vergeben.
-7. In einem privaten Browserfenster `https://fotografie.marcusreiser.de/` oeffnen, den WCP-Zugang testen und Galerie, Unterordner, Kontaktformular sowie Kalenderseite pruefen.
+5. Mit `python tools/generate_photo_variants.py --source "D:\10_Fotoarchiv\Canon_R10_Bilder\01_Bibiothek_JPG"` die WebP-Varianten erstellen und `R10/data/photo-cache/` ebenfalls hochladen.
+6. Eine Server-`.env` mit eigenem Statistikpasswort anlegen; lokale `.env`, `.git/`, `zugangslink.txt` und private Bilder nicht hochladen.
+7. Pruefen, dass `data/logs/` und `data/messages/` durch PHP beschreibbar sind. Keine pauschalen `777`-Rechte vergeben.
+8. In einem privaten Browserfenster `https://fotografie.marcusreiser.de/` oeffnen, den WCP-Zugang testen und Galerie, Unterordner, Kontaktformular sowie Kalenderseite pruefen.
 
 Wenn Kategorien erscheinen, Bilder aber fehlen, zuerst die PHP-Fehlerprotokolle im WCP sowie die Aktualitaet von `src/PhotoLibrary.php` und `public/photo.php` pruefen. Ein HTTP-500 nach Klick auf einen Unterordner deutet typischerweise auf nicht zusammenpassende Versionen von `Components/pages/galerie.php` und `src/PhotoLibrary.php` hin.
 

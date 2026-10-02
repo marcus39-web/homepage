@@ -49,6 +49,15 @@ function photo_library_image_url(string $category, string $relativePath): string
 	]);
 }
 
+function photo_library_image_variant_url(string $url, string $variant): string
+{
+	if (!in_array($variant, ['preview', 'gallery'], true)) {
+		return $url;
+	}
+
+	return $url . '&variant=' . rawurlencode($variant);
+}
+
 /**
  * @return array<int, array{name: string, label: string, photos: array<int, array{url: string, alt: string, path: string}>}>
  */
