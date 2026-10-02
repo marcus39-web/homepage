@@ -9,18 +9,11 @@ $navContext = isset($navContext) && is_string($navContext) ? $navContext : 'subp
 $isHomeHero = $navContext === 'hero';
 ?>
 <nav class="site-nav wrap" aria-label="Hauptnavigation">
-  <div class="brand-block">
-    <!-- Im Hero springt die Marke zum Seitenanfang, sonst zur Startseite. -->
-    <a class="brand" href="<?= $isHomeHero ? '#top' : '/' ?>">
-      <?php if ($isHomeHero): ?>
-        <span class="brand-logo-crop">
-          <img class="brand-logo" src="/public/assets/images/marcus-reiser-logo.png" alt="Marcus Reiser Fotografie">
-        </span>
-      <?php else: ?>
-        Marcus Reiser
-      <?php endif; ?>
-    </a>
-  </div>
+  <?php if (!$isHomeHero): ?>
+    <div class="brand-block">
+      <a class="brand" href="/">Marcus Reiser</a>
+    </div>
+  <?php endif; ?>
   <div class="site-nav-links">
     <?php if (!$isHomeHero): ?>
       <a href="/">Start</a>

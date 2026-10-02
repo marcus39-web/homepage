@@ -39,8 +39,11 @@ require BASE_PATH . '/Components/layout/header.php';
   </div>
 
   <?php if ($featuredPhoto !== null): ?>
-    <div class="hero-media" aria-hidden="true">
+    <div class="hero-media">
       <img src="<?= e($featuredPhoto['url']) ?>" alt="">
+      <a class="hero-logo" href="#top" aria-label="Marcus Reiser Fotografie, Seitenanfang">
+        <img src="/public/assets/images/marcus-reiser-logo.png" alt="">
+      </a>
     </div>
   <?php endif; ?>
 

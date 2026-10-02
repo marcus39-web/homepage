@@ -4,13 +4,25 @@ declare(strict_types=1);
 
 function photo_library_root(): ?string
 {
-	$configuredPath = app_env(
-		'PHOTO_LIBRARY_PATH',
-		'D:/10_Fotoarchiv/Canon_R10_Bilder/01_Bibiothek_JPG'
-	);
-	$root = realpath($configuredPath);
+	// Lokale/Server-Konfiguration hat Vorrang; data/photos ist der portable Webspace-Fallback.
+	$paths = [
+		app_env('PHOTO_LIBRARY_PATH'),
+		DATA_PATH . '/photos',
+		'D:/10_Fotoarchiv/Canon_R10_Bilder/01_Bibiothek_JPG',
+	];
 
-	return $root !== false && is_dir($root) ? $root : null;
+	foreach (array_unique($paths) as $path) {
+		if ($path === '') {
+			continue;
+		}
+
+		$root = realpath($path);
+		if ($root !== false && is_dir($root)) {
+			return $root;
+		}
+	}
+
+	return null;
 }
 
 function photo_library_is_private(string $name): bool
@@ -20,7 +32,8 @@ function photo_library_is_private(string $name): bool
 
 function photo_library_is_excluded_category(string $name): bool
 {
-	return photo_library_is_private($name) || preg_match('/^\d+[._-]*web$/i', $name) === 1;
+	// Private und reine Web-Asset-Ordner dürfen nie als Fotokategorien erscheinen.
+	return photo_library_is_private($name) || preg_match('/^\d+(?:[._-]\d+)*[._-]*web$/i', $name) === 1;
 }
 
 function photo_library_is_supported_file(string $path): bool
@@ -37,7 +50,7 @@ function photo_library_image_url(string $category, string $relativePath): string
 }
 
 /**
- * @return array<int, array{name: string, label: string, photos: array<int, array{url: string, alt: string}>}>
+ * @return array<int, array{name: string, label: string, photos: array<int, array{url: string, alt: string, path: string}>}>
  */
 function get_photo_categories(): array
 {
@@ -62,6 +75,7 @@ function get_photo_categories(): array
 		}
 
 		$directory = new RecursiveDirectoryIterator($categoryRoot, FilesystemIterator::SKIP_DOTS);
+		// Unterordner werden durchsucht, private Zweige aber schon vor dem Traversieren entfernt.
 		$filtered = new RecursiveCallbackFilterIterator(
 			$directory,
 			static fn (SplFileInfo $item): bool => !$item->isDir() || !photo_library_is_private($item->getFilename())
@@ -88,6 +102,7 @@ function get_photo_categories(): array
 			$photos[] = [
 				'url' => photo_library_image_url($categoryName, $relativePath),
 				'alt' => trim(str_replace(['_', '-'], ' ', $imageName)),
+				'path' => $relativePath,
 			];
 		}
 

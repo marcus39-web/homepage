@@ -1,5 +1,12 @@
 RewriteEngine On
 
+# Interne Dateien und Verzeichnisse im Projekt-Webroot nie direkt ausliefern.
+<FilesMatch "^(?:\.env(?:\..*)?|\.gitignore|\.htaccess|bootstrap\.php|README\.md|LICENSE|RELEASE_CHECKLIST\.md|zugangslink\.txt)$">
+	Require all denied
+</FilesMatch>
+
+RewriteRule (^|/)(?:\.git(?:/|$)|data(?:/|$)|src(?:/|$)|Components(?:/|$)|tools(?:/|$)) - [F,L,NC]
+
 # Kanonische URL: .php-Aufrufe dauerhaft auf saubere URLs ohne Endung umleiten.
 RewriteCond %{THE_REQUEST} \s/+index\.php(?:[\s?]|$) [NC]
 RewriteRule ^index\.php$ / [R=301,L]

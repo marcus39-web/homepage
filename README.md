@@ -1,152 +1,125 @@
 # marcusreiser.de
 
-Persoenliche Homepage von Marcus Reiser mit Fokus auf Fotografie.
+Persoenliche Fotografie-Website von Marcus Reiser aus Weimar/Legefeld. Die Website praesentiert eine automatisch gepflegte Fotogalerie und bereitet Angebote fuer Fototassen und einen eigenen Fotokalender vor.
 
-## Ueberblick
+## Aufbau
 
-Das Projekt nutzt einen schlanken PHP-Frontcontroller mit wiederverwendbaren Layout-Komponenten.
-Alle Seiten werden zentral ueber `index.php` geroutet und ueber Dateien in `Components/pages` gerendert.
+Die Anwendung ist eine klassische PHP-Website ohne Build-Schritt. `index.php` ist der Frontcontroller: Er behandelt POST-Aktionen, prueft geschuetzte Statistikseiten, zaehlt Seitenaufrufe und laedt das passende Template aus `Components/pages/`. Gemeinsamer HTML-Rahmen und Navigation liegen in `Components/layout/`; das zentrale Styling ist `public/css/style.css`.
 
-## Technologie
+| Pfad | Zweck |
+| --- | --- |
+| `index.php` | Frontcontroller und URL-Routing |
+| `bootstrap.php` | Sitzungen, ENV-Konfiguration und gemeinsame Helfer |
+| `Components/pages/` | Startseite, Galerie, Kalender, Kontakt und Rechtliches |
+| `Components/layout/` | Header, Navigation und Footer |
+| `src/PhotoLibrary.php` | Fotoquellen, Kategorien, Dateipfade und Ausschlussregeln |
+| `public/photo.php` | Sicherer Bild-Endpunkt fuer private Fotoablage |
+| `public/css/style.css` | Layout und responsive Gestaltung |
+| `public/assets/images/` | Oeffentliche Web-Assets, darunter das Logo |
+| `data/photos/` | Optionale Fotoquelle auf dem Webspace |
+| `data/logs/`, `data/messages/` | Besuchsstatistik, Kontaktanfragen und Bestellungen |
+| `.htaccess` | Clean URLs sowie Sperre interner Dateien/Verzeichnisse |
 
-- PHP 8+
-- Klassisches CSS (ohne Build-Tool)
-- Apache-Rewrite-Regeln fuer Clean URLs im Live-Betrieb
+## Voraussetzungen
 
-## Projektstruktur
+- PHP 8.1 oder neuer
+- Apache mit `mod_rewrite` fuer den Produktivbetrieb
+- Schreibrechte fuer `data/logs/` und `data/messages/`
 
-```text
-Components/
-	images/             # Quellbilder
-	layout/             # Header, Navigation, Footer
-	pages/              # Seiteninhalte (home, galerie, kontakt, ...)
-data/
-	profile.php         # Profildaten
-public/
-	assets/images/      # Oeffentlich ausgelieferte Bilder
-	css/style.css       # Zentrales Styling
-src/
-	Router.php          # Router-Helfer
-	View.php            # View-Helfer
-tools/
-	generate_access_link.php
-bootstrap.php         # Initialisierung + Form-Helfer
-index.php             # Frontcontroller
-.htaccess             # Rewrite/Clean-URL-Regeln fuer Apache
-```
+## Lokal starten
 
-## Lokale Entwicklung
-
-### Voraussetzungen
-
-- Installiertes PHP (empfohlen 8.1+)
-
-### Starten
+Im Projektverzeichnis ausfuehren:
 
 ```powershell
 php -S 127.0.0.1:8000 -t .
 ```
 
-Danach im Browser aufrufen:
+Anschliessend `http://127.0.0.1:8000/` im Browser oeffnen. Der eingebaute PHP-Server liest `.htaccess` nicht, statische Dateien und Foto-Routen werden deshalb zusaetzlich in `index.php` behandelt.
 
-- http://127.0.0.1:8000/
+## URLs und Funktionen
 
-### Wichtiger Hinweis zu Clean URLs lokal
+| Methode und URL | Funktion |
+| --- | --- |
+| `GET /` | Startseite und Ordner-Vorschauen |
+| `GET /galerie` | Alle Kategorien und deren Unterordner |
+| `GET /galerie?ordner=07_Blumen` | Nur die gewaehlte Kategorie |
+| `GET /galerie?ordner=05_Weimar_und_Umgebung&unterordner=Tiefurt` | Einen Unterordner anzeigen; verschachtelte Pfade werden ebenfalls unterstuetzt |
+| `GET /public/photo.php?category=...&file=...` | Bildauslieferung nach Pfad- und Dateityppruefung |
+| `GET /kalender` | Kalenderinformationen und Bestellformular |
+| `POST /kalender-bestellung` | Kalenderbestellung speichern |
+| `GET /contact`, `POST /contact` | Kontaktformular und Verarbeitung |
+| `GET /statistik-login`, `POST /statistik-login` | Anmeldung zum Statistikbereich |
+| `GET /statistik` | Passwortgeschuetzte Besucher- und Bestellstatistik |
+| `GET /statistik-logout` | Statistik abmelden |
+| `GET /impressum`, `GET /datenschutz` | Rechtliche Informationsseiten |
 
-Der eingebaute PHP-Server (`php -S`) wertet `.htaccess` nicht aus.
-Die lokalen Aufrufe funktionieren trotzdem, weil das Routing ueber den Frontcontroller in `index.php` erfolgt.
+## Fotogalerie und Bildablage
 
-## Routing
+Der Scanner sucht die Fotoquelle in dieser Reihenfolge:
 
-- `GET /` -> Startseite
-- `GET /galerie` -> Galerie-Seite
-- `GET /kalender` -> Kalender-Seite
-- `POST /kalender-bestellung` -> Verarbeitung Kalender-Bestellung
-- `GET /statistik-login` -> Login fuer interne Statistik
-- `POST /statistik-login` -> Login-Verarbeitung
-- `GET /statistik-logout` -> Logout aus Statistikbereich
-- `GET /statistik` -> Interne Statistik (passwortgeschuetzt)
-- `GET /contact` -> Kontaktformular
-- `POST /contact` -> Verarbeitung des Kontaktformulars
-- `GET /impressum` -> Impressum
-- `GET /datenschutz` -> Datenschutz
+1. Der in `.env` konfigurierte Pfad `PHOTO_LIBRARY_PATH`, sofern er existiert.
+2. `data/photos/` relativ zum Projektstamm. Dieser Pfad ist fuer den Webspace vorgesehen.
+3. Das lokale Standardarchiv `D:/10_Fotoarchiv/Canon_R10_Bilder/01_Bibiothek_JPG`.
 
-## Kontaktformular
+Die Kategorien sind direkte Unterordner der Quelle. Beispiel fuer netcup:
 
-Das Formular ist in `Components/pages/contact.php` eingebunden.
-Die Verarbeitung erfolgt zentral in `bootstrap.php`.
+```text
+R10/
+└── data/
+    └── photos/
+        ├── 01_Gebaeude/
+        │   └── Altstadt/Fassaden/Bild_01.JPG
+        ├── 05_Weimar_und_Umgebung/
+        │   └── Tiefurt/Ilm/Foto.JPG
+        ├── 07_Blumen/
+        │   └── Sonnenblumen/Legefeld/Foto.JPG
+        └── 11_Weihnachten/
+            └── Weihnachtsmarkt/Markt_01.JPG
+```
 
-Umgesetzte Schutzmechanismen:
+Unterordner werden rekursiv gelesen. In der Galerie werden sie zuerst als Ordnerkarten angeboten; nach Auswahl erscheint nur der ausgewaehlte Zweig. Unterstuetzte Formate sind `.jpg`, `.jpeg`, `.png` und `.webp`. Leere Kategorien erscheinen nicht.
 
-- CSRF-Token
-- Honeypot-Feld
-- Serverseitige Validierung
-- Flash-Messages fuer Erfolg/Fehler
-- Speicherung der Nachrichten in `data/messages/contact.log`
+Ordner oder Unterordner, deren Name `Privat` enthaelt, werden sowohl beim Scannen als auch beim Bildabruf ausgeschlossen. Reine Web-Ordner mit nummeriertem Namen und `Web` am Ende, zum Beispiel `20.02_Web`, werden nicht als Fotokategorien angezeigt. Lade nur Bilder hoch, die du auf der Website veroeffentlichen darfst; insbesondere keine RAW-Dateien, Zeugnisse, Passbilder oder privaten Aufnahmen.
 
-## Besucherzaehler
+`data/` wird durch `.htaccess` gegen direkten HTTP-Zugriff gesperrt. Bilder aus `data/photos/` werden daher ausschliesslich durch `public/photo.php` ausgeliefert. Der Endpunkt erlaubt nur die unterstuetzten Bildtypen und blockiert private Ordner sowie Pfad-Traversal.
 
-Der Besucherzaehler wird serverseitig bei erfolgreichen `GET`-Aufrufen aktualisiert.
-Gespeichert werden:
+## Formulare und gespeicherte Daten
 
-- Gesamtbesuche
-- Besuche pro Pfad
-- Tagesbesuche
-- Eindeutige Tagesbesuche je Session
+Kontakt- und Kalenderformulare verwenden CSRF-Token, serverseitige Validierung und ein Honeypot-Feld. Kontaktanfragen werden lokal in `data/messages/contact.log` protokolliert; Kalenderbestellungen werden zeilenweise als JSON in `data/messages/orders.log` gespeichert. Der Kontakt-Mailversand ueber `mail()` ist best effort; das lokale Log ist die dauerhafte Speicherung.
 
-Datei:
+Der Besucherzaehler speichert Gesamt-, Pfad-, Tages- und Session-Tageswerte in `data/logs/visits.json`. Die Startseite zeigt die Gesamtbesuche. Die interne Statistik zeigt Besuchszahlen und Kalenderbestellungen.
 
-- `data/logs/visits.json`
+## Konfiguration und Geheimnisse
 
-Auf der Startseite wird im Hero dezent `Besucher Gesamt` angezeigt.
+`.env.example` enthaelt nur Beispielwerte. Kopiere sie lokal zu `.env` und setze eigene Werte. `.env` ist in `.gitignore` ausgeschlossen und darf nicht in Git eingecheckt oder zusammen mit Website-Dateien hochgeladen werden.
 
-## Fotogalerie
+| Variable | Zweck |
+| --- | --- |
+| `APP_ENV` | Laufzeitumgebung, lokal beispielsweise `development`, produktiv `production` |
+| `APP_NAME` | Anwendungsname |
+| `STATS_PASSWORD` | Passwort fuer den internen Statistikbereich; nicht fuer den WCP-Verzeichnisschutz verwenden |
+| `PHOTO_LIBRARY_PATH` | Optionaler absoluter Pfad zur Fotoquelle; auf netcup leer lassen, um `data/photos/` zu verwenden |
 
-Die Galerie liest JPG-, PNG- und WebP-Bilder automatisch aus den Unterordnern des Fotoarchivs.
-Der lokale Standardpfad ist `D:/10_Fotoarchiv/Canon_R10_Bilder/01_Bibiothek_JPG` und kann mit `PHOTO_LIBRARY_PATH` in `.env` überschrieben werden.
-Neue öffentliche Themenordner, zum Beispiel ein Weihnachtsmarkt-Ordner, erscheinen automatisch, sobald sie Bilder enthalten.
-Ordner mit `Privat` im Namen werden weder angezeigt noch über den Bild-Endpunkt ausgeliefert.
-Für den Live-Betrieb muss das Archiv auf dem Webserver verfügbar sein; alternativ ist `PHOTO_LIBRARY_PATH` dort auf einen eingebundenen Ordner zu setzen.
+Fuer den Webspace bei Bedarf eine eigene `.env` in `R10/` ueber den Dateimanager anlegen. Dort ein neues, starkes `STATS_PASSWORD` setzen. Der separate Passwortschutz fuer die gesamte Testseite wird im netcup WCP verwaltet.
 
-## Kalender-Bestellungen
+## Auf netcup testen
 
-Die Kalenderseite enthaelt ein eigenes Bestellformular mit CSRF-, Honeypot- und Pflichtfeldpruefung.
-Bestellungen werden als JSON-Zeilen gespeichert in:
+Die Testdomain ist `fotografie.marcusreiser.de`; das Webroot soll im WCP auf `httpdocs/R10` zeigen. Bei diesem Document Root wird die Website unter `https://fotografie.marcusreiser.de/` geoeffnet, nicht unter `/R10/`.
 
-- `data/messages/orders.log`
+1. Im WCP den Verzeichnisschutz fuer den Webroot der Testdomain aktivieren und separat einen Benutzer anlegen.
+2. Den Inhalt des Projekts nach `httpdocs/R10/` hochladen. `index.php`, `bootstrap.php`, `.htaccess`, `Components/`, `src/`, `public/` und benoetigte Dateien unter `data/` muessen an dieser Ebene liegen.
+3. `public/css/style.css`, `public/photo.php` und `public/assets/images/marcus-reiser-logo.png` in ihrer Projektstruktur belassen.
+4. Ausgewaehlte, oeffentliche Foto-Kategorien nach `R10/data/photos/` hochladen. Das Windows-Laufwerk `D:` ist vom Webserver nicht erreichbar.
+5. Eine Server-`.env` mit eigenem Statistikpasswort anlegen; lokale `.env`, `.git/`, `zugangslink.txt` und private Bilder nicht hochladen.
+6. Pruefen, dass `data/logs/` und `data/messages/` durch PHP beschreibbar sind. Keine pauschalen `777`-Rechte vergeben.
+7. In einem privaten Browserfenster `https://fotografie.marcusreiser.de/` oeffnen, den WCP-Zugang testen und Galerie, Unterordner, Kontaktformular sowie Kalenderseite pruefen.
 
-In der internen Statistik kannst du sehen, wie viele Bestellungen eingegangen sind und von wem (Name/E-Mail/Menge/Nachricht).
+Wenn Kategorien erscheinen, Bilder aber fehlen, zuerst die PHP-Fehlerprotokolle im WCP sowie die Aktualitaet von `src/PhotoLibrary.php` und `public/photo.php` pruefen. Ein HTTP-500 nach Klick auf einen Unterordner deutet typischerweise auf nicht zusammenpassende Versionen von `Components/pages/galerie.php` und `src/PhotoLibrary.php` hin.
 
-## Interne Statistik (passwortgeschuetzt)
+## Vor der Veroeffentlichung
 
-Die Seite `/statistik` ist nur nach Login erreichbar.
-Das Passwort wird nicht im Code hinterlegt, sondern ueber ENV gesetzt:
-
-- `STATS_PASSWORD` in `.env`
-
-Ablauf:
-
-- Nicht eingeloggte Nutzer werden auf `/statistik-login` umgeleitet
-- Erfolgreicher Login setzt eine Session-Authentifizierung
-- Logout erfolgt ueber `/statistik-logout`
-
-## Konfiguration
-
-- `.env.example` enthaelt Beispielwerte
-- `.env` ist fuer lokale Werte vorgesehen und per `.gitignore` ausgeschlossen
-- `STATS_PASSWORD` steuert den Zugriff auf die interne Statistik
-
-## Deployment-Hinweise
-
-- Zielserver sollte Apache mit `mod_rewrite` nutzen
-- `DocumentRoot` auf das Projektverzeichnis setzen
-- Schreibrechte fuer `data/messages/` sicherstellen
-- In Produktion `APP_ENV=production` setzen
-
-## Inhaltliche Schwerpunkte der Startseite
-
-- Hero mit Hintergrundbild und Profilbild
-- Intro-Abschnitt
-- Fotografie-Vorschau
-- Kalender-Teaser
-- Footer mit Kontakt- und Rechtliches-Links
+- Impressum und Datenschutzerklaerung mit den endgueltigen Angaben vervollstaendigen.
+- Alle Galerie-, Unterordner-, Kontakt- und Bestellwege testen.
+- Sicherstellen, dass keine privaten Aufnahmen im Fotoverzeichnis liegen.
+- WCP-Testschutz entfernen oder passend anpassen, wenn die Website oeffentlich gehen soll.
+- In netcup-Logs nach PHP-Fehlern sehen und Schreibrechte fuer Datenordner pruefen.
