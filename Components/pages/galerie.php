@@ -141,7 +141,9 @@ require BASE_PATH . '/Components/layout/header.php';
       <section class="photo-grid" aria-label="Fotografien aus <?= e($selectedSubfolder !== '' ? basename($selectedSubfolder) : $selectedCategory['label']) ?>">
         <?php foreach ($visiblePhotos as $photo): ?>
           <figure class="photo-item">
-            <img src="<?= e(photo_library_image_variant_url($photo['url'], 'gallery')) ?>" alt="<?= e($photo['alt']) ?>" loading="lazy">
+            <button class="photo-open" type="button" data-full-image="<?= e($photo['url']) ?>" data-image-alt="<?= e($photo['alt']) ?>" aria-label="Bild vergrößern: <?= e($photo['alt']) ?>">
+              <img src="<?= e(photo_library_image_variant_url($photo['url'], 'gallery')) ?>" alt="" loading="lazy">
+            </button>
             <figcaption><?= e($photo['alt']) ?></figcaption>
           </figure>
         <?php endforeach; ?>
@@ -161,7 +163,9 @@ require BASE_PATH . '/Components/layout/header.php';
         <div class="photo-grid">
           <?php foreach ($category['photos'] as $photo): ?>
             <figure class="photo-item">
-              <img src="<?= e(photo_library_image_variant_url($photo['url'], 'gallery')) ?>" alt="<?= e($photo['alt']) ?>" loading="lazy">
+              <button class="photo-open" type="button" data-full-image="<?= e($photo['url']) ?>" data-image-alt="<?= e($photo['alt']) ?>" aria-label="Bild vergrößern: <?= e($photo['alt']) ?>">
+                <img src="<?= e(photo_library_image_variant_url($photo['url'], 'gallery')) ?>" alt="" loading="lazy">
+              </button>
               <figcaption><?= e($photo['alt']) ?></figcaption>
             </figure>
           <?php endforeach; ?>
@@ -170,5 +174,11 @@ require BASE_PATH . '/Components/layout/header.php';
     <?php endforeach; ?>
   <?php endif; ?>
 </main>
+
+<dialog class="photo-lightbox" aria-label="Bildansicht">
+  <button class="photo-lightbox-close" type="button" aria-label="Bildansicht schließen">&times;</button>
+  <img class="photo-lightbox-image" alt="">
+</dialog>
+<script src="/public/js/gallery-lightbox.js" defer></script>
 
 <?php require BASE_PATH . '/Components/layout/footer.php'; ?>
