@@ -132,6 +132,7 @@ require BASE_PATH . '/Components/layout/header.php';
             </div>
 
         </div>
+        <p><small>Seitenaufrufe insgesamt: <?= number_format((int) get_visit_stats()['total'], 0, ',', '.') ?></small></p>
     </section>
 
 </main>
