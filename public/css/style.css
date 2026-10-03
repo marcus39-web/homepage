@@ -1142,8 +1142,23 @@ main section {
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
 }
 
+@media (min-width: 601px) and (max-width: 1400px) {
+  .project-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .project-item h2 {
   margin-bottom: 0.55rem;
+  hyphens: auto;
+  overflow-wrap: anywhere;
+}
+
+.project-domain {
+  display: inline-block;
+  white-space: nowrap;
+  hyphens: none;
+  overflow-wrap: normal;
 }
 
 .project-item p {
