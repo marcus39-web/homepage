@@ -47,50 +47,62 @@ require BASE_PATH . '/Components/layout/header.php';
         </div>
 
         <div class="calendar-builder-copy">
-            <p class="eyebrow-lite">Dein Kalender 2027</p>
-            <h2>Zwölf Motive aus Weimar</h2>
-            <p>Wähle für jeden Monat ein Bild. Deine Auswahl bleibt auf diesem Gerät gespeichert und kann jederzeit geändert werden.</p>
-            <label for="calendar-preview-month">Kalendervorschau</label>
-            <select id="calendar-preview-month">
-                <?php foreach ($calendarMonths as $month => $motifId): ?>
-                    <option value="<?= e($month) ?>"><?= e($month) ?></option>
-                <?php endforeach; ?>
-            </select>
-
-            <div class="calendar-date-controls">
-                <label for="calendar-state">Feiertage und Ferien für</label>
-                <select id="calendar-state">
-                    <option value="BW">Baden-Württemberg</option>
-                    <option value="BY">Bayern</option>
-                    <option value="BE">Berlin</option>
-                    <option value="BB">Brandenburg</option>
-                    <option value="HB">Bremen</option>
-                    <option value="HH">Hamburg</option>
-                    <option value="HE">Hessen</option>
-                    <option value="MV">Mecklenburg-Vorpommern</option>
-                    <option value="NI">Niedersachsen</option>
-                    <option value="NW">Nordrhein-Westfalen</option>
-                    <option value="RP">Rheinland-Pfalz</option>
-                    <option value="SL">Saarland</option>
-                    <option value="SN">Sachsen</option>
-                    <option value="ST">Sachsen-Anhalt</option>
-                    <option value="SH">Schleswig-Holstein</option>
-                    <option value="TH" selected>Thüringen</option>
-                </select>
-                <label class="calendar-school-toggle" for="calendar-show-school-breaks">
-                    <input id="calendar-show-school-breaks" type="checkbox">
-                    Schulferien hervorheben
-                </label>
-                <p class="calendar-date-note">Feiertage tragen das Länder-Kürzel. Ferien nach KMK 2026/27 und 2027/28; bewegliche Ferientage sind nicht enthalten. * kennzeichnet regionale Feiertage.</p>
-                <div class="calendar-legend" aria-label="Farblegende">
-                    <span><i class="calendar-legend-swatch is-saturday"></i>Samstag</span>
-                    <span><i class="calendar-legend-swatch is-sunday"></i>Sonntag</span>
-                    <span><i class="calendar-legend-swatch is-holiday"></i>Feiertag</span>
-                    <span><i class="calendar-legend-swatch is-school-break"></i>Ferien</span>
-                </div>
+            <div class="calendar-builder-intro">
+                <p class="eyebrow-lite">Dein Kalender 2027</p>
+                <h2>Zwölf Motive aus Weimar</h2>
+                <p>Wähle für jeden Monat ein Bild. Deine Auswahl bleibt auf diesem Gerät gespeichert und kann jederzeit geändert werden.</p>
             </div>
 
-            <a class="btn btn-primary" href="#monatsmotive">Monatsmotive auswählen</a>
+            <aside class="calendar-order-cta" aria-labelledby="calendar-order-cta-title">
+                <p class="eyebrow-lite">Schon entschieden?</p>
+                <h3 id="calendar-order-cta-title">Deinen Kalender anfragen</h3>
+                <p>Stückzahl und Monatsmotive kannst du im Formular angeben.</p>
+                <button class="btn btn-secondary" type="button" data-open-calendar-order>Zur Bestellanfrage</button>
+            </aside>
+
+            <div class="calendar-builder-controls">
+                <label for="calendar-preview-month">Kalendervorschau</label>
+                <select id="calendar-preview-month">
+                    <?php foreach ($calendarMonths as $month => $motifId): ?>
+                        <option value="<?= e($month) ?>"><?= e($month) ?></option>
+                    <?php endforeach; ?>
+                </select>
+
+                <div class="calendar-date-controls">
+                    <label for="calendar-state">Feiertage und Ferien für</label>
+                    <select id="calendar-state">
+                        <option value="BW">Baden-Württemberg</option>
+                        <option value="BY">Bayern</option>
+                        <option value="BE">Berlin</option>
+                        <option value="BB">Brandenburg</option>
+                        <option value="HB">Bremen</option>
+                        <option value="HH">Hamburg</option>
+                        <option value="HE">Hessen</option>
+                        <option value="MV">Mecklenburg-Vorpommern</option>
+                        <option value="NI">Niedersachsen</option>
+                        <option value="NW">Nordrhein-Westfalen</option>
+                        <option value="RP">Rheinland-Pfalz</option>
+                        <option value="SL">Saarland</option>
+                        <option value="SN">Sachsen</option>
+                        <option value="ST">Sachsen-Anhalt</option>
+                        <option value="SH">Schleswig-Holstein</option>
+                        <option value="TH" selected>Thüringen</option>
+                    </select>
+                    <label class="calendar-school-toggle" for="calendar-show-school-breaks">
+                        <input id="calendar-show-school-breaks" type="checkbox">
+                        Schulferien hervorheben
+                    </label>
+                    <p class="calendar-date-note">Feiertage tragen das Länder-Kürzel. Ferien nach KMK 2026/27 und 2027/28; bewegliche Ferientage sind nicht enthalten. * kennzeichnet regionale Feiertage.</p>
+                    <div class="calendar-legend" aria-label="Farblegende">
+                        <span><i class="calendar-legend-swatch is-saturday"></i>Samstag</span>
+                        <span><i class="calendar-legend-swatch is-sunday"></i>Sonntag</span>
+                        <span><i class="calendar-legend-swatch is-holiday"></i>Feiertag</span>
+                        <span><i class="calendar-legend-swatch is-school-break"></i>Ferien</span>
+                    </div>
+                </div>
+
+                <a class="btn btn-primary" href="#monatsmotive">Monatsmotive auswählen</a>
+            </div>
         </div>
     </section>
 
@@ -155,12 +167,13 @@ require BASE_PATH . '/Components/layout/header.php';
         </ul>
     </section>
 
-    <!-- Bestellanfrage -->
-    <section class="panel calendar-panel" id="bestellen" aria-labelledby="order-title">
+</div>
+
+<dialog class="calendar-order-dialog" id="calendar-order-dialog" aria-labelledby="order-title" data-open-on-load="<?= ($orderErrors !== [] || $orderSuccess !== null) ? 'true' : 'false' ?>">
+    <button class="calendar-order-dialog-close" id="calendar-order-dialog-close" type="button" aria-label="Bestellanfrage schließen">&times;</button>
+    <section class="calendar-order-content">
         <h2 id="order-title">Kalender anfragen</h2>
-        <p>
-            Sende mir deine Anfrage. Ich melde mich zur Verfügbarkeit und zur finalen Abstimmung bei dir.
-        </p>
+        <p>Sende mir deine Anfrage. Ich melde mich zur Verfügbarkeit und zur finalen Abstimmung bei dir.</p>
 
         <?php if ($orderSuccess !== null): ?>
             <p class="notice success" role="status"><?= e($orderSuccess) ?></p>
@@ -205,9 +218,7 @@ require BASE_PATH . '/Components/layout/header.php';
             <button type="submit" class="btn btn-secondary">Anfrage absenden</button>
         </form>
     </section>
-
-</div>
-
+</dialog>
 <?php unset($_SESSION['order_errors'], $_SESSION['order_old']); ?>
 
 <dialog class="photo-lightbox" id="lightbox">

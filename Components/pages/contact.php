@@ -28,7 +28,7 @@ require BASE_PATH . '/Components/layout/header.php';
     <!-- Profilbereich -->
     <section class="panel contact-profile">
         <img src="/public/assets/images/profil/marcus-freigestellt.png"
-             alt="Profilbild Marcus Reiser"
+               alt=""
              class="contact-profile-img">
 
         <div>

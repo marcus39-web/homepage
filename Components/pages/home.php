@@ -20,7 +20,7 @@ require BASE_PATH . '/Components/layout/header.php';
         </div>
         <p class="hero-kicker">Fotografie · Kalender · Projekte</p>
 
-        <h1>Willkommen auf meiner Website</h1>
+        <h1>Willkommen im schönen Weimar</h1>
 
         <p class="hero-subline">
             Ich bin Marcus Reiser aus Weimar – Fotograf, IT‑Spezialist und kreativer Kopf.
@@ -43,10 +43,38 @@ require BASE_PATH . '/Components/layout/header.php';
         <div class="intro wrap">
             <h1>Fotografie aus Weimar</h1>
             <p>
-                Meine Leidenschaft gilt der Naturfotografie, Stadtmotiven und kreativen Projekten.
-                Alle Bilder entstehen mit professionellem Equipment und werden sorgfältig nachbearbeitet.
-                In der Galerie findest du ausgewählte Serien und Kategorien.
+                Fotografie ist eines meiner Hobbys und ein kreativer Ausgleich zu meiner Arbeit in der IT-Entwicklung.
+                Beide Bereiche verbinden für mich Neugier, Ideen und Freude am Ausprobieren: Bei IT-Projekten entstehen digitale Lösungen,
+                mit der Kamera halte ich spontane Eindrücke fest. Meine Bilder entstehen unterwegs, bei Veranstaltungen und an besonderen
+                Sehenswürdigkeiten – in Weimar und überall dort, wo mir ein Motiv begegnet. Auf dieser Website kommen beide Interessen zusammen:
+                Du findest Fotogalerien, Kalenderprojekte sowie Beispiele meiner IT-Arbeit.
             </p>
+        </div>
+    </section>
+
+    <!-- Zwiebelmarkt-Teaser -->
+    <section class="offer-band">
+        <div class="wrap">
+            <p class="offer-kicker">Weimar · 9. bis 11. Oktober 2026</p>
+            <h2>Der 373. Zwiebelmarkt beginnt am 09. Oktober 2026</h2>
+
+            <div class="offer-grid">
+
+                <div class="offer-item">
+                    <h3>Weimars große Herbsttradition</h3>
+                    <p>Seit 1653 gehört der Zwiebelmarkt zum Herbst in Weimar. Drei Tage lang wird die historische Innenstadt zur Festmeile mit Marktständen, den bekannten Zwiebelzöpfen und Musik auf mehreren Bühnen. Auch der Kinderzwiebelmarkt und der beliebte Stadtlauf gehören zum Programm.</p>
+                    <p>Der Auftakt ist am Freitag um 12 Uhr auf dem Markt: Zwiebelmarktkönigin Roswitha I. und Oberbürgermeister Peter Kleine verkosten gemeinsam den traditionellen Zwiebelkuchen.</p>
+                </div>
+
+                <div class="offer-item">
+                    <h3>Aktuelle Bilder vom Zwiebelmarkt</h3>
+                    <p>Ab dem 9. Oktober findest du hier laufend neue Eindrücke vom Marktgeschehen und aus den Gassen der Weimarer Altstadt.</p>
+                    <a href="/galerie?<?= e(http_build_query(['ordner' => '20.02_Web', 'unterordner' => '13_Zwiebelmarkt'])) ?>" class="offer-link">Zwiebelmarkt-Bilder ansehen</a>
+                    <p><a href="https://www.weimar.de/kultur/veranstaltungen/maerkte-und-feste/zwiebelmarkt/" class="offer-link">Offizielle Informationen der Stadt Weimar</a></p>
+                    <p><a href="https://stadt.weimar.de/de/rathauskurier.html" class="offer-link">Rathauskurier 9/2026 (Amtsblatt)</a></p>
+                </div>
+
+            </div>
         </div>
     </section>
 
@@ -59,22 +87,22 @@ require BASE_PATH . '/Components/layout/header.php';
 
         <div class="gallery-grid">
 
-            <a href="/galerie" class="gallery-card">
+            <a href="/galerie?<?= e(http_build_query(['ordner' => '05_Weimar_und_Umgebung', 'unterordner' => 'Weimar_Park'])) ?>" class="gallery-card">
                 <img src="<?= e(photo_library_image_variant_url(photo_library_image_url('05_Weimar_und_Umgebung', 'Weimar_Park/28_08_2026_Park_Allee/Weimarpark_Allee.jpg'), 'preview')) ?>" alt="Weimarpark-Allee">
                 <h3>Natur</h3>
             </a>
 
-            <a href="/galerie" class="gallery-card">
+            <a href="/galerie?<?= e(http_build_query(['ordner' => '05_Weimar_und_Umgebung', 'unterordner' => 'Denkmaeler'])) ?>" class="gallery-card">
                 <img src="<?= e(photo_library_image_variant_url(photo_library_image_url('05_Weimar_und_Umgebung', 'Denkmaeler/Schiller_Göthe_Theater_27_08_2026.JPG'), 'preview')) ?>" alt="Schiller-und-Goethe-Denkmal">
                 <h3>Architektur</h3>
             </a>
 
-            <a href="/galerie" class="gallery-card">
+            <a href="/galerie?<?= e(http_build_query(['ordner' => '08_Tiere', 'unterordner' => 'Voegel'])) ?>" class="gallery-card">
                 <img src="<?= e(photo_library_image_variant_url(photo_library_image_url('08_Tiere', 'Voegel/Rotmilan/Legefeld/12_09_2026/Rotmilan_Legefeld_12_09_2026.JPG'), 'preview')) ?>" alt="Rotmilan im Flug">
                 <h3>Tiere</h3>
             </a>
 
-            <a href="/galerie" class="gallery-card">
+            <a href="/galerie?<?= e(http_build_query(['ordner' => '04_Portraits', 'unterordner' => 'Marcus'])) ?>" class="gallery-card">
                 <img src="<?= e(photo_library_image_variant_url(photo_library_image_url('04_Portraits', 'Marcus/farbe/07_09_2026_schwarzer_Hintergrund.JPG'), 'preview')) ?>" alt="Portrait von Marcus Reiser">
                 <h3>Portraits</h3>
             </a>
@@ -82,31 +110,6 @@ require BASE_PATH . '/Components/layout/header.php';
         </div>
 
         <a href="/galerie" class="calendar-teaser btn btn-primary">Zur kompletten Galerie</a>
-    </section>
-
-    <!-- Kalender-Teaser -->
-    <section class="offer-band">
-        <div class="wrap">
-            <p class="offer-kicker">Jahreskalender 2027</p>
-            <h2>Fotokalender mit Motiven aus Weimar</h2>
-
-            <div class="offer-grid">
-
-                <div class="offer-item">
-                    <h3>12 Monatsmotive</h3>
-                    <p>Hochwertiger Fotokalender mit ausgewählten Bildern aus Natur, Architektur und Stadtleben.</p>
-                    <a href="/kalender" class="offer-link">Kalender ansehen</a>
-                </div>
-
-                <div class="offer-item">
-                    <h3>Kalender 2027</h3>
-                    <img src="/public/assets/images/galerie/natur/Ilm/Tiefurt_Park_Denkmal_Wasserspiegel_06.09.2026.JPG" alt="Titelmotiv des Fotokalenders 2027" style="max-width: 180px; margin-top: 0.5rem;">
-                    <p>Gedruckt auf Premium-Papier, ideal als Geschenk oder für die eigene Wand.</p>
-                    <a href="/kalender" class="offer-link">Mehr erfahren</a>
-                </div>
-
-            </div>
-        </div>
     </section>
 
     <!-- Projekte -->

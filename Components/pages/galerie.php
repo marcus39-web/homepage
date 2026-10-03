@@ -6,9 +6,10 @@ $pageTitle = 'Galerie - Marcus Reiser';
 $pageDescription = 'Fotogalerie von Marcus Reiser: Natur, Architektur, Tiere und Portraits.';
 $bodyClass = 'subpage';
 $currentPage = 'galerie';
-$photoCategories = get_photo_categories();
 $requestedFolder = isset($_GET['ordner']) && is_string($_GET['ordner']) ? $_GET['ordner'] : '';
 $requestedSubfolder = isset($_GET['unterordner']) && is_string($_GET['unterordner']) ? trim($_GET['unterordner'], '/') : '';
+$includeWebCategory = $requestedFolder === '20.02_Web' && $requestedSubfolder === '13_Zwiebelmarkt';
+$photoCategories = get_photo_categories($includeWebCategory);
 $selectedCategory = null;
 $selectedSubfolder = '';
 $subfolders = [];
@@ -46,11 +47,19 @@ if ($selectedCategory !== null) {
       && count(array_filter($segments, 'photo_library_is_private')) === 0;
 
     if ($validPath) {
-      foreach ($selectedCategory['photos'] as $photo) {
-        if (str_starts_with($photo['path'], $requestedSubfolder . '/')) {
-          $selectedSubfolder = $requestedSubfolder;
-          break;
-        }
+      $libraryRoot = photo_library_root();
+      $categoryRoot = $libraryRoot !== null
+        ? realpath($libraryRoot . DIRECTORY_SEPARATOR . $selectedCategory['name'])
+        : false;
+      $subfolderPath = $categoryRoot !== false
+        ? realpath($categoryRoot . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $segments))
+        : false;
+
+      if ($categoryRoot !== false
+        && $subfolderPath !== false
+        && is_dir($subfolderPath)
+        && str_starts_with($subfolderPath, $categoryRoot . DIRECTORY_SEPARATOR)) {
+        $selectedSubfolder = $requestedSubfolder;
       }
     }
   }
@@ -148,24 +157,15 @@ require BASE_PATH . '/Components/layout/header.php';
       <p class="panel">Dieser Fotoordner enthält keine anzeigbaren Bilder.</p>
     <?php endif; ?>
   <?php else: ?>
-    <?php foreach ($photoCategories as $category): ?>
-      <section class="gallery-category" id="ordner-<?= e($category['name']) ?>" aria-labelledby="category-<?= e($category['name']) ?>">
-        <div class="section-head">
-          <h2 id="category-<?= e($category['name']) ?>"><?= e($category['label']) ?></h2>
-          <p><?= count($category['photos']) ?> Bilder</p>
-        </div>
-        <div class="photo-grid">
-          <?php foreach ($category['photos'] as $photo): ?>
-            <figure class="photo-item">
-              <button class="photo-open" type="button" data-full-image="<?= e(photo_library_image_variant_url($photo['url'], 'gallery')) ?>" data-image-alt="<?= e($photo['alt']) ?>" aria-label="Bild vergrößern: <?= e($photo['alt']) ?>">
-                <img src="<?= e(photo_library_image_variant_url($photo['url'], 'gallery')) ?>" alt="" loading="lazy">
-              </button>
-              <figcaption><?= e($photo['alt']) ?></figcaption>
-            </figure>
-          <?php endforeach; ?>
-        </div>
-      </section>
-    <?php endforeach; ?>
+    <section class="folder-grid" aria-label="Fotoordner">
+      <?php foreach ($photoCategories as $category): ?>
+        <a class="folder-card" href="/galerie?<?= e(http_build_query(['ordner' => $category['name']])) ?>">
+          <img class="folder-card-image" src="<?= e(photo_library_image_variant_url($category['photos'][0]['url'], 'preview')) ?>" alt="" loading="lazy">
+          <h3><?= e($category['label']) ?></h3>
+          <p class="folder-count"><?= count($category['photos']) ?> Bilder</p>
+        </a>
+      <?php endforeach; ?>
+    </section>
   <?php endif; ?>
 </main>
 

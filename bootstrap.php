@@ -455,7 +455,25 @@ function handle_calendar_order_submission(): void
 		'ip' => (string) ($_SERVER['REMOTE_ADDR'] ?? ''),
 	]);
 
-	set_flash('order_success', 'Danke! Deine Bestellung wurde gespeichert. Ich melde mich per E-Mail bei dir.');
+	$motifCatalog = calendar_motif_catalog();
+	$motifLines = [];
+	foreach ($selectedMotifs as $month => $motifId) {
+		$motifLines[] = $month . ': ' . $motifCatalog[$motifId]['label'];
+	}
+
+	$orderSubject = 'Kalenderanfrage marcusreiser.de | ' . $safeName;
+	$orderEmailBody = "Neue Kalenderanfrage\n\nName: {$safeName}\nE-Mail: {$safeEmail}\nStückzahl: {$quantity}\n\nMonatsmotive:\n";
+	$orderEmailBody .= implode("\n", $motifLines);
+	if ($message !== '') {
+		$orderEmailBody .= "\n\nNachricht:\n{$message}";
+	}
+
+	$mailSent = send_contact_email_via_resend('info@marcusreiser.de', $safeEmail, $orderSubject, $orderEmailBody);
+	if ($mailSent) {
+		set_flash('order_success', 'Danke! Deine Kalenderanfrage wurde gespeichert und per E-Mail an info@marcusreiser.de gesendet.');
+	} else {
+		set_flash('order_success', 'Danke! Deine Kalenderanfrage wurde gespeichert. Die E-Mail-Benachrichtigung an info@marcusreiser.de ist fehlgeschlagen; die Anfrage steht weiterhin in der Statistik.');
+	}
 	unset($_SESSION['order_old'], $_SESSION['order_errors']);
 	csrf_token_rotate();
 

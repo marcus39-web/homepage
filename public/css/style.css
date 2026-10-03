@@ -312,8 +312,19 @@ h2 {
   color: #fff;
 }
 
+.hero-actions .btn-ghost {
+  background: var(--surface);
+  border-color: var(--brand);
+  color: var(--brand-dark);
+}
+
 .btn-ghost:hover {
   background: rgb(255 255 255 / 25%);
+}
+
+.hero-actions .btn-ghost:hover {
+  background: var(--brand);
+  color: #fff;
 }
 
 main section {
@@ -337,7 +348,9 @@ main section {
 .intro p {
   margin: 0;
   color: var(--muted);
-  max-width: 74ch;
+  max-width: none;
+  font-size: 1.1rem;
+  line-height: 1.7;
 }
 
 .section-head {
@@ -829,16 +842,108 @@ main section {
 }
 
 .calendar-builder-copy {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(190px, 240px);
+  grid-template-areas:
+    "intro cta"
+    "controls controls";
+  align-items: start;
+  gap: 1rem 1.5rem;
+  max-width: none;
+}
+
+.calendar-builder-intro {
+  grid-area: intro;
   max-width: 58ch;
 }
 
-.calendar-builder-copy h2 {
+.calendar-builder-intro h2 {
   margin: 0.4rem 0 0.8rem;
 }
 
-.calendar-builder-copy > p:not(.eyebrow-lite) {
+.calendar-builder-intro > p:not(.eyebrow-lite) {
   color: var(--muted);
   line-height: 1.7;
+}
+
+.calendar-order-cta {
+  display: grid;
+  grid-area: cta;
+  align-content: center;
+  justify-items: start;
+  gap: 0.55rem;
+  padding: 1.1rem;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--accent);
+  border-radius: 6px;
+  background: rgb(255 250 242 / 78%);
+}
+
+.calendar-order-cta h3 {
+  font-size: 1.35rem;
+}
+
+.calendar-order-cta p:not(.eyebrow-lite) {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.calendar-order-cta .btn {
+  margin-top: 0.3rem;
+}
+
+.calendar-order-dialog {
+  position: fixed;
+  width: min(720px, calc(100vw - 2rem));
+  max-width: none;
+  max-height: calc(100vh - 2rem);
+  margin: auto;
+  padding: 0;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+
+.calendar-order-dialog::backdrop {
+  background: rgb(13 22 18 / 62%);
+  backdrop-filter: blur(3px);
+}
+
+.calendar-order-content {
+  padding: clamp(1.2rem, 3vw, 2rem);
+}
+
+.calendar-order-content h2 {
+  padding-right: 3rem;
+}
+
+.calendar-order-dialog-close {
+  position: absolute;
+  top: 0.65rem;
+  right: 0.65rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.calendar-order-dialog .form-grid {
+  margin-top: 1.2rem;
+}
+
+.calendar-builder-controls {
+  grid-area: controls;
+  width: min(100%, 68ch);
 }
 
 .calendar-builder-copy label {
@@ -1013,7 +1118,16 @@ main section {
   }
 
   .calendar-builder-copy {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "intro"
+      "cta"
+      "controls";
     max-width: none;
+  }
+
+  .calendar-order-cta {
+    width: 100%;
   }
 
   .calendar-month-grid {

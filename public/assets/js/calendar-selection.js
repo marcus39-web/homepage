@@ -4,6 +4,8 @@
   const previewImage = document.querySelector('#calendar-preview-image');
   const previewLabel = document.querySelector('#calendar-preview-month-label');
   const previewDays = document.querySelector('#calendar-preview-days');
+  const orderDialog = document.querySelector('#calendar-order-dialog');
+  const orderDialogClose = document.querySelector('#calendar-order-dialog-close');
   const motifSelects = [...document.querySelectorAll('.calendar-motif-select')];
   const orderMotifs = [...document.querySelectorAll('[data-order-motif]')];
   const monthNames = [
@@ -216,6 +218,23 @@
   previewMonth.addEventListener('change', () => {
     updatePreview();
   });
+
+  if (orderDialog instanceof HTMLDialogElement) {
+    document.querySelectorAll('[data-open-calendar-order]').forEach((trigger) => {
+      trigger.addEventListener('click', (event) => {
+        event.preventDefault();
+        orderDialog.showModal();
+      });
+    });
+
+    orderDialogClose?.addEventListener('click', () => orderDialog.close());
+    orderDialog.addEventListener('click', (event) => {
+      if (event.target === orderDialog) orderDialog.close();
+    });
+
+    if (orderDialog.dataset.openOnLoad === 'true') orderDialog.showModal();
+  }
+
   stateSelect?.addEventListener('change', () => {
     renderAllCalendars();
     persistDisplaySettings();

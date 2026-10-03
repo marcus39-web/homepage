@@ -86,7 +86,7 @@ function photo_library_get_exif_datetime(string $filePath): ?int
 /**
  * @return array<int, array{name: string, label: string, photos: array<int, array{url: string, alt: string, path: string, datetime: int|null}>}>
  */
-function get_photo_categories(): array
+function get_photo_categories(bool $includeWebCategory = false): array
 {
     $root = photo_library_root();
     if ($root === null) {
@@ -99,7 +99,8 @@ function get_photo_categories(): array
 
     foreach ($categoryDirectories as $categoryDirectory) {
         $categoryName = basename($categoryDirectory);
-        if (photo_library_is_excluded_category($categoryName)) {
+        if (photo_library_is_excluded_category($categoryName)
+            && !($includeWebCategory && $categoryName === '20.02_Web')) {
             continue;
         }
 
