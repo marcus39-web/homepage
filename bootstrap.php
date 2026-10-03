@@ -348,7 +348,8 @@ function calendar_motif_catalog(): array
 	];
 
 	foreach ($files as &$motif) {
-		$motif['url'] = '/public/assets/images/galerie/natur/Ilm/' . rawurlencode($motif['file']);
+		$webFile = pathinfo($motif['file'], PATHINFO_FILENAME) . '.webp';
+		$motif['url'] = '/public/assets/images/galerie/natur/Ilm/' . rawurlencode($webFile);
 		unset($motif['file']);
 	}
 	unset($motif);
