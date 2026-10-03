@@ -30,7 +30,7 @@ require BASE_PATH . '/Components/layout/header.php';
     <section class="panel">
         <h2>Kontakt</h2>
         <p>
-            E‑Mail: <a href="mailto:kontakt@marcusreiser.de">kontakt@marcusreiser.de</a><br>
+            E‑Mail: <a href="mailto:info@marcusreiser.de">info@marcusreiser.de</a><br>
             Website: <a href="https://marcusreiser.de">marcusreiser.de</a>
         </p>
     </section>
