@@ -326,6 +326,58 @@ function get_calendar_orders(): array
 }
 
 /**
+ * Motive, die für die Kalenderauswahl freigegeben sind.
+ *
+ * @return array<string, array{label: string, url: string}>
+ */
+function calendar_motif_catalog(): array
+{
+	$files = [
+		'flussbaum' => ['label' => 'Baum im Fluss', 'file' => 'Baum_im Fluss_Tiefurt06.09.2026.JPG'],
+		'ente-1' => ['label' => 'Ente am Fluss', 'file' => 'Ente_1.JPG'],
+		'bach' => ['label' => 'Bach und bunte Steine', 'file' => 'Ilm_kleiner_Bach_bunter_Stein_2.JPG'],
+		'blatt-ausschnitt' => ['label' => 'Blätter auf der Ilm', 'file' => 'Ilm_Blätter_Wasseroberfläche_Ausschnitt_27_08_2026.JPG'],
+		'ilm-1' => ['label' => 'Ilm in Weimar', 'file' => 'IMG_2237.JPG'],
+		'ente-2' => ['label' => 'Ente am Ufer', 'file' => 'Ente_2.JPG'],
+		'sonnenblume' => ['label' => 'Sonnenblume', 'file' => 'Sonnenblume_5.JPG'],
+		'ente-4' => ['label' => 'Ente auf der Ilm', 'file' => 'Ente_4.JPG'],
+		'parkallee' => ['label' => 'Allee im Weimarpark', 'file' => 'Weimarpark_Allee.jpg'],
+		'parkdenkmal' => ['label' => 'Denkmal an der Ilm', 'file' => 'Tiefurt_Park_Denkmal_Wasserspiegel_06.09.2026.JPG'],
+		'blatt-gross' => ['label' => 'Blätter auf dem Wasser', 'file' => 'Ilm_Blätter_Wasseroberfläche_groß_27_08_2026.JPG'],
+		'ilm-2' => ['label' => 'Ilm-Motiv', 'file' => 'IMG_2254.JPG'],
+	];
+
+	foreach ($files as &$motif) {
+		$motif['url'] = '/public/assets/images/galerie/natur/Ilm/' . rawurlencode($motif['file']);
+		unset($motif['file']);
+	}
+	unset($motif);
+
+	return $files;
+}
+
+/**
+ * @return array<string, string>
+ */
+function calendar_month_defaults(): array
+{
+	return [
+		'Januar' => 'flussbaum',
+		'Februar' => 'ente-1',
+		'März' => 'bach',
+		'April' => 'blatt-ausschnitt',
+		'Mai' => 'ilm-1',
+		'Juni' => 'ente-2',
+		'Juli' => 'sonnenblume',
+		'August' => 'ente-4',
+		'September' => 'parkallee',
+		'Oktober' => 'parkdenkmal',
+		'November' => 'blatt-gross',
+		'Dezember' => 'ilm-2',
+	];
+}
+
+/**
  * Verarbeitet eine Kalender-Bestellung und leitet zurück zur Kalenderseite.
  */
 function handle_calendar_order_submission(): void
@@ -337,6 +389,7 @@ function handle_calendar_order_submission(): void
 	$website = trim((string) ($_POST['website'] ?? ''));
 	$privacyAccepted = (string) ($_POST['privacy_accepted'] ?? '');
 	$token = (string) ($_POST['_csrf'] ?? '');
+	$submittedMotifs = $_POST['motifs'] ?? [];
 
 	set_order_old([
 		'name' => $name,
@@ -368,6 +421,21 @@ function handle_calendar_order_submission(): void
 		$errors[] = 'Bitte akzeptiere zuerst die Datenschutzrichtlinien.';
 	}
 
+	$allowedMotifs = calendar_motif_catalog();
+	$selectedMotifs = [];
+	if (!is_array($submittedMotifs)) {
+		$errors[] = 'Bitte wähle für jeden Monat ein Motiv aus.';
+	} else {
+		foreach (calendar_month_defaults() as $month => $defaultMotif) {
+			$motif = $submittedMotifs[$month] ?? '';
+			if (!is_string($motif) || !isset($allowedMotifs[$motif])) {
+				$errors[] = 'Bitte wähle ein gültiges Motiv für ' . $month . ' aus.';
+				continue;
+			}
+			$selectedMotifs[$month] = $motif;
+		}
+	}
+
 	if ($errors !== []) {
 		$_SESSION['order_errors'] = $errors;
 		header('Location: /kalender', true, 302);
@@ -383,6 +451,7 @@ function handle_calendar_order_submission(): void
 		'email' => $safeEmail,
 		'quantity' => $quantity,
 		'message' => $message,
+		'motifs' => $selectedMotifs,
 		'ip' => (string) ($_SERVER['REMOTE_ADDR'] ?? ''),
 	]);
 
@@ -448,6 +517,43 @@ function handle_statistics_logout(): void
 }
 
 /**
+ * Sendet eine Kontaktanfrage ueber die Resend-API, wenn ein API-Schluessel konfiguriert ist.
+ */
+function send_contact_email_via_resend(string $recipient, string $replyTo, string $subject, string $message): bool
+{
+	$apiKey = app_env('RESEND_API_KEY');
+	$senderEmail = app_env('RESEND_FROM_EMAIL', 'info@marcusreiser.de');
+	if ($apiKey === '' || filter_var($senderEmail, FILTER_VALIDATE_EMAIL) === false) {
+		return false;
+	}
+
+	$payload = json_encode([
+		'from' => 'Marcus Reiser <' . $senderEmail . '>',
+		'to' => [$recipient],
+		'reply_to' => $replyTo,
+		'subject' => $subject,
+		'text' => $message,
+	], JSON_UNESCAPED_UNICODE);
+	if ($payload === false) {
+		return false;
+	}
+
+	$context = stream_context_create([
+		'http' => [
+			'method' => 'POST',
+			'header' => "Authorization: Bearer {$apiKey}\r\nContent-Type: application/json\r\nAccept: application/json\r\n",
+			'content' => $payload,
+			'timeout' => 15,
+			'ignore_errors' => true,
+		],
+	]);
+
+	$response = @file_get_contents('https://api.resend.com/emails', false, $context);
+	$statusLine = $http_response_header[0] ?? '';
+	return is_string($response) && preg_match('/\s2\d{2}\s/', $statusLine) === 1;
+}
+
+/**
  * Verarbeitet das Kontaktformular serverseitig und leitet anschließend zurück.
  */
 function handle_contact_form_submission(): void
@@ -507,11 +613,15 @@ function handle_contact_form_submission(): void
 	$entry = sprintf("[%s] %s <%s>\n%s\n----\n", date('c'), $safeName, $safeEmail, $message);
 	file_put_contents($messagesDir . '/contact.log', $entry, FILE_APPEND);
 
-	// Versand per mail() ist best effort; das lokale Log bleibt die verlässliche Basis.
-	$mailSent = false;
+	// Resend wird bevorzugt; ohne API-Schluessel bleibt mail() als Server-Fallback aktiv.
 	$to = 'info@marcusreiser.de';
 	$subject = 'Kontaktformular marcusreiser.de | Neue Anfrage von ' . $safeName;
 	$body = "Name: {$safeName}\nE-Mail: {$safeEmail}\n\nNachricht:\n{$message}";
+	$mailSent = false;
+	$resendApiKey = app_env('RESEND_API_KEY');
+	if ($resendApiKey !== '') {
+		$mailSent = send_contact_email_via_resend($to, $safeEmail, $subject, $body);
+	} else {
 	$headers = "From: Marcus Reiser <info@marcusreiser.de>\r\n";
 	$headers .= "Reply-To: <{$safeEmail}>\r\n";
 	$headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
@@ -520,6 +630,7 @@ function handle_contact_form_submission(): void
 		$mailSent = mail($to, $subject, $body, $headers);
 	} catch (\Throwable $exception) {
 		$mailSent = false;
+	}
 	}
 
 	if ($mailSent) {

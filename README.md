@@ -1,6 +1,6 @@
 # marcusreiser.de
 
-Persoenliche Fotografie-Website von Marcus Reiser aus Weimar/Legefeld. Die Website praesentiert eine automatisch gepflegte Fotogalerie und bereitet Angebote fuer Fototassen und einen eigenen Fotokalender vor.
+Persoenliche Fotografie-Website von Marcus Reiser aus Weimar/Legefeld. Die Website praesentiert eine automatisch gepflegte Fotogalerie, einen Fotokalender und Projekte aus Fotografie und IT.
 
 ## Aufbau
 
@@ -13,18 +13,27 @@ Die Anwendung ist eine klassische PHP-Website ohne Build-Schritt. `index.php` is
 | `Components/pages/` | Startseite, Galerie, Kalender, Kontakt und Rechtliches |
 | `Components/layout/` | Header, Navigation und Footer |
 | `src/PhotoLibrary.php` | Fotoquellen, Kategorien, Dateipfade und Ausschlussregeln |
-| `public/photo.php` | Sicherer Bild-Endpunkt fuer private Fotoablage |
-| `public/css/style.css` | Layout und responsive Gestaltung |
-| `public/assets/images/` | Oeffentliche Web-Assets, darunter das Logo |
+| `src/Router.php`, `src/View.php` | Vorhandene Platzhalter; das Routing verwendet aktuell direkt `index.php` |
+| `public/photo.php` | Bild-Endpunkt mit Pfadpruefung, WebP-Cache und optionalen EXIF-Daten |
+| `public/css/style.css` | Basislayout, Hero und responsive Gestaltung |
+| `public/assets/css/style.css` | Mobile Navigation und Lazy-Load-Uebergaenge |
+| `public/assets/js/` | Navigation, Lazy Loading und Galerie-Lightbox |
+| `public/assets/images/` | Oeffentliche Web-Assets und ausgewaehlte Galeriebilder |
 | `data/photos/` | Optionale Fotoquelle auf dem Webspace |
-| `data/logs/`, `data/messages/` | Besuchsstatistik, Kontaktanfragen und Bestellungen |
+| `data/photo-cache/` | Vorab erzeugte WebP-Vorschauen und Galerievarianten |
+| `data/logs/`, `data/messages/` | Besuchsstatistik, Kontaktanfragen und Kalenderanfragen |
 | `.htaccess` | Clean URLs sowie Sperre interner Dateien/Verzeichnisse |
 
 ## Voraussetzungen
 
 - PHP 8.1 oder neuer
+- PHP-Erweiterung `mbstring` fuer die Formularvalidierung
+- PHP-Erweiterung `exif` fuer Aufnahmezeit, GPS-Ort und Wetteranzeige (ohne EXIF laufen Galerie und Bilder weiter; es wird auf Dateizeit bzw. leere Metadaten zurueckgefallen)
+- PHP-Erweiterung GD nur zum Erzeugen fehlender WebP-Varianten zur Laufzeit; vorhandene Cachedateien funktionieren ohne GD
+- Fuer Orts- und Wetterinformationen muessen aus dem Browser externe Anfragen an Nominatim und Open-Meteo moeglich sein
 - Apache mit `mod_rewrite` fuer den Produktivbetrieb
 - Schreibrechte fuer `data/logs/` und `data/messages/`
+- Python 3 und Pillow nur, wenn WebP-Varianten lokal vorab erzeugt werden sollen
 
 ## Lokal starten
 
@@ -34,7 +43,7 @@ Im Projektverzeichnis ausfuehren:
 php -S 127.0.0.1:8000 -t .
 ```
 
-Anschliessend `http://127.0.0.1:8000/` im Browser oeffnen. Der eingebaute PHP-Server liest `.htaccess` nicht, statische Dateien und Foto-Routen werden deshalb zusaetzlich in `index.php` behandelt.
+Anschliessend `http://127.0.0.1:8000/` im Browser oeffnen. Der eingebaute PHP-Server liest `.htaccess` nicht. `index.php` leitet deshalb vorhandene statische Dateien direkt durch und routet Seiten sowie `/public/photo.php` selbst. Nach Aenderungen an `php.ini` den Server neu starten.
 
 ## URLs und Funktionen
 
@@ -45,13 +54,15 @@ Anschliessend `http://127.0.0.1:8000/` im Browser oeffnen. Der eingebaute PHP-Se
 | `GET /galerie?ordner=07_Blumen` | Nur die gewaehlte Kategorie |
 | `GET /galerie?ordner=05_Weimar_und_Umgebung&unterordner=Tiefurt` | Einen Unterordner anzeigen; verschachtelte Pfade werden ebenfalls unterstuetzt |
 | `GET /public/photo.php?category=...&file=...` | Bildauslieferung nach Pfad- und Dateityppruefung |
-| `GET /kalender` | Kalenderinformationen und Bestellformular |
-| `POST /kalender-bestellung` | Kalenderbestellung speichern |
-| `GET /contact`, `POST /contact` | Kontaktformular und Verarbeitung |
+| `GET /kalender` | Kalenderblatt-Vorschau, zwölf bearbeitbare Monatsmotive im einheitlichen 4:3-Format, Bundesland-Feiertage, optional markierte Schulferien und Anfrageformular |
+| `POST /kalender-bestellung` | Kalenderanfrage validieren und in `data/messages/orders.log` speichern |
+| `GET /contact`, `POST /contact` | Kontaktformular mit CSRF-Pruefung, Datenschutz-Zustimmung und Honeypot |
 | `GET /statistik-login`, `POST /statistik-login` | Anmeldung zum Statistikbereich |
-| `GET /statistik` | Passwortgeschuetzte Besucher- und Bestellstatistik |
+| `GET /statistik` | Passwortgeschuetzte Besucherstatistik und Kalenderanfragen |
 | `GET /statistik-logout` | Statistik abmelden |
 | `GET /impressum`, `GET /datenschutz` | Rechtliche Informationsseiten |
+
+Im Kalender lassen sich Wochenenden, gesetzliche Feiertage 2027 des gewaehlten Bundeslands und optional die Schulferien hervorheben. Das Bundesland und die Ferienoption werden lokal im Browser gespeichert. Die Ferienbereiche basieren auf den KMK-Ferienkalendern 2026/27 und 2027/28; bewegliche Ferientage und lokale Sonderregelungen sind nicht enthalten. Regionale Feiertage sind mit `*` gekennzeichnet.
 
 ## Fotogalerie und Bildablage
 
@@ -79,26 +90,28 @@ R10/
 
 Unterordner werden rekursiv gelesen. In der Galerie werden sie zuerst als Ordnerkarten angeboten; nach Auswahl erscheint nur der ausgewaehlte Zweig. Unterstuetzte Formate sind `.jpg`, `.jpeg`, `.png` und `.webp`. Leere Kategorien erscheinen nicht.
 
-Ordner oder Unterordner, deren Name `Privat` enthaelt, werden sowohl beim Scannen als auch beim Bildabruf ausgeschlossen. Reine Web-Ordner mit nummeriertem Namen und `Web` am Ende, zum Beispiel `20.02_Web`, werden nicht als Fotokategorien angezeigt. Lade nur Bilder hoch, die du auf der Website veroeffentlichen darfst; insbesondere keine RAW-Dateien, Zeugnisse, Passbilder oder privaten Aufnahmen.
+Ordner oder Unterordner, deren Name `Privat` enthaelt, werden sowohl beim Scannen als auch beim Bildabruf ausgeschlossen. Kategorien mit `Passbild` im Namen sowie reine Web-Ordner mit nummeriertem Namen und `Web` am Ende, zum Beispiel `20.02_Web`, werden nicht als Fotokategorien angezeigt. Lade nur Bilder hoch, die du auf der Website veroeffentlichen darfst; insbesondere keine RAW-Dateien, Zeugnisse, Passbilder oder privaten Aufnahmen.
 
-`data/` wird durch `.htaccess` gegen direkten HTTP-Zugriff gesperrt. Bilder aus `data/photos/` werden daher ausschliesslich durch `public/photo.php` ausgeliefert. Der Endpunkt erlaubt nur die unterstuetzten Bildtypen und blockiert private Ordner sowie Pfad-Traversal.
+`data/` wird durch `.htaccess` gegen direkten HTTP-Zugriff gesperrt. Bilder aus `data/photos/` werden daher ausschliesslich durch `public/photo.php` ausgeliefert. Der Endpunkt erlaubt nur die unterstuetzten Bildtypen und blockiert private Ordner, Passbild-Kategorien sowie Pfad-Traversal.
+
+Bei `HEAD`-Anfragen liefert der Bild-Endpunkt EXIF-Daten im Header `X-Photo-Exif`. Die Lightbox zeigt daraus Aufnahmezeit und GPS-Ort an und fragt fuer GPS-Bilder historische bzw. aktuelle Stundenwerte bei Open-Meteo sowie Ortsnamen bei Nominatim ab. Verwendet wird der Wetterwert zur Aufnahmezeit in `Europe/Berlin`. Dafuer muessen EXIF-Daten vorhanden und externe Anfragen moeglich sein. GPS-Koordinaten oeffentlicher Bilder werden damit auch im HTTP-Header an Besucher ausgeliefert; veroeffentliche nur Fotos, deren Standortdaten du teilen moechtest.
 
 ### Optimierte Web-Fotos
 
-Die Druck-Originale bleiben unveraendert. Vor dem Deployment erzeugt Pillow WebP-Dateien: Vorschauen sind auf maximal 800 Pixel bei Qualitaet 78 begrenzt, Galerie- und Titelbilder auf maximal 1800 Pixel bei Qualitaet 82.
+Die Druck-Originale bleiben unveraendert. Vor dem Deployment erzeugt Pillow WebP-Dateien: Vorschauen haben maximal 800 Pixel Kantenlaenge bei Qualitaet 78, Galerievarianten maximal 1800 Pixel bei Qualitaet 82.
 
 ```powershell
 python -m pip install Pillow
 python tools/generate_photo_variants.py --source "D:\10_Fotoarchiv\Canon_R10_Bilder\01_Bibiothek_JPG"
 ```
 
-Die Varianten landen unter `data/photo-cache/`. Lade diesen Ordner zusammen mit den benoetigten Originalen nach `data/` auf den Webspace. Fehlt eine Variante, liefert `public/photo.php` weiterhin das Original aus; fuer die Ladezeit-Optimierung muessen die erzeugten Cache-Dateien daher mit deployed werden. Einzelne Bilder lassen sich zum Test mit `--match Marcus_Sonnenblumen_2.JPG` verarbeiten.
+Die Varianten landen unter `data/photo-cache/preview/` und `data/photo-cache/gallery/`. Lade diesen Cache zusammen mit den benoetigten Originalen nach `data/` auf den Webspace. Fehlt eine Variante, versucht `public/photo.php` sie mit GD zu erzeugen; ist GD nicht verfuegbar oder schlaegt die Erzeugung fehl, wird das Original ausgeliefert. Fuer kurze Ladezeiten sollten die erzeugten Cache-Dateien mit deployed werden. Einzelne Bilder lassen sich zum Test mit `--match Marcus_Sonnenblumen_2.JPG` verarbeiten.
 
 ## Formulare und gespeicherte Daten
 
-Kontakt- und Kalenderformulare verwenden CSRF-Token, serverseitige Validierung und ein Honeypot-Feld. Kontaktanfragen werden lokal in `data/messages/contact.log` protokolliert; Kalenderbestellungen werden zeilenweise als JSON in `data/messages/orders.log` gespeichert. Der Kontakt-Mailversand ueber `mail()` ist best effort; das lokale Log ist die dauerhafte Speicherung.
+Kontakt- und Kalender-Anfrageformulare verwenden CSRF-Token, serverseitige Validierung, Datenschutz-Zustimmung und ein Honeypot-Feld. Kontaktanfragen werden lokal in `data/messages/contact.log` protokolliert und bei gesetztem `RESEND_API_KEY` ueber die Resend-API versendet; ohne API-Schluessel wird `mail()` als Server-Fallback verwendet. Fuer Resend muessen `RESEND_API_KEY` und eine auf der Domain verifizierte `RESEND_FROM_EMAIL` in `.env` gesetzt sein. Den API-Schluessel niemals committen oder weitergeben. Die Kalenderseite bietet eine Blattvorschau und eine Bildauswahl fuer jeden Monat. Die Auswahl wird im Browser gespeichert und mit der Anfrage uebermittelt. Kalenderanfragen werden zeilenweise als JSON in `data/messages/orders.log` gespeichert. Die Statistikseite zeigt Besucherzahlen sowie gespeicherte Anfragen inklusive Monatsmotiven; sensible IP-Daten werden in der Tabelle nicht angezeigt.
 
-Der Besucherzaehler speichert Gesamt-, Pfad-, Tages- und Session-Tageswerte in `data/logs/visits.json`. Die Startseite zeigt die Gesamtbesuche. Die interne Statistik zeigt Besuchszahlen und Kalenderbestellungen.
+Der Besucherzaehler speichert Gesamt-, Pfad-, Tages- und Session-Tageswerte in `data/logs/visits.json`. Die interne Statistik zeigt Besucherzahlen fuer heute, eindeutige Besuche heute, den aktuellen Monat, insgesamt, den Verlauf der letzten 14 Tage und gespeicherte Kalenderanfragen.
 
 ## Konfiguration und Geheimnisse
 
@@ -106,10 +119,12 @@ Der Besucherzaehler speichert Gesamt-, Pfad-, Tages- und Session-Tageswerte in `
 
 | Variable | Zweck |
 | --- | --- |
-| `APP_ENV` | Laufzeitumgebung, lokal beispielsweise `development`, produktiv `production` |
-| `APP_NAME` | Anwendungsname |
+| `APP_ENV` | Beispielwert in `.env.example`; wird vom aktuellen Anwendungscode nicht ausgewertet |
+| `APP_NAME` | Beispielwert in `.env.example`; wird vom aktuellen Anwendungscode nicht ausgewertet |
 | `STATS_PASSWORD` | Passwort fuer den internen Statistikbereich; nicht fuer den WCP-Verzeichnisschutz verwenden |
 | `PHOTO_LIBRARY_PATH` | Optionaler absoluter Pfad zur Fotoquelle; auf netcup leer lassen, um `data/photos/` zu verwenden |
+| `RESEND_API_KEY` | Geheim gehaltener API-Schluessel fuer den Versand von Kontaktanfragen ueber Resend |
+| `RESEND_FROM_EMAIL` | Absenderadresse auf einer bei Resend verifizierten Domain, z. B. `info@marcusreiser.de` |
 
 Fuer den Webspace bei Bedarf eine eigene `.env` in `R10/` ueber den Dateimanager anlegen. Dort ein neues, starkes `STATS_PASSWORD` setzen. Der separate Passwortschutz fuer die gesamte Testseite wird im netcup WCP verwaltet.
 

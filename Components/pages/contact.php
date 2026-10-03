@@ -1,99 +1,102 @@
-<?php
+<?php declare(strict_types=1);
 
-declare(strict_types=1);
-
-$pageTitle = 'Kontakt - Marcus Reiser';
-$pageDescription = 'Kontaktformular für Anfragen und Bestellungen.';
-$bodyClass = 'subpage';
-$currentPage = 'contact';
-
-$errors = (array) ($_SESSION['form_errors'] ?? []);
-$success = flash('success');
-$hasPrivacyConsentError = false;
-foreach ($errors as $error) {
-    if (stripos((string) $error, 'Datenschutzrichtlinien') !== false) {
-        $hasPrivacyConsentError = true;
-        break;
-    }
-}
-
+$pageTitle = "Kontakt – Marcus Reiser";
+$pageDescription = "Kontaktformular für Fotografie, Kalender und IT‑Anfragen.";
+$navContext = "subpage";
+$bodyClass = "subpage";
+$successMessage = flash('success');
+$formErrors = $_SESSION['form_errors'] ?? [];
+unset($_SESSION['form_errors']);
+$formErrors = is_array($formErrors) ? $formErrors : [];
 require BASE_PATH . '/Components/layout/header.php';
 ?>
-<header class="subpage-top">
-  <?php
-  $navContext = 'subpage';
-  require BASE_PATH . '/Components/layout/nav.php';
-  ?>
-</header>
 
-<main class="subpage-main wrap">
-  <section class="contact-wrap" aria-label="Kontaktformular">
-    <div class="panel">
-      <p class="eyebrow-lite">Kontakt</p>
-      <h1>Kontaktformular</h1>
-      <p>
-        Du möchtest mich zu meinen Fotografien, zum Kalender oder zu einer Zusammenarbeit kontaktieren?
-        Dann sende mir hier direkt deine Nachricht.
-      </p>
-      <div class="contact-facts">
-        <p><strong>Standort:</strong> Weimar / Legefeld</p>
-        <p><strong>E-Mail:</strong> <a href="mailto:info@marcusreiser.de">info@marcusreiser.de</a></p>
-      </div>
+<div class="subpage-top">
+    <?php require BASE_PATH . '/Components/layout/nav.php'; ?>
+    <div class="wrap subpage-head">
+        <p class="eyebrow-lite">Kontakt</p>
+        <h1>Schreib mir eine Nachricht</h1>
+        <p>
+            Für Anfragen zu Fotografie, Kalendern, Projekten oder IT‑Themen kannst du mir jederzeit schreiben.
+            Ich melde mich schnellstmöglich zurück.
+        </p>
     </div>
+</div>
 
-    <div class="panel">
-      <?php if ($success !== null): ?>
-        <p class="notice success"><?= e($success) ?></p>
-      <?php endif; ?>
+<div class="subpage-main wrap">
 
-      <?php if ($errors !== []): ?>
-        <div class="notice error">
-          <strong>Bitte prüfe deine Eingabe:</strong>
-          <ul>
-            <?php foreach ($errors as $error): ?>
-              <li><?= e((string) $error) ?></li>
-            <?php endforeach; ?>
-          </ul>
+    <!-- Profilbereich -->
+    <section class="panel contact-profile">
+        <img src="/public/assets/images/profil/marcus-freigestellt.png"
+             alt="Profilbild Marcus Reiser"
+             class="contact-profile-img">
+
+        <div>
+            <h2>Marcus Reiser</h2>
+            <p>Fotografie & IT · Weimar</p>
+            <p class="muted">Professionelle Fotografie, Kalenderproduktion und IT‑Dienstleistungen.</p>
         </div>
-      <?php endif; ?>
+    </section>
 
-      <form method="post" action="/contact" class="form-grid" novalidate>
-        <input type="hidden" name="_csrf" value="<?= e(csrf_token()) ?>">
+    <!-- Kontaktformular -->
+    <section class="panel contact-form">
+        <h2>Kontaktformular</h2>
 
-        <label for="name">Name</label>
-        <input id="name" name="name" type="text" value="<?= old('name') ?>" required minlength="2">
+        <?php if (is_string($successMessage) && $successMessage !== ''): ?>
+            <p class="notice success" role="status"><?= e($successMessage) ?></p>
+        <?php endif; ?>
 
-        <label for="email">E-Mail</label>
-        <input id="email" name="email" type="email" value="<?= old('email') ?>" required>
+        <?php if ($formErrors !== []): ?>
+            <div class="notice error" role="alert">
+                <ul>
+                    <?php foreach ($formErrors as $formError): ?>
+                        <li><?= e((string) $formError) ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        <?php endif; ?>
 
-        <label for="message">Nachricht</label>
-        <textarea id="message" name="message" rows="6" required minlength="20"><?= old('message') ?></textarea>
+        <form action="/contact" method="post" class="form-grid">
+            <input type="hidden" name="_csrf" value="<?= e(csrf_token()) ?>">
 
-        <div class="consent-wrap<?= $hasPrivacyConsentError ? ' has-error' : '' ?>">
-          <input
-            id="privacy_accepted"
-            name="privacy_accepted"
-            type="checkbox"
-            value="1"
-            required
-            <?= old('privacy_accepted') === '1' ? 'checked' : '' ?>
-          >
-          <label for="privacy_accepted">
-            Hiermit akzeptiere ich die <a href="/datenschutz" target="_blank" rel="noopener noreferrer">Datenschutzrichtlinien</a>.
-          </label>
-          <?php if ($hasPrivacyConsentError): ?>
-            <p class="consent-error">Bitte zuerst die Datenschutzrichtlinien bestätigen.</p>
-          <?php endif; ?>
-        </div>
+            <div class="form-field">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" value="<?= old('name') ?>" minlength="2" required>
+            </div>
 
-        <input class="hp" type="text" name="website" value="" tabindex="-1" autocomplete="off" aria-hidden="true">
+            <div class="form-field">
+                <label for="email">E‑Mail</label>
+                <input type="email" id="email" name="email" value="<?= old('email') ?>" required>
+            </div>
 
-        <button type="submit" class="btn btn-primary">Anfrage senden</button>
-      </form>
-    </div>
-  </section>
-</main>
+            <div class="form-field full">
+                <label for="message">Nachricht</label>
+                <textarea id="message" name="message" rows="6" minlength="20" required><?= old('message') ?></textarea>
+            </div>
 
-<?php
-unset($_SESSION['form_errors'], $_SESSION['form_old']);
-require BASE_PATH . '/Components/layout/footer.php';
+            <!-- Honeypot -->
+            <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+            <div class="consent-wrap">
+                <input type="checkbox" id="privacy_accepted" name="privacy_accepted" value="1" <?= old('privacy_accepted') === '1' ? 'checked' : '' ?> required>
+                <label for="privacy_accepted">Ich habe die <a href="/datenschutz">Datenschutzerklärung</a> gelesen und stimme der Verarbeitung meiner Angaben zur Bearbeitung der Anfrage zu.</label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Nachricht senden</button>
+        </form>
+    </section>
+
+    <!-- DSGVO -->
+    <section class="panel contact-dsgvo">
+        <h2>Datenschutz</h2>
+        <p>
+            Deine Daten werden ausschließlich zur Bearbeitung deiner Anfrage verwendet.
+            Es erfolgt keine Weitergabe an Dritte.
+            Weitere Informationen findest du in der
+            <a href="/datenschutz">Datenschutzerklärung</a>.
+        </p>
+    </section>
+
+</div>
+
+<?php require BASE_PATH . '/Components/layout/footer.php'; ?>

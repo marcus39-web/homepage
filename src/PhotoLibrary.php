@@ -4,159 +4,190 @@ declare(strict_types=1);
 
 function photo_library_root(): ?string
 {
-	// Lokale/Server-Konfiguration hat Vorrang; data/photos ist der portable Webspace-Fallback.
-	$paths = [
-		app_env('PHOTO_LIBRARY_PATH'),
-		DATA_PATH . '/photos',
-		'D:/10_Fotoarchiv/Canon_R10_Bilder/01_Bibiothek_JPG',
-	];
+    $paths = [
+        app_env('PHOTO_LIBRARY_PATH'),
+        DATA_PATH . '/photos',
+        'D:/10_Fotoarchiv/Canon_R10_Bilder/01_Bibiothek_JPG',
+    ];
 
-	foreach (array_unique($paths) as $path) {
-		if ($path === '') {
-			continue;
-		}
+    foreach (array_unique($paths) as $path) {
+        if ($path === '') {
+            continue;
+        }
 
-		$root = realpath($path);
-		if ($root !== false && is_dir($root)) {
-			return $root;
-		}
-	}
+        $root = realpath($path);
+        if ($root !== false && is_dir($root)) {
+            return $root;
+        }
+    }
 
-	return null;
+    return null;
 }
 
 function photo_library_is_private(string $name): bool
 {
-	return str_contains(strtolower($name), 'privat');
+    return str_contains(strtolower($name), 'privat');
 }
 
 function photo_library_is_excluded_category(string $name): bool
 {
-	// Private und reine Web-Asset-Ordner dürfen nie als Fotokategorien erscheinen.
-	return photo_library_is_private($name) || preg_match('/^\d+(?:[._-]\d+)*[._-]*web$/i', $name) === 1;
+    return photo_library_is_private($name)
+    || str_contains(strtolower($name), 'passbild')
+        || preg_match('/^\d+(?:[._-]\d+)*[._-]*web$/i', $name) === 1;
 }
 
 function photo_library_is_supported_file(string $path): bool
 {
-	return in_array(strtolower(pathinfo($path, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'webp'], true);
+    return in_array(strtolower(pathinfo($path, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'webp'], true);
 }
 
 function photo_library_image_url(string $category, string $relativePath): string
 {
-	return '/public/photo.php?' . http_build_query([
-		'category' => $category,
-		'file' => $relativePath,
-	]);
+    return '/public/photo.php?' . http_build_query([
+        'category' => $category,
+        'file' => $relativePath,
+    ]);
 }
 
 function photo_library_image_variant_url(string $url, string $variant): string
 {
-	if (!in_array($variant, ['preview', 'gallery'], true)) {
-		return $url;
-	}
+    if (!in_array($variant, ['preview', 'gallery', 'thumb'], true)) {
+        return $url;
+    }
 
-	return $url . '&variant=' . rawurlencode($variant);
+    return $url . '&variant=' . rawurlencode($variant);
+}
+
+function photo_library_get_exif_datetime(string $filePath): ?int
+{
+    if (!function_exists('exif_read_data')) {
+        return filemtime($filePath) ?: null;
+    }
+
+    $exif = @exif_read_data($filePath, 'EXIF', true);
+
+    if (isset($exif['EXIF']['DateTimeOriginal'])) {
+        $ts = strtotime($exif['EXIF']['DateTimeOriginal']);
+        if ($ts !== false) {
+            return $ts;
+        }
+    }
+
+    if (isset($exif['IFD0']['DateTime'])) {
+        $ts = strtotime($exif['IFD0']['DateTime']);
+        if ($ts !== false) {
+            return $ts;
+        }
+    }
+
+    return filemtime($filePath) ?: null;
 }
 
 /**
- * @return array<int, array{name: string, label: string, photos: array<int, array{url: string, alt: string, path: string}>}>
+ * @return array<int, array{name: string, label: string, photos: array<int, array{url: string, alt: string, path: string, datetime: int|null}>}>
  */
 function get_photo_categories(): array
 {
-	$root = photo_library_root();
-	if ($root === null) {
-		return [];
-	}
+    $root = photo_library_root();
+    if ($root === null) {
+        return [];
+    }
 
-	$categories = [];
-	$categoryDirectories = glob($root . DIRECTORY_SEPARATOR . '*', GLOB_ONLYDIR) ?: [];
-	natsort($categoryDirectories);
+    $categories = [];
+    $categoryDirectories = glob($root . DIRECTORY_SEPARATOR . '*', GLOB_ONLYDIR) ?: [];
+    natsort($categoryDirectories);
 
-	foreach ($categoryDirectories as $categoryDirectory) {
-		$categoryName = basename($categoryDirectory);
-		if (photo_library_is_excluded_category($categoryName)) {
-			continue;
-		}
+    foreach ($categoryDirectories as $categoryDirectory) {
+        $categoryName = basename($categoryDirectory);
+        if (photo_library_is_excluded_category($categoryName)) {
+            continue;
+        }
 
-		$categoryRoot = realpath($categoryDirectory);
-		if ($categoryRoot === false) {
-			continue;
-		}
+        $categoryRoot = realpath($categoryDirectory);
+        if ($categoryRoot === false) {
+            continue;
+        }
 
-		$directory = new RecursiveDirectoryIterator($categoryRoot, FilesystemIterator::SKIP_DOTS);
-		// Unterordner werden durchsucht, private Zweige aber schon vor dem Traversieren entfernt.
-		$filtered = new RecursiveCallbackFilterIterator(
-			$directory,
-			static fn (SplFileInfo $item): bool => !$item->isDir() || !photo_library_is_private($item->getFilename())
-		);
-		$iterator = new RecursiveIteratorIterator($filtered);
-		$photos = [];
+        $directory = new RecursiveDirectoryIterator($categoryRoot, FilesystemIterator::SKIP_DOTS);
+        $filtered = new RecursiveCallbackFilterIterator(
+            $directory,
+            static fn (SplFileInfo $item): bool => !$item->isDir() || !photo_library_is_private($item->getFilename())
+        );
+        $iterator = new RecursiveIteratorIterator($filtered);
 
-		foreach ($iterator as $file) {
-			if (!$file->isFile() || !photo_library_is_supported_file($file->getFilename())) {
-				continue;
-			}
+        $photos = [];
 
-			$realFilePath = $file->getRealPath();
-			if ($realFilePath === false || !str_starts_with($realFilePath, $categoryRoot . DIRECTORY_SEPARATOR)) {
-				continue;
-			}
+        foreach ($iterator as $file) {
+            if (!$file->isFile() || !photo_library_is_supported_file($file->getFilename())) {
+                continue;
+            }
 
-			$relativePath = str_replace(DIRECTORY_SEPARATOR, '/', substr($realFilePath, strlen($categoryRoot) + 1));
-			if (count(array_filter(explode('/', $relativePath), 'photo_library_is_private')) > 0) {
-				continue;
-			}
+            $realFilePath = $file->getRealPath();
+            if ($realFilePath === false || !str_starts_with($realFilePath, $categoryRoot . DIRECTORY_SEPARATOR)) {
+                continue;
+            }
 
-			$imageName = pathinfo($file->getFilename(), PATHINFO_FILENAME);
-			$photos[] = [
-				'url' => photo_library_image_url($categoryName, $relativePath),
-				'alt' => trim(str_replace(['_', '-'], ' ', $imageName)),
-				'path' => $relativePath,
-			];
-		}
+            $relativePath = str_replace(DIRECTORY_SEPARATOR, '/', substr($realFilePath, strlen($categoryRoot) + 1));
 
-		usort($photos, static fn (array $left, array $right): int => strnatcasecmp($left['alt'], $right['alt']));
-		if ($photos === []) {
-			continue;
-		}
+            if (count(array_filter(explode('/', $relativePath), 'photo_library_is_private')) > 0) {
+                continue;
+            }
 
-		$label = preg_replace('/^\d+[._-]*/u', '', $categoryName) ?? $categoryName;
-		$categories[] = [
-			'name' => $categoryName,
-			'label' => trim(str_replace(['_', '-'], ' ', $label)),
-			'photos' => $photos,
-		];
-	}
+            $imageName = pathinfo($file->getFilename(), PATHINFO_FILENAME);
 
-	return $categories;
+            $photos[] = [
+                'url' => photo_library_image_url($categoryName, $relativePath),
+                'alt' => trim(str_replace(['_', '-'], ' ', $imageName)),
+                'path' => $relativePath,
+                'datetime' => photo_library_get_exif_datetime($realFilePath),
+            ];
+        }
+
+        usort($photos, static fn ($a, $b) => ($b['datetime'] ?? 0) <=> ($a['datetime'] ?? 0));
+
+        if ($photos === []) {
+            continue;
+        }
+
+        $label = preg_replace('/^\d+[._-]*/u', '', $categoryName) ?? $categoryName;
+
+        $categories[] = [
+            'name' => $categoryName,
+            'label' => trim(str_replace(['_', '-'], ' ', $label)),
+            'photos' => $photos,
+        ];
+    }
+
+    return $categories;
 }
 
 function resolve_photo_library_file(string $category, string $relativePath): ?string
 {
-	$root = photo_library_root();
-	if ($root === null || $category === '' || photo_library_is_excluded_category($category)) {
-		return null;
-	}
+    $root = photo_library_root();
+    if ($root === null || $category === '' || photo_library_is_excluded_category($category)) {
+        return null;
+    }
 
-	$categoryPath = realpath($root . DIRECTORY_SEPARATOR . $category);
-	if ($categoryPath === false || dirname($categoryPath) !== $root || !is_dir($categoryPath)) {
-		return null;
-	}
+    $categoryPath = realpath($root . DIRECTORY_SEPARATOR . $category);
+    if ($categoryPath === false || dirname($categoryPath) !== $root || !is_dir($categoryPath)) {
+        return null;
+    }
 
-	$segments = preg_split('~[\\\\/]~', $relativePath) ?: [];
-	if ($segments === [] || in_array('', $segments, true) || in_array('.', $segments, true) || in_array('..', $segments, true)) {
-		return null;
-	}
-	foreach ($segments as $segment) {
-		if (photo_library_is_private($segment)) {
-			return null;
-		}
-	}
+    $segments = preg_split('~[\\\\/]~', $relativePath) ?: [];
+    if ($segments === [] || in_array('', $segments, true) || in_array('.', $segments, true) || in_array('..', $segments, true)) {
+        return null;
+    }
 
-	$filePath = realpath($categoryPath . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $segments));
-	if ($filePath === false || !is_file($filePath) || !str_starts_with($filePath, $categoryPath . DIRECTORY_SEPARATOR)) {
-		return null;
-	}
+    foreach ($segments as $segment) {
+        if (photo_library_is_private($segment)) {
+            return null;
+        }
+    }
 
-	return photo_library_is_supported_file($filePath) ? $filePath : null;
+    $filePath = realpath($categoryPath . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $segments));
+    if ($filePath === false || !is_file($filePath) || !str_starts_with($filePath, $categoryPath . DIRECTORY_SEPARATOR)) {
+        return null;
+    }
+
+    return photo_library_is_supported_file($filePath) ? $filePath : null;
 }

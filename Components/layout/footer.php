@@ -1,37 +1,29 @@
-<?php
+<?php declare(strict_types=1); ?>
 
-declare(strict_types=1);
+<footer class="site-footer">
+    <div class="footer-grid wrap">
 
-// Optionales ID-Attribut erlaubt Sprungmarken oder seitenbezogene Hooks.
-$footerId = isset($footerId) && is_string($footerId) ? trim($footerId) : '';
-$footerIdAttribute = $footerId !== ''
-    ? ' id="' . htmlspecialchars($footerId, ENT_QUOTES, 'UTF-8') . '"'
-    : '';
-?>
-<footer class="site-footer"<?= $footerIdAttribute ?>>
-  <div class="wrap footer-grid">
-    <!-- Kontaktblock mit direktem Mail-Link und Formular-Einstieg. -->
-    <div>
-      <h2>Kontakt</h2>
-      <p>
-        Marcus Reiser<br>
-        Weimar / Legefeld<br>
-        <a href="mailto:info@marcusreiser.de">info@marcusreiser.de</a>
-      </p>
-      <a href="/contact">Kontaktformular öffnen</a>
+        <div>
+            <h2>Marcus Reiser</h2>
+            <p>Fotografie & IT · Weimar</p>
+        </div>
+
+        <div>
+            <h2>Navigation</h2>
+            <a href="/galerie">Fotografie</a>
+            <a href="/kalender">Kalender</a>
+            <a href="/contact">Kontakt</a>
+        </div>
+
+        <div>
+            <h2>Rechtliches</h2>
+            <a href="/impressum">Impressum</a>
+            <a href="/datenschutz">Datenschutz</a>
+        </div>
+
     </div>
-
-    <nav aria-label="Rechtliches">
-      <h2>Rechtliches</h2>
-      <a href="/impressum">Impressum</a>
-      <a href="/datenschutz">Datenschutz</a>
-    </nav>
-
-    <nav aria-label="Social Media">
-      <h2>Social Media</h2>
-      <a href="#">Instagram</a>
-    </nav>
-  </div>
 </footer>
+<script src="/public/assets/js/lazyload.js" defer></script>
+<script src="/public/assets/js/nav.js"></script>
 </body>
 </html>

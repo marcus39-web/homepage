@@ -60,7 +60,7 @@ $routes = [
 // Unbekannte Pfade liefern eine minimale 404-Seite.
 if (!isset($routes[$path])) {
     http_response_code(404);
-    echo '<!doctype html><html lang="de"><head><meta charset="utf-8"><title>404</title></head><body><h1>Seite nicht gefunden</h1></body></html>';
+    require __DIR__ . '/Components/pages/error-404.php';
     exit;
 }
 

@@ -22,7 +22,6 @@ foreach ($photoCategories as $category) {
 }
 
 if ($selectedCategory !== null) {
-	// Aeltere Scanner-Versionen liefern path nicht mit; die Foto-URL enthaelt ihn ebenfalls.
   foreach ($selectedCategory['photos'] as &$photo) {
     if (isset($photo['path']) && is_string($photo['path']) && $photo['path'] !== '') {
       continue;
@@ -40,7 +39,6 @@ if ($selectedCategory !== null) {
   $pageTitle = 'Fotografien: ' . $selectedCategory['label'] . ' - Marcus Reiser';
 
   if ($requestedSubfolder !== '') {
-	// Unterordner nur akzeptieren, wenn der gesuchte Zweig zu dieser Kategorie gehoert.
     $segments = explode('/', $requestedSubfolder);
     $validPath = !in_array('', $segments, true)
       && !in_array('.', $segments, true)
@@ -67,7 +65,6 @@ if ($selectedCategory !== null) {
       $relativePath = substr($relativePath, strlen($prefix));
     }
 
-    // Die naechste Pfadebene wird als Ordnerkarte gezeigt; Dateien auf dieser Ebene bleiben sichtbar.
     $pathSegments = explode('/', $relativePath, 2);
     if (count($pathSegments) === 1) {
       $visiblePhotos[] = $photo;
@@ -96,10 +93,7 @@ if ($selectedCategory !== null) {
 require BASE_PATH . '/Components/layout/header.php';
 ?>
 <header class="subpage-top">
-  <?php
-  $navContext = 'subpage';
-  require BASE_PATH . '/Components/layout/nav.php';
-  ?>
+  <?php require BASE_PATH . '/Components/layout/nav.php'; ?>
 </header>
 
 <main class="subpage-main wrap">
@@ -141,7 +135,6 @@ require BASE_PATH . '/Components/layout/header.php';
       <section class="photo-grid" aria-label="Fotografien aus <?= e($selectedSubfolder !== '' ? basename($selectedSubfolder) : $selectedCategory['label']) ?>">
         <?php foreach ($visiblePhotos as $photo): ?>
           <figure class="photo-item">
-            <?php // Auch die Vollbildansicht nutzt die optimierte Galerievariante statt des großen Originals. ?>
             <button class="photo-open" type="button" data-full-image="<?= e(photo_library_image_variant_url($photo['url'], 'gallery')) ?>" data-image-alt="<?= e($photo['alt']) ?>" aria-label="Bild vergrößern: <?= e($photo['alt']) ?>">
               <img src="<?= e(photo_library_image_variant_url($photo['url'], 'gallery')) ?>" alt="" loading="lazy">
             </button>
@@ -164,7 +157,6 @@ require BASE_PATH . '/Components/layout/header.php';
         <div class="photo-grid">
           <?php foreach ($category['photos'] as $photo): ?>
             <figure class="photo-item">
-              <?php // Auch die Vollbildansicht nutzt die optimierte Galerievariante statt des großen Originals. ?>
               <button class="photo-open" type="button" data-full-image="<?= e(photo_library_image_variant_url($photo['url'], 'gallery')) ?>" data-image-alt="<?= e($photo['alt']) ?>" aria-label="Bild vergrößern: <?= e($photo['alt']) ?>">
                 <img src="<?= e(photo_library_image_variant_url($photo['url'], 'gallery')) ?>" alt="" loading="lazy">
               </button>
@@ -180,7 +172,25 @@ require BASE_PATH . '/Components/layout/header.php';
 <dialog class="photo-lightbox" aria-label="Bildansicht">
   <button class="photo-lightbox-close" type="button" aria-label="Bildansicht schließen">&times;</button>
   <img class="photo-lightbox-image" alt="">
+  <div id="exif-datetime" style="margin-top:10px; font-weight:bold;"></div>
+  <dl class="photo-exif" id="exif-camera-settings" hidden>
+    <div data-exif-key="camera" hidden><dt>Kamera</dt><dd></dd></div>
+    <div data-exif-key="lens" hidden><dt>Objektiv</dt><dd></dd></div>
+    <div data-exif-key="focal" hidden><dt>Brennweite</dt><dd></dd></div>
+    <div data-exif-key="aperture" hidden><dt>Blende</dt><dd></dd></div>
+    <div data-exif-key="exposure" hidden><dt>Belichtungszeit</dt><dd></dd></div>
+    <div data-exif-key="iso" hidden><dt>ISO</dt><dd></dd></div>
+  </dl>
+  <div id="exif-location" style="margin-top:10px; font-weight:bold;"></div>
+  <div id="weather" style="margin-top:15px; font-size:14px; display:none;">
+    <div><strong>Wetter um:</strong> <span id="weather-time"></span></div>
+    <div><strong>Temperatur:</strong> <span id="weather-temp"></span></div>
+    <div><strong>Bewölkung:</strong> <span id="weather-clouds"></span></div>
+    <div><strong>Wind:</strong> <span id="weather-wind"></span></div>
+    <div><strong>Wetter:</strong> <span id="weather-desc"></span></div>
+  </div>
+  <div id="map" style="width:100%; height:300px; display:none; margin-top:20px;"></div>
 </dialog>
-<script src="/public/js/gallery-lightbox.js" defer></script>
+<script src="/public/assets/js/gallery-lightbox.js" defer></script>
 
 <?php require BASE_PATH . '/Components/layout/footer.php'; ?>

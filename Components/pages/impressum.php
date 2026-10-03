@@ -1,39 +1,71 @@
-<?php
+<?php declare(strict_types=1);
 
-declare(strict_types=1);
-
-$pageTitle = 'Impressum - Marcus Reiser';
-$pageDescription = 'Impressum von marcusreiser.de.';
-$bodyClass = 'subpage';
-$currentPage = 'impressum';
-
+$pageTitle = "Impressum – Marcus Reiser";
+$pageDescription = "Impressum gemäß § 5 TMG.";
+$navContext = "subpage";
+$bodyClass = "subpage";
 require BASE_PATH . '/Components/layout/header.php';
 ?>
-<header class="subpage-top">
-  <?php
-  $navContext = 'subpage';
-  require BASE_PATH . '/Components/layout/nav.php';
-  ?>
-</header>
 
-<main class="subpage-main wrap">
-  <section class="panel legal-block">
-    <h1>Impressum</h1>
-    <h2>Angaben gemäß § 5 DDG</h2>
-    <address>
-      Marcus Reiser<br>
-      Lerchenweg 16<br>
-      99428 Weimar-Legefeld
-    </address>
+<div class="subpage-top">
+    <?php require BASE_PATH . '/Components/layout/nav.php'; ?>
+    <div class="wrap subpage-head">
+        <p class="eyebrow-lite">Impressum</p>
+        <h1>Angaben gemäß § 5 TMG</h1>
+    </div>
+</div>
 
-    <h2>Kontakt</h2>
-    <p>E-Mail: <a href="mailto:info@marcusreiser.de">info@marcusreiser.de</a></p>
+<div class="subpage-main wrap">
 
-    <h2>Verantwortlich für den Inhalt</h2>
-    <p>Marcus Reiser, Anschrift wie oben.</p>
+    <section class="panel">
+        <h2>Verantwortlich</h2>
+        <p>
+            Marcus Klaus‑Dieter Reiser<br>
+            Fotografie & IT<br>
+            Weimar / Legefeld<br>
+            Deutschland
+        </p>
+    </section>
 
-    <a class="btn btn-primary" href="/">Zur Startseite</a>
-  </section>
-</main>
+    <section class="panel">
+        <h2>Kontakt</h2>
+        <p>
+            E‑Mail: <a href="mailto:kontakt@marcusreiser.de">kontakt@marcusreiser.de</a><br>
+            Website: <a href="https://marcusreiser.de">marcusreiser.de</a>
+        </p>
+    </section>
+
+    <section class="panel">
+        <h2>Umsatzsteuer</h2>
+        <p>
+            Kleingewerbe gemäß § 19 UStG – keine Ausweisung der Umsatzsteuer.
+        </p>
+    </section>
+
+    <section class="panel">
+        <h2>Haftung für Inhalte</h2>
+        <p>
+            Die Inhalte dieser Website wurden mit größter Sorgfalt erstellt. Für die Richtigkeit,
+            Vollständigkeit und Aktualität der Inhalte kann jedoch keine Gewähr übernommen werden.
+        </p>
+    </section>
+
+    <section class="panel">
+        <h2>Haftung für Links</h2>
+        <p>
+            Diese Website enthält Links zu externen Webseiten Dritter, auf deren Inhalte ich keinen Einfluss habe.
+            Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter verantwortlich.
+        </p>
+    </section>
+
+    <section class="panel">
+        <h2>Urheberrecht</h2>
+        <p>
+            Alle Fotografien und Inhalte auf dieser Website sind urheberrechtlich geschützt.
+            Jegliche Nutzung, Vervielfältigung oder Weitergabe ist ohne schriftliche Genehmigung untersagt.
+        </p>
+    </section>
+
+</div>
 
 <?php require BASE_PATH . '/Components/layout/footer.php'; ?>
