@@ -102,11 +102,6 @@ require BASE_PATH . '/Components/layout/header.php';
                 <h3>Tiere</h3>
             </a>
 
-            <a href="/galerie?<?= e(http_build_query(['ordner' => '04_Portraits', 'unterordner' => 'Marcus'])) ?>" class="gallery-card">
-                <img src="<?= e(photo_library_image_variant_url(photo_library_image_url('04_Portraits', 'Marcus/farbe/07_09_2026_schwarzer_Hintergrund.JPG'), 'preview')) ?>" alt="Portrait von Marcus Reiser">
-                <h3>Portraits</h3>
-            </a>
-
         </div>
 
         <a href="/galerie" class="calendar-teaser btn btn-primary">Zur kompletten Galerie</a>
