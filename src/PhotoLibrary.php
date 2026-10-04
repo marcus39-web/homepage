@@ -43,10 +43,21 @@ function photo_library_is_supported_file(string $path): bool
 
 function photo_library_image_url(string $category, string $relativePath): string
 {
-    return '/public/photo.php?' . http_build_query([
+    $parameters = [
         'category' => $category,
         'file' => $relativePath,
-    ]);
+    ];
+    $sourcePath = resolve_photo_library_file($category, $relativePath);
+    if ($sourcePath !== null) {
+        clearstatcache(true, $sourcePath);
+        $modifiedAt = filemtime($sourcePath);
+        $fileSize = filesize($sourcePath);
+        if ($modifiedAt !== false && $fileSize !== false) {
+            $parameters['v'] = $modifiedAt . '-' . $fileSize;
+        }
+    }
+
+    return '/public/photo.php?' . http_build_query($parameters);
 }
 
 function photo_library_image_variant_url(string $url, string $variant): string
