@@ -37,6 +37,19 @@ function ensure_dir(string $path): void {
     }
 }
 
+function photo_variant_is_stale(string $sourcePath, string $variantPath): bool {
+    if (!is_file($variantPath)) {
+        return true;
+    }
+
+    clearstatcache(true, $sourcePath);
+    clearstatcache(true, $variantPath);
+    $sourceMtime = filemtime($sourcePath);
+    $variantMtime = filemtime($variantPath);
+
+    return $sourceMtime !== false && ($variantMtime === false || $sourceMtime > $variantMtime);
+}
+
 /**
  * Wasserzeichen auf ein Bild legen (unten rechts)
  */
@@ -172,34 +185,37 @@ function create_webp_variant(string $source, string $target, int $maxWidth): boo
  */
 if ($variant === 'preview') {
 
-    if (!is_file($previewFile) && !create_webp_variant($filePath, $previewFile, 600)) {
+    if (photo_variant_is_stale($filePath, $previewFile) && !create_webp_variant($filePath, $previewFile, 600)) {
         $servedPath = $filePath;
         $cacheDuration = 3600;
     } else {
-        $servedPath = $previewFile;
-        $cacheDuration = 86400;
+        $previewIsCurrent = is_file($previewFile) && !photo_variant_is_stale($filePath, $previewFile);
+        $servedPath = $previewIsCurrent ? $previewFile : $filePath;
+        $cacheDuration = $previewIsCurrent ? 86400 : 3600;
     }
 
 } elseif ($variant === 'gallery') {
 
-    if (!is_file($galleryFile)) {
+    if (photo_variant_is_stale($filePath, $galleryFile)) {
         if (create_webp_variant($filePath, $galleryFile, 1600)) {
             $watermarkPath = __DIR__ . '/assets/watermark/watermark.png';
             apply_watermark($galleryFile, $watermarkPath);
         }
     }
 
-    $servedPath = is_file($galleryFile) ? $galleryFile : $filePath;
-    $cacheDuration = is_file($galleryFile) ? 86400 : 3600;
+    $galleryIsCurrent = is_file($galleryFile) && !photo_variant_is_stale($filePath, $galleryFile);
+    $servedPath = $galleryIsCurrent ? $galleryFile : $filePath;
+    $cacheDuration = $galleryIsCurrent ? 86400 : 3600;
 
 } elseif ($variant === 'thumb') {
 
-    if (!is_file($thumbFile) && !create_webp_variant($filePath, $thumbFile, 300)) {
+    if (photo_variant_is_stale($filePath, $thumbFile) && !create_webp_variant($filePath, $thumbFile, 300)) {
         $servedPath = $filePath;
         $cacheDuration = 3600;
     } else {
-        $servedPath = $thumbFile;
-        $cacheDuration = 86400;
+        $thumbIsCurrent = is_file($thumbFile) && !photo_variant_is_stale($filePath, $thumbFile);
+        $servedPath = $thumbIsCurrent ? $thumbFile : $filePath;
+        $cacheDuration = $thumbIsCurrent ? 86400 : 3600;
     }
 
 } else {
