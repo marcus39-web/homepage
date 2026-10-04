@@ -11,7 +11,7 @@ require BASE_PATH . '/Components/layout/header.php';
 
     <!-- Hero-Bild -->
     <div class="hero-media">
-        <img src="<?= e(photo_library_image_variant_url(photo_library_image_url('07_Blumen', 'Sonnenblumen/Legefeld/10_09_2026/Marcus_Sonnenblumen_2.JPG'), 'gallery')) ?>" alt="Marcus zwischen Sonnenblumen">
+        <img src="<?= e(photo_library_image_variant_url(photo_library_image_url('07_Blumen', 'Sonnenblumen/Legefeld/10_09_2026/Marcus_Sonnenblume_2.JPG'), 'gallery')) ?>" alt="Marcus zwischen Sonnenblumen">
     </div>
 
     <div class="hero-content">
