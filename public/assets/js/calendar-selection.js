@@ -6,7 +6,17 @@
   const previewDays = document.querySelector('#calendar-preview-days');
   const orderDialog = document.querySelector('#calendar-order-dialog');
   const orderDialogClose = document.querySelector('#calendar-order-dialog-close');
-  const motifSelects = [...document.querySelectorAll('.calendar-motif-select')];
+  const motifCards = [...document.querySelectorAll('.calendar-month-card[data-calendar-month]')];
+  const motifChoices = [...document.querySelectorAll('[data-motif-choice]')];
+  const motifById = new Map(motifChoices.map(choice => [choice.dataset.motifId, choice]));
+  const motifPicker = document.querySelector('#calendar-motif-dialog');
+  const motifPickerClose = document.querySelector('#calendar-motif-dialog-close');
+  const motifPickerMonth = document.querySelector('#calendar-motif-dialog-month');
+  const motifFolderGrid = document.querySelector('#calendar-motif-folder-grid');
+  const motifFolderImages = document.querySelector('#calendar-motif-folder-images');
+  const motifActiveFolder = document.querySelector('#calendar-motif-active-folder');
+  const motifFolderButtons = [...document.querySelectorAll('[data-motif-folder-open]')];
+  const motifFolderBack = document.querySelector('[data-motif-folder-back]');
   const orderMotifs = [...document.querySelectorAll('[data-order-motif]')];
   const monthNames = [
     'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
@@ -62,7 +72,7 @@
     TH: [['2027-01-01','2027-01-02'],['2027-02-01','2027-02-06'],['2027-03-22','2027-04-03'],['2027-05-07','2027-05-07'],['2027-07-10','2027-08-20'],['2027-10-09','2027-10-23'],['2027-12-23','2027-12-31']],
   };
 
-  if (!previewMonth || !previewImage || !previewLabel || !previewDays || motifSelects.length === 0) return;
+  if (!previewMonth || !previewImage || !previewLabel || !previewDays || motifCards.length === 0 || motifChoices.length === 0 || !(motifPicker instanceof HTMLDialogElement) || !(motifFolderGrid instanceof HTMLElement) || !(motifFolderImages instanceof HTMLElement)) return;
 
   let savedDisplaySettings = {};
   try {
@@ -145,12 +155,12 @@
 
   function updatePreview() {
     const month = previewMonth.value;
-    const select = motifSelects.find(item => item.dataset.calendarMonth === month);
-    const option = select?.selectedOptions[0];
-    if (!option) return;
+    const card = motifCards.find(item => item.dataset.calendarMonth === month);
+    const motif = card ? motifById.get(card.dataset.currentMotif) : null;
+    if (!motif) return;
 
-    previewImage.src = option.dataset.imageUrl;
-    previewImage.alt = `${month} 2027: ${option.dataset.imageAlt}`;
+    previewImage.src = motif.dataset.motifUrl;
+    previewImage.alt = `${month} 2027: ${motif.dataset.motifAlt}`;
     previewLabel.textContent = month;
     renderMonthCalendar(month);
   }
@@ -175,8 +185,8 @@
 
   function persistSelections() {
     const selected = {};
-    for (const select of motifSelects) {
-      selected[select.dataset.calendarMonth] = select.value;
+    for (const card of motifCards) {
+      selected[card.dataset.calendarMonth] = card.dataset.currentMotif;
     }
 
     try {
@@ -186,34 +196,76 @@
     }
   }
 
-  for (const select of motifSelects) {
-    const storedMotif = savedMotifs[select.dataset.calendarMonth];
-    if (typeof storedMotif === 'string' && [...select.options].some(option => option.value === storedMotif)) {
-      select.value = storedMotif;
+  function updateMonth(card, motifId) {
+    const motif = motifById.get(motifId);
+    if (!motif) return;
+
+    const month = card.dataset.calendarMonth;
+    card.dataset.currentMotif = motifId;
+    const image = card.querySelector('[data-calendar-image]');
+    const label = card.querySelector('[data-calendar-label]');
+    const folder = card.querySelector('[data-calendar-folder]');
+    const hiddenInput = orderMotifs.find(input => input.dataset.orderMotif === month);
+
+    if (image) {
+      image.src = motif.dataset.motifUrl;
+      image.alt = `${month}: ${motif.dataset.motifAlt}`;
     }
+    if (label) label.textContent = motif.dataset.motifAlt ?? '';
+    if (folder) folder.textContent = `Ordner: ${motif.dataset.motifFolder ?? ''}`;
+    if (hiddenInput) hiddenInput.value = motifId;
+    if (previewMonth.value === month) updatePreview();
 
-    const card = select.closest('.calendar-month-card');
-    const image = card?.querySelector('[data-calendar-image]');
-    const label = card?.querySelector('[data-calendar-label]');
-    const hiddenInput = orderMotifs.find(input => input.dataset.orderMotif === select.dataset.calendarMonth);
-
-    function updateMonth() {
-      const option = select.selectedOptions[0];
-      if (!option) return;
-
-      if (image) {
-        image.src = option.dataset.imageUrl;
-        image.alt = `${select.dataset.calendarMonth}: ${option.dataset.imageAlt}`;
-      }
-      if (label) label.textContent = option.dataset.imageAlt ?? '';
-      if (hiddenInput) hiddenInput.value = select.value;
-      if (previewMonth.value === select.dataset.calendarMonth) updatePreview();
-      persistSelections();
-    }
-
-    updateMonth();
-    select.addEventListener('change', updateMonth);
+    motifChoices.forEach(choice => choice.classList.toggle('is-selected', choice.dataset.motifId === motifId));
+    persistSelections();
   }
+
+  function showMotifFolder(folder) {
+    if (motifActiveFolder) motifActiveFolder.textContent = folder;
+    motifFolderGrid.hidden = true;
+    motifFolderImages.hidden = false;
+    motifChoices.forEach(choice => {
+      choice.hidden = choice.dataset.motifFolder !== folder;
+    });
+    document.querySelector('#calendar-motif-grid')?.scrollTo({ top: 0 });
+  }
+
+  function showMotifFolders() {
+    motifFolderImages.hidden = true;
+    motifFolderGrid.hidden = false;
+  }
+
+  let activeMotifCard = null;
+  for (const card of motifCards) {
+    const storedMotif = savedMotifs[card.dataset.calendarMonth];
+    const initialMotif = typeof storedMotif === 'string' && motifById.has(storedMotif)
+      ? storedMotif
+      : card.dataset.currentMotif;
+    updateMonth(card, initialMotif);
+
+    card.querySelector('[data-open-motif-picker]')?.addEventListener('click', () => {
+      activeMotifCard = card;
+      motifPickerMonth.textContent = card.dataset.calendarMonth;
+      showMotifFolders();
+      motifPicker.showModal();
+    });
+  }
+
+  motifFolderButtons.forEach(folderButton => {
+    folderButton.addEventListener('click', () => showMotifFolder(folderButton.dataset.folderName ?? ''));
+  });
+  motifFolderBack?.addEventListener('click', showMotifFolders);
+  motifChoices.forEach(choice => {
+    choice.addEventListener('click', () => {
+      if (!(activeMotifCard instanceof HTMLElement)) return;
+      updateMonth(activeMotifCard, choice.dataset.motifId);
+      motifPicker.close();
+    });
+  });
+  motifPickerClose?.addEventListener('click', () => motifPicker.close());
+  motifPicker.addEventListener('click', event => {
+    if (event.target === motifPicker) motifPicker.close();
+  });
 
   previewMonth.addEventListener('change', () => {
     updatePreview();

@@ -8,6 +8,9 @@ $orderErrors = (array) ($_SESSION['order_errors'] ?? []);
 $orderSuccess = flash('order_success');
 $calendarMotifs = calendar_motif_catalog();
 $calendarMonths = calendar_month_defaults();
+$calendarFolders = array_values(array_unique(array_column($calendarMotifs, 'folder')));
+natcasesort($calendarFolders);
+$calendarFolders = array_values($calendarFolders);
 require BASE_PATH . '/Components/layout/header.php';
 ?>
 
@@ -115,7 +118,7 @@ require BASE_PATH . '/Components/layout/header.php';
         <div class="calendar-month-grid">
             <?php foreach ($calendarMonths as $month => $selectedMotifId): ?>
                 <?php $selectedMotif = $calendarMotifs[$selectedMotifId]; ?>
-                <article class="calendar-month-card">
+                <article class="calendar-month-card" data-calendar-month="<?= e($month) ?>" data-current-motif="<?= e($selectedMotifId) ?>">
                     <div class="calendar-month-image-wrap">
                         <img
                             class="calendar-month-image"
@@ -134,20 +137,62 @@ require BASE_PATH . '/Components/layout/header.php';
                             </div>
                             <div class="calendar-preview-days" data-month-calendar="<?= e($month) ?>" aria-hidden="true"></div>
                         </div>
-                        <label for="calendar-motif-<?= (int) array_search($month, array_keys($calendarMonths), true) ?>">Motiv für <?= e($month) ?></label>
-                        <select
-                            id="calendar-motif-<?= (int) array_search($month, array_keys($calendarMonths), true) ?>"
-                            class="calendar-motif-select"
-                            data-calendar-month="<?= e($month) ?>"
-                        >
-                            <?php foreach ($calendarMotifs as $motifId => $motif): ?>
-                                <option value="<?= e($motifId) ?>" data-image-url="<?= e($motif['url']) ?>" data-image-alt="<?= e($motif['label']) ?>" <?= $motifId === $selectedMotifId ? 'selected' : '' ?>><?= e($motif['label']) ?></option>
-                            <?php endforeach; ?>
-                        </select>
+                        <p class="calendar-motif-folder" data-calendar-folder>Ordner: <?= e($selectedMotif['folder']) ?></p>
+                        <button class="calendar-motif-open" type="button" data-open-motif-picker data-calendar-month="<?= e($month) ?>" aria-haspopup="dialog">Motiv auswählen</button>
                     </div>
                 </article>
             <?php endforeach; ?>
         </div>
+
+        <dialog class="calendar-motif-dialog" id="calendar-motif-dialog" aria-labelledby="calendar-motif-dialog-title">
+            <button class="calendar-motif-dialog-close" id="calendar-motif-dialog-close" type="button" aria-label="Motivauswahl schließen">&times;</button>
+            <p class="eyebrow-lite">Kalenderbild für <span id="calendar-motif-dialog-month"></span></p>
+            <h2 id="calendar-motif-dialog-title">Ordner und Motiv auswählen</h2>
+            <div class="calendar-motif-folder-grid" id="calendar-motif-folder-grid">
+                <?php foreach ($calendarFolders as $folder): ?>
+                    <?php
+                    $folderMotifs = array_filter($calendarMotifs, static fn (array $motif): bool => $motif['folder'] === $folder);
+                    $folderPreview = reset($folderMotifs);
+                    if (!is_array($folderPreview)) {
+                        continue;
+                    }
+                    ?>
+                    <button class="calendar-motif-folder-card" type="button" data-motif-folder-open data-folder-name="<?= e($folder) ?>">
+                        <img src="<?= e($folderPreview['url']) ?>" alt="" loading="lazy" decoding="async">
+                        <span class="calendar-motif-folder-card-details">
+                            <strong><?= e($folder) ?></strong>
+                            <span><?= count($folderMotifs) ?> <?= count($folderMotifs) === 1 ? 'Bild' : 'Bilder' ?></span>
+                        </span>
+                    </button>
+                <?php endforeach; ?>
+            </div>
+            <div class="calendar-motif-folder-images" id="calendar-motif-folder-images" hidden>
+                <div class="calendar-motif-folder-toolbar">
+                    <button class="calendar-motif-back" type="button" data-motif-folder-back>Zurück zu den Ordnern</button>
+                    <h3 id="calendar-motif-active-folder"></h3>
+                </div>
+                <div class="calendar-motif-grid" id="calendar-motif-grid">
+                <?php foreach ($calendarMotifs as $motifId => $motif): ?>
+                    <button
+                        class="calendar-motif-option"
+                        type="button"
+                        data-motif-choice
+                        data-motif-id="<?= e($motifId) ?>"
+                        data-motif-url="<?= e($motif['url']) ?>"
+                        data-motif-alt="<?= e($motif['label']) ?>"
+                        data-motif-folder="<?= e($motif['folder']) ?>"
+                        aria-label="<?= e($motif['folder'] . ': ' . $motif['label']) ?>"
+                    >
+                        <img src="<?= e($motif['url']) ?>" alt="" loading="lazy" decoding="async">
+                        <span class="calendar-motif-option-details">
+                            <span class="calendar-motif-option-folder"><?= e($motif['folder']) ?></span>
+                            <strong><?= e($motif['label']) ?></strong>
+                        </span>
+                    </button>
+                <?php endforeach; ?>
+                </div>
+            </div>
+        </dialog>
     </section>
 
     <!-- Druckinformationen -->

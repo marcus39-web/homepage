@@ -328,11 +328,11 @@ function get_calendar_orders(): array
 /**
  * Motive, die für die Kalenderauswahl freigegeben sind.
  *
- * @return array<string, array{label: string, url: string}>
+ * @return array<string, array{label: string, url: string, folder: string}>
  */
 function calendar_motif_catalog(): array
 {
-	$files = [
+	$defaultFiles = [
 		'flussbaum' => ['label' => 'Baum im Fluss', 'file' => 'Baum_im Fluss_Tiefurt06.09.2026.JPG'],
 		'ente-1' => ['label' => 'Ente am Fluss', 'file' => 'Ente_1.JPG'],
 		'bach' => ['label' => 'Bach und bunte Steine', 'file' => 'Ilm_kleiner_Bach_bunter_Stein_2.JPG'],
@@ -347,14 +347,51 @@ function calendar_motif_catalog(): array
 		'ilm-2' => ['label' => 'Ilm-Motiv', 'file' => 'IMG_2254.JPG'],
 	];
 
-	foreach ($files as &$motif) {
-		$webFile = pathinfo($motif['file'], PATHINFO_FILENAME) . '.webp';
-		$motif['url'] = '/public/assets/images/galerie/natur/Ilm/' . rawurlencode($webFile);
-		unset($motif['file']);
+	$motifs = [];
+	$preferredIdsByFile = [];
+	foreach ($defaultFiles as $motifId => $motif) {
+		$preferredIdsByFile[$motif['file']] = $motifId;
 	}
-	unset($motif);
 
-	return $files;
+	foreach (get_photo_categories(true) as $category) {
+		if ($category['name'] !== '20.02_Web') {
+			continue;
+		}
+
+		foreach ($category['photos'] as $photo) {
+			$relativePath = str_replace('\\', '/', (string) ($photo['path'] ?? ''));
+			$segments = explode('/', $relativePath);
+			if (count($segments) < 2 || in_array('', $segments, true) || in_array('.', $segments, true) || in_array('..', $segments, true)) {
+				continue;
+			}
+			$excludedPath = count(array_filter($segments, static fn (string $segment): bool =>
+				photo_library_is_private($segment) || str_contains(strtolower($segment), 'passbild')
+			)) > 0;
+			if ($excludedPath || photo_library_is_excluded_category($segments[0])) {
+				continue;
+			}
+
+			$fileName = basename($relativePath);
+			$motifId = $preferredIdsByFile[$fileName]
+				?? 'photo-' . substr(hash('sha256', $category['name'] . '/' . $relativePath), 0, 20);
+			$folder = str_replace(['_', '-'], ' ', $segments[0]);
+
+			$motifs[$motifId] = [
+				'label' => (string) ($photo['alt'] ?? $fileName),
+				'url' => photo_library_image_variant_url((string) $photo['url'], 'preview'),
+				'folder' => $folder,
+			];
+		}
+	}
+
+	if ($motifs !== []) {
+		$firstMotif = reset($motifs);
+		foreach ($defaultFiles as $motifId => $_motif) {
+			$motifs[$motifId] ??= $firstMotif;
+		}
+	}
+
+	return $motifs;
 }
 
 /**

@@ -963,6 +963,163 @@ main section {
   font: inherit;
 }
 
+.calendar-motif-open {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--brand-dark);
+  background: var(--surface-2);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.calendar-motif-open:hover,
+.calendar-motif-open:focus-visible {
+  border-color: var(--brand);
+}
+
+.calendar-motif-dialog {
+  width: min(1040px, calc(100vw - 2rem));
+  max-height: 90vh;
+  overflow: hidden;
+  padding: 1.4rem;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+.calendar-motif-dialog::backdrop {
+  background: rgb(18 27 25 / 65%);
+}
+
+.calendar-motif-dialog-close {
+  float: right;
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--text);
+  background: var(--surface);
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.calendar-motif-folder-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 0.75rem;
+  max-height: min(62vh, 640px);
+  overflow: auto;
+  margin-top: 1rem;
+  padding: 0.15rem;
+}
+
+.calendar-motif-folder-grid[hidden],
+.calendar-motif-folder-images[hidden] {
+  display: none;
+}
+
+.calendar-motif-folder-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.calendar-motif-back {
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--brand-dark);
+  background: var(--surface-2);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.calendar-motif-folder-toolbar h3 {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.calendar-motif-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.75rem;
+  max-height: min(62vh, 640px);
+  overflow: auto;
+  margin-top: 1rem;
+  padding: 0.15rem;
+}
+
+.calendar-motif-folder-card,
+.calendar-motif-option {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--text);
+  background: var(--surface);
+  text-align: left;
+  cursor: pointer;
+}
+
+.calendar-motif-folder-card:hover,
+.calendar-motif-folder-card:focus-visible,
+.calendar-motif-option:hover,
+.calendar-motif-option:focus-visible,
+.calendar-motif-option.is-selected {
+  border-color: var(--brand);
+  outline-color: var(--brand);
+}
+
+.calendar-motif-option[hidden] {
+  display: none;
+}
+
+.calendar-motif-folder-card > img,
+.calendar-motif-option > img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  background: #dce5d6;
+}
+
+.calendar-motif-folder-card-details,
+.calendar-motif-option-details {
+  display: grid;
+  align-content: start;
+  gap: 0.25rem;
+  padding: 0.55rem 0.65rem;
+}
+
+.calendar-motif-folder-card-details > span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.calendar-motif-option-folder {
+  color: var(--muted);
+  font-size: 0.74rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.calendar-motif-option-details strong {
+  font-size: 0.92rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
 .calendar-builder-copy .btn {
   margin-top: 1rem;
 }
@@ -1085,6 +1242,14 @@ main section {
   font-size: 0.9rem;
 }
 
+.calendar-month-content .calendar-motif-folder {
+  min-height: 0;
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
 .calendar-month-calendar {
   margin-top: 0.35rem;
   padding-top: 0.45rem;
@@ -1112,6 +1277,16 @@ main section {
 }
 
 @media (max-width: 600px) {
+  .calendar-motif-dialog {
+    padding: 1rem;
+  }
+
+  .calendar-motif-folder-grid,
+  .calendar-motif-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
   .calendar-builder {
     grid-template-columns: minmax(0, 1fr);
     gap: 1.4rem;
