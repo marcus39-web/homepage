@@ -34,25 +34,68 @@ require BASE_PATH . '/Components/layout/header.php';
     </section>
 
     <section class="panel">
-        <h2>Erfassung von Daten</h2>
+        <h2>Hosting und Besucherstatistik</h2>
         <p>
-            Diese Website erfasst automatisch technische Daten wie Browsertyp, Uhrzeit des Seitenaufrufs
-            und IP‑Adresse (gekürzt). Diese Daten dienen ausschließlich der technischen Bereitstellung.
+            Beim Aufruf der Website verarbeitet der Hostinganbieter netcup technische Verbindungsdaten,
+            insbesondere IP-Adresse, Zeitpunkt, angeforderte Adresse, Browserinformationen und Status der Anfrage,
+            um die Website auszuliefern und vor Missbrauch zu schützen. Die Verarbeitung durch netcup richtet sich
+            auch nach dessen Datenschutzhinweisen und den dort genannten Speicherfristen.
+        </p>
+        <p>
+            Die interne Besucherstatistik speichert Gesamtaufrufe, aufgerufene Seiten, Tageszahlen und eine
+            sitzungsbasierte Tageszählung in einer lokalen Statistikdatei. Der eigene Besucherzähler speichert
+            dabei keine IP-Adresse. Die Zählung wird derzeit nicht automatisch gelöscht.
         </p>
     </section>
 
     <section class="panel">
-        <h2>Kontaktformular</h2>
+        <h2>Sitzungen und Cookies</h2>
         <p>
-            Wenn du mir über das Kontaktformular schreibst, werden deine Angaben (Name, E‑Mail, Nachricht)
-            zur Bearbeitung der Anfrage gespeichert. Eine Weitergabe an Dritte erfolgt nicht.
+            Für Formulare, CSRF-Schutz und die sitzungsbasierte Besucherzählung verwendet die Website eine
+            technisch notwendige PHP-Sitzung. Das Sitzungs-Cookie ist auf die Dauer der Browsersitzung begrenzt,
+            wird mit den Sicherheitsoptionen HttpOnly und SameSite=Lax gesetzt und bei HTTPS als Secure markiert.
+            Es werden keine Werbe- oder Analyse-Cookies eingesetzt.
         </p>
     </section>
 
     <section class="panel">
-        <h2>Cookies</h2>
+        <h2>Fotos und EXIF-Daten</h2>
         <p>
-            Diese Website verwendet keine Tracking‑Cookies und keine Analyse‑Tools.
+            Bei veröffentlichten Fotos können EXIF-Daten verarbeitet und in der vergrößerten Bildansicht angezeigt
+            werden. Dazu gehören, soweit im Foto vorhanden, Aufnahmezeit, Kameramodell, Objektiv, Brennweite,
+            Blende, Belichtungszeit, ISO-Wert und GPS-Koordinaten. Der Bild-Endpunkt stellt diese Angaben dem
+            Browser über einen HTTP-Header bereit. Veröffentliche deshalb nur Bilder, deren Metadaten und
+            Aufnahmeorte du teilen möchtest.
+        </p>
+    </section>
+
+    <section class="panel">
+        <h2>Open-Meteo und Nominatim</h2>
+        <p>
+            Wenn ein geöffnetes Foto GPS-Koordinaten enthält, fragt der Browser bei Nominatim den ungefähren Ortsnamen
+            ab. Sind zusätzlich Aufnahmedatum und -zeit vorhanden, fragt der Browser bei Open-Meteo historische oder
+            aktuelle Wetterdaten für diesen Ort und Zeitpunkt ab. Dabei werden Koordinaten und – bei Open-Meteo –
+            das Aufnahmedatum an den jeweiligen Dienst übermittelt. Die Dienste erhalten dabei technisch auch die
+            IP-Adresse des anfragenden Browsers. Ohne GPS-Daten werden diese Abfragen nicht ausgeführt.
+        </p>
+    </section>
+
+    <section class="panel">
+        <h2>Kontakt- und Kalenderanfragen</h2>
+        <p>
+            Bei einer Kontaktanfrage werden Name, E-Mail-Adresse und Nachricht in einer lokalen Protokolldatei
+            gespeichert und zur Bearbeitung an info@marcusreiser.de versendet. Ist Resend konfiguriert, wird die
+            Nachricht über diesen E-Mail-Dienst übermittelt; andernfalls nutzt der Server seinen Mailversand.
+        </p>
+        <p>
+            Bei einer Kalenderanfrage werden Name, E-Mail-Adresse, Stückzahl, Nachricht, ausgewählte Monatsmotive,
+            Zeitpunkt und IP-Adresse in einer lokalen Datei gespeichert. Eine Benachrichtigung mit den Angaben wird
+            über Resend an info@marcusreiser.de gesendet. Es handelt sich derzeit um eine Anfrage, nicht um einen
+            bezahlten Online-Kauf; Zahlung und automatische Druckerei-Beauftragung sind nicht integriert.
+        </p>
+        <p>
+            Kontakt- und Kalenderanfragen werden derzeit nicht automatisch gelöscht. Für Auskunft oder Löschung
+            kannst du dich an info@marcusreiser.de wenden.
         </p>
     </section>
 

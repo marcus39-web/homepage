@@ -91,7 +91,8 @@ require BASE_PATH . '/Components/layout/header.php';
         <h2>Datenschutz</h2>
         <p>
             Deine Daten werden ausschließlich zur Bearbeitung deiner Anfrage verwendet.
-            Es erfolgt keine Weitergabe an Dritte.
+            Die Nachricht wird auf dem Webspace gespeichert und zur Zustellung an info@marcusreiser.de übermittelt.
+            Bei aktiviertem E-Mail-Versand über Resend wird der Dienst zur Übermittlung eingesetzt.
             Weitere Informationen findest du in der
             <a href="/datenschutz">Datenschutzerklärung</a>.
         </p>
