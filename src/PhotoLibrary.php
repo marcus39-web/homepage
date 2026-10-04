@@ -176,7 +176,8 @@ function get_photo_categories(bool $includeWebCategory = false): array
 function resolve_photo_library_file(string $category, string $relativePath): ?string
 {
     $root = photo_library_root();
-    if ($root === null || $category === '' || photo_library_is_excluded_category($category)) {
+    $isWebExportCategory = $category === '20.02_Web';
+    if ($root === null || $category === '' || (photo_library_is_excluded_category($category) && !$isWebExportCategory)) {
         return null;
     }
 
@@ -189,9 +190,15 @@ function resolve_photo_library_file(string $category, string $relativePath): ?st
     if ($segments === [] || in_array('', $segments, true) || in_array('.', $segments, true) || in_array('..', $segments, true)) {
         return null;
     }
+    if ($isWebExportCategory && count($segments) < 2) {
+        return null;
+    }
 
-    foreach ($segments as $segment) {
-        if (photo_library_is_private($segment)) {
+    foreach ($segments as $index => $segment) {
+        if (photo_library_is_private($segment) || str_contains(strtolower($segment), 'passbild')) {
+            return null;
+        }
+        if ($isWebExportCategory && $index === 0 && photo_library_is_excluded_category($segment)) {
             return null;
         }
     }

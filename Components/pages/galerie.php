@@ -145,7 +145,7 @@ require BASE_PATH . '/Components/layout/header.php';
         <?php foreach ($visiblePhotos as $photo): ?>
           <figure class="photo-item">
             <button class="photo-open" type="button" data-full-image="<?= e(photo_library_image_variant_url($photo['url'], 'gallery')) ?>" data-image-alt="<?= e($photo['alt']) ?>" aria-label="Bild vergrößern: <?= e($photo['alt']) ?>">
-              <img src="<?= e(photo_library_image_variant_url($photo['url'], 'gallery')) ?>" alt="" loading="lazy">
+              <img src="<?= e(photo_library_image_variant_url($photo['url'], 'preview')) ?>" alt="" loading="lazy">
             </button>
             <figcaption><?= e($photo['alt']) ?></figcaption>
           </figure>

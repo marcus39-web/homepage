@@ -332,6 +332,16 @@ function get_calendar_orders(): array
  */
 function calendar_motif_catalog(): array
 {
+	$allowedFolders = [
+		'01_Gebäude',
+		'02_Landschaft',
+		'05_Weimar_und_Umgebung',
+		'07_Blumen',
+		'08_Tiere',
+		'11_Weihnachten',
+		'12_Kerzen',
+		'13_Zwiebelmarkt',
+	];
 	$defaultFiles = [
 		'flussbaum' => ['label' => 'Baum im Fluss', 'file' => 'Baum_im Fluss_Tiefurt06.09.2026.JPG'],
 		'ente-1' => ['label' => 'Ente am Fluss', 'file' => 'Ente_1.JPG'],
@@ -364,6 +374,9 @@ function calendar_motif_catalog(): array
 			if (count($segments) < 2 || in_array('', $segments, true) || in_array('.', $segments, true) || in_array('..', $segments, true)) {
 				continue;
 			}
+			if (!in_array($segments[0], $allowedFolders, true)) {
+				continue;
+			}
 			$excludedPath = count(array_filter($segments, static fn (string $segment): bool =>
 				photo_library_is_private($segment) || str_contains(strtolower($segment), 'passbild')
 			)) > 0;
@@ -375,10 +388,11 @@ function calendar_motif_catalog(): array
 			$motifId = $preferredIdsByFile[$fileName]
 				?? 'photo-' . substr(hash('sha256', $category['name'] . '/' . $relativePath), 0, 20);
 			$folder = str_replace(['_', '-'], ' ', $segments[0]);
+			$imageUrl = photo_library_image_variant_url((string) $photo['url'], 'preview');
 
 			$motifs[$motifId] = [
 				'label' => (string) ($photo['alt'] ?? $fileName),
-				'url' => photo_library_image_variant_url((string) $photo['url'], 'preview'),
+				'url' => $imageUrl,
 				'folder' => $folder,
 			];
 		}

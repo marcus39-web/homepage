@@ -44,7 +44,8 @@ require BASE_PATH . '/Components/layout/header.php';
         <p>
             Die interne Besucherstatistik speichert Gesamtaufrufe, aufgerufene Seiten, Tageszahlen und eine
             sitzungsbasierte Tageszählung in einer lokalen Statistikdatei. Der eigene Besucherzähler speichert
-            dabei keine IP-Adresse. Die Zählung wird derzeit nicht automatisch gelöscht.
+            dabei keine IP-Adresse. Die Statistikdaten werden derzeit nicht automatisch gelöscht. Daneben kann
+            der Hostinganbieter eigene technische Serverprotokolle mit IP-Adresse nach seinen Speicherfristen führen.
         </p>
     </section>
 
@@ -56,6 +57,11 @@ require BASE_PATH . '/Components/layout/header.php';
             wird mit den Sicherheitsoptionen HttpOnly und SameSite=Lax gesetzt und bei HTTPS als Secure markiert.
             Es werden keine Werbe- oder Analyse-Cookies eingesetzt.
         </p>
+        <p>
+            Die Kalenderauswahl, das gewählte Bundesland und die Ferienanzeige werden zusätzlich im localStorage
+            des Browsers gespeichert, damit deine Einstellungen beim nächsten Besuch auf demselben Gerät erhalten
+            bleiben. Diese Angaben werden erst mit einer abgesendeten Kalenderanfrage an den Server übermittelt.
+        </p>
     </section>
 
     <section class="panel">
@@ -64,8 +70,9 @@ require BASE_PATH . '/Components/layout/header.php';
             Bei veröffentlichten Fotos können EXIF-Daten verarbeitet und in der vergrößerten Bildansicht angezeigt
             werden. Dazu gehören, soweit im Foto vorhanden, Aufnahmezeit, Kameramodell, Objektiv, Brennweite,
             Blende, Belichtungszeit, ISO-Wert und GPS-Koordinaten. Der Bild-Endpunkt stellt diese Angaben dem
-            Browser über einen HTTP-Header bereit. Veröffentliche deshalb nur Bilder, deren Metadaten und
-            Aufnahmeorte du teilen möchtest.
+            Browser auf Anfrage über den HTTP-Header X-Photo-Exif bereit. Die Angaben werden aus der Bilddatei
+            gelesen und nicht in einer separaten EXIF-Datenbank gespeichert. Veröffentliche deshalb nur Bilder,
+            deren Metadaten und Aufnahmeorte du teilen möchtest.
         </p>
     </section>
 
@@ -89,9 +96,10 @@ require BASE_PATH . '/Components/layout/header.php';
         </p>
         <p>
             Bei einer Kalenderanfrage werden Name, E-Mail-Adresse, Stückzahl, Nachricht, ausgewählte Monatsmotive,
-            Zeitpunkt und IP-Adresse in einer lokalen Datei gespeichert. Eine Benachrichtigung mit den Angaben wird
-            über Resend an info@marcusreiser.de gesendet. Es handelt sich derzeit um eine Anfrage, nicht um einen
-            bezahlten Online-Kauf; Zahlung und automatische Druckerei-Beauftragung sind nicht integriert.
+            Zeitpunkt und IP-Adresse in einer lokalen Datei gespeichert. Eine Benachrichtigung mit Name, E-Mail,
+            Stückzahl, Nachricht und Monatsmotiven wird über Resend an info@marcusreiser.de gesendet; die IP-Adresse
+            wird nicht in diese E-Mail aufgenommen. Es handelt sich derzeit um eine Anfrage, nicht um einen bezahlten
+            Online-Kauf; Zahlung und automatische Druckerei-Beauftragung sind nicht integriert.
         </p>
         <p>
             Kontakt- und Kalenderanfragen werden derzeit nicht automatisch gelöscht. Für Auskunft oder Löschung
@@ -103,9 +111,11 @@ require BASE_PATH . '/Components/layout/header.php';
         <h2>Rechte der Nutzer</h2>
         <ul class="project-list">
             <li>Auskunft über gespeicherte Daten</li>
-            <li>Löschung personenbezogener Daten</li>
             <li>Berichtigung fehlerhafter Daten</li>
+            <li>Löschung personenbezogener Daten</li>
             <li>Einschränkung der Verarbeitung</li>
+            <li>Widerspruch gegen die Verarbeitung</li>
+            <li>Beschwerde bei einer Datenschutz-Aufsichtsbehörde</li>
         </ul>
     </section>
 

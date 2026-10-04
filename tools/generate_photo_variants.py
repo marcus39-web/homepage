@@ -27,18 +27,28 @@ def is_excluded_category(name: str) -> bool:
     return is_private(name) or re.fullmatch(r"\d+(?:[._-]\d+)*[._-]*web", name, re.IGNORECASE) is not None
 
 
-def iter_photo_files(source_root: Path):
-    for category in sorted(source_root.iterdir()):
-        if not category.is_dir() or is_excluded_category(category.name):
+def iter_photo_files(source_root: Path, only_web_export: bool = False):
+    categories = [source_root / "20.02_Web"] if only_web_export else sorted(source_root.iterdir())
+    for category in categories:
+        is_selected_web_export = only_web_export and category.name == "20.02_Web"
+        if not category.is_dir() or (is_excluded_category(category.name) and not is_selected_web_export):
             continue
 
         for current_root, directory_names, file_names in os.walk(category):
-            directory_names[:] = [name for name in directory_names if not is_private(name)]
+            directory_names[:] = [
+                name for name in directory_names
+                if not is_private(name)
+                and "passbild" not in name.casefold()
+                and not is_excluded_category(name)
+            ]
             current_path = Path(current_root)
             for file_name in file_names:
                 path = current_path / file_name
                 relative_path = path.relative_to(source_root)
-                if path.suffix.casefold() in SUPPORTED_EXTENSIONS and not any(is_private(part) for part in relative_path.parts):
+                excluded_parts = relative_path.parts[1:] if is_selected_web_export else relative_path.parts
+                if path.suffix.casefold() in SUPPORTED_EXTENSIONS and not any(
+                    is_private(part) or "passbild" in part.casefold() for part in excluded_parts
+                ):
                     yield path, relative_path
 
 
@@ -114,6 +124,11 @@ def main() -> int:
         help="Output directory mirrored by the PHP photo endpoint.",
     )
     parser.add_argument("--match", help="Only process source paths containing this text.")
+    parser.add_argument(
+        "--only-web-export",
+        action="store_true",
+        help="Process only the curated 20.02_Web folder, excluding all sibling originals.",
+    )
     parser.add_argument("--force", action="store_true", help="Recreate variants even when the source has not changed.")
     args = parser.parse_args()
 
@@ -121,7 +136,7 @@ def main() -> int:
     if not source_root.is_dir():
         parser.error(f"Photo source directory does not exist: {source_root}")
 
-    files = list(iter_photo_files(source_root))
+    files = list(iter_photo_files(source_root, args.only_web_export))
     if args.match:
         match = args.match.casefold()
         files = [(path, relative) for path, relative in files if match in relative.as_posix().casefold()]
