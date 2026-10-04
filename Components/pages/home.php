@@ -148,7 +148,7 @@ require BASE_PATH . '/Components/layout/header.php';
                     decoding="async"
                 >
                 <span class="project-item-immengold-content">
-                    <p>Immengoldkerzen sind handgezogene Kerzen aus reinem Bienenwachs, dem Gold der Imme. Aus familiärer Herstellung.</p>
+                    <p>Immengoldkerzen sind handgezogene Kerzen aus reinem Bienenwachs, dem Gold der Imme.</p>
                 </span>
             </a>
         </div>
