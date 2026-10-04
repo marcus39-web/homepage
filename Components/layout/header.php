@@ -53,7 +53,7 @@ $currentUrl  = 'https://marcusreiser.de' . $currentPath;
     <meta name="twitter:description" content="<?= htmlspecialchars($pageDescription, ENT_QUOTES, 'UTF-8') ?>">
     <meta name="twitter:image" content="https://marcusreiser.de/public/assets/images/galerie/natur/Ilm/Weimarpark_Allee.jpg">
 
-    <link rel="stylesheet" href="/public/css/style.css">
-    <link rel="stylesheet" href="/public/assets/css/style.css">
+    <link rel="stylesheet" href="/public/css/style.css?v=<?= filemtime(BASE_PATH . '/public/css/style.css') ?: 1 ?>">
+    <link rel="stylesheet" href="/public/assets/css/style.css?v=<?= filemtime(BASE_PATH . '/public/assets/css/style.css') ?: 1 ?>">
 </head>
 <body<?= $bodyClassAttribute ?>>

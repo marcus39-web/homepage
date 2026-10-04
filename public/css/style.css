@@ -1318,7 +1318,8 @@ main section {
 }
 
 .immengold-section-head {
-  margin-top: 2.4rem;
+  margin-top: 0;
+  padding-top: 4.3rem;
 }
 
 .immengold-project-cards {

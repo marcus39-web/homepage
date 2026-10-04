@@ -122,7 +122,7 @@ Die dynamische Kalenderauswahl liest ausschliesslich Bilder aus `data/photos/20.
 python tools/generate_photo_variants.py --source "D:\10_Fotoarchiv\Canon_R10_Bilder\01_Bibiothek_JPG" --only-web-export
 ```
 
-Der Projektabschnitt `Immengoldkerzen` auf der Startseite verwendet `data/photos/20.02_Web/12_Kerzen_Immengold_Isabelle_Kraemer/Kerzen_Vielfalt.jpg` als Kachelbild. Die Kachel verlinkt auf die Schwesterseite `https://immengold.com`.
+Der Projektabschnitt `Immengoldkerzen` auf der Startseite verwendet `data/photos/20.02_Web/12_Kerzen_Immengold_Isabelle_Kraemer/Kerzen_gemischt.jpg` als Kachelbild. Die Kachel verlinkt auf die Schwesterseite `https://immengold.com`.
 
 Das Wasserzeichen erschwert eine unveraenderte Weiterverwendung, verhindert aber keine Screenshots oder das Speichern eines im Browser angezeigten Bildes.
 

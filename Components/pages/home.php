@@ -141,7 +141,7 @@ require BASE_PATH . '/Components/layout/header.php';
             <a class="project-item project-item-immengold panel" href="https://immengold.com" target="_blank" rel="noopener noreferrer">
                 <img
                     class="project-item-immengold-image"
-                    src="<?= e(photo_library_image_variant_url(photo_library_image_url('20.02_Web', '12_Kerzen_Immengold_Isabelle_Kraemer/Kerzen_Vielfalt.jpg'), 'preview')) ?>"
+                    src="<?= e(photo_library_image_variant_url(photo_library_image_url('20.02_Web', '12_Kerzen_Immengold_Isabelle_Kraemer/Kerzen_gemischt.jpg'), 'preview')) ?>"
                     alt=""
                     loading="lazy"
                     decoding="async"
