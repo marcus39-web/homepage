@@ -1320,6 +1320,13 @@ main section {
 .immengold-section-head {
   margin-top: 0;
   padding-top: 4.3rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+}
+
+.immengold-section-head p {
+  font-size: 1rem;
 }
 
 .immengold-project-cards {
@@ -1355,7 +1362,7 @@ main section {
   position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: flex-start;
   min-height: 270px;
   overflow: hidden;
   padding: 0;
@@ -1376,7 +1383,7 @@ main section {
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: linear-gradient(180deg, rgb(9 26 24 / 8%) 20%, rgb(9 26 24 / 86%) 100%);
+  background: linear-gradient(180deg, rgb(9 26 24 / 58%) 0%, rgb(9 26 24 / 22%) 72%, rgb(9 26 24 / 10%) 100%);
   content: '';
 }
 

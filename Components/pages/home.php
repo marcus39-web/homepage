@@ -135,6 +135,7 @@ require BASE_PATH . '/Components/layout/header.php';
 
         <div class="section-head immengold-section-head">
             <h2>Immengoldkerzen</h2>
+            <p>Aus eigener Herstellung meiner Schwester</p>
         </div>
 
         <div class="project-cards immengold-project-cards">
