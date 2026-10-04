@@ -49,7 +49,7 @@ Anschliessend `http://127.0.0.1:8000/` im Browser oeffnen. Der eingebaute PHP-Se
 
 | Methode und URL | Funktion |
 | --- | --- |
-| `GET /` | Startseite und Ordner-Vorschauen |
+| `GET /` | Startseite, Ordner-Vorschauen und eigener Projektabschnitt fuer Immengoldkerzen mit Link zu `immengold.com` |
 | `GET /galerie` | Oeffentliche Kategorien als Ordnerkarten; Bilder erscheinen nach Auswahl eines Ordners |
 | `GET /galerie?ordner=07_Blumen` | Nur die gewaehlte Kategorie |
 | `GET /galerie?ordner=05_Weimar_und_Umgebung&unterordner=Tiefurt` | Einen Unterordner anzeigen; verschachtelte Pfade werden ebenfalls unterstuetzt |
@@ -122,6 +122,8 @@ Die dynamische Kalenderauswahl liest ausschliesslich Bilder aus `data/photos/20.
 python tools/generate_photo_variants.py --source "D:\10_Fotoarchiv\Canon_R10_Bilder\01_Bibiothek_JPG" --only-web-export
 ```
 
+Der Projektabschnitt `Immengoldkerzen` auf der Startseite verwendet `data/photos/20.02_Web/12_Kerzen_Immengold_Isabelle_Krämer/Kerzen_Vielfalt.jpg` als Kachelbild. Die Kachel verlinkt auf die Schwesterseite `https://immengold.com`.
+
 Das Wasserzeichen erschwert eine unveraenderte Weiterverwendung, verhindert aber keine Screenshots oder das Speichern eines im Browser angezeigten Bildes.
 
 Die Kalenderauswahl verwendet zusaetzlich vorbereitete WebP-Dateien unter `public/assets/images/galerie/natur/Ilm/`. Die JPG-Originale fuer den Druck bleiben davon unberuehrt.
@@ -158,7 +160,7 @@ Die Website laeuft als geschuetzter Test auf `https://marcusreiser.de/`. Der Dok
 5. Die WebP-Varianten liegen in `httpdocs/data/photo-cache/`; sie koennen vorab mit `tools/generate_photo_variants.py` erzeugt werden. Cache-Dateien nach einem JPG-Austausch werden vom Bild-Endpunkt anhand des Quell-Zeitstempels erneuert.
 6. Eine Server-`.env` mit eigenen Werten fuer Mailversand und Statistikpasswort anlegen. Lokale `.env`, `.git/`, `zugangslink.txt`, private Bilder und Anfragedateien nicht hochladen.
 7. Pruefen, dass `data/logs/` und `data/messages/` durch PHP beschreibbar sind. Keine pauschalen `777`-Rechte vergeben.
-8. Die geschuetzte Seite in einem privaten Browserfenster testen: Startseite, Galerie, Foto-Unterordner, Kalender, Kontaktformular und Impressum.
+8. Die geschuetzte Seite in einem privaten Browserfenster testen: Startseite, Immengoldkerzen-Kachel und Link, Galerie, Foto-Unterordner, Kalender, Kontaktformular und Impressum.
 
 Wenn Kategorien erscheinen, Bilder aber fehlen, zuerst Dateipfade und Gross-/Kleinschreibung der Originale, danach die WebP-Dateien in `data/photo-cache/preview/` und `data/photo-cache/gallery/` pruefen. Bei ersetzten Bildern muss der PHP-Cache-Fix aus `public/photo.php` live bereitgestellt sein.
 

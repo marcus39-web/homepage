@@ -93,7 +93,7 @@ require BASE_PATH . '/Components/layout/header.php';
             </a>
 
             <a href="/galerie?<?= e(http_build_query(['ordner' => '05_Weimar_und_Umgebung', 'unterordner' => 'Denkmaeler'])) ?>" class="gallery-card">
-                <img src="<?= e(photo_library_image_variant_url(photo_library_image_url('05_Weimar_und_Umgebung', 'Denkmaeler/Schiller_Göthe_Theater_27_08_2026.JPG'), 'preview')) ?>" alt="Schiller-und-Goethe-Denkmal">
+                <img src="<?= e(photo_library_image_variant_url(photo_library_image_url('05_Weimar_und_Umgebung', 'Denkmaeler/Schiller_Goethe_Theater_27_08_2026.JPG'), 'preview')) ?>" alt="Schiller-und-Goethe-Denkmal">
                 <h3>Architektur</h3>
             </a>
 
@@ -131,6 +131,25 @@ require BASE_PATH . '/Components/layout/header.php';
                 <p>Jahreskalender mit eigenen Motiven, Druckvorbereitung und Layout.</p>
             </div>
 
+        </div>
+
+        <div class="section-head immengold-section-head">
+            <h2>Immengoldkerzen</h2>
+        </div>
+
+        <div class="project-cards immengold-project-cards">
+            <a class="project-item project-item-immengold panel" href="https://immengold.com" target="_blank" rel="noopener noreferrer">
+                <img
+                    class="project-item-immengold-image"
+                    src="<?= e(photo_library_image_variant_url(photo_library_image_url('20.02_Web', '12_Kerzen_Immengold_Isabelle_Krämer/Kerzen_Vielfalt.jpg'), 'preview')) ?>"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                >
+                <span class="project-item-immengold-content">
+                    <p>Immengoldkerzen sind handgezogene Kerzen aus reinem Bienenwachs, dem Gold der Imme. Aus familiärer Herstellung.</p>
+                </span>
+            </a>
         </div>
     </section>
 
