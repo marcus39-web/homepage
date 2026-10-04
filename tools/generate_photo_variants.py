@@ -11,6 +11,7 @@ from PIL import Image, ImageOps
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_SOURCE = Path(r"D:\10_Fotoarchiv\Canon_R10_Bilder\01_Bibiothek_JPG")
+WATERMARK_PATH = PROJECT_ROOT / "public" / "assets" / "watermark" / "watermark.png"
 SUPPORTED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 VARIANTS = {
     "preview": (800, 78),
@@ -44,7 +45,10 @@ def iter_photo_files(source_root: Path):
 def save_variant(source: Path, relative_path: Path, output_root: Path, variant: str, max_dimension: int, quality: int, force: bool) -> bool:
     # Mirror the archive path so photo.php can find the variant without changing the original.
     target = output_root / variant / relative_path.parent / f"{relative_path.name}.webp"
-    if not force and target.is_file() and target.stat().st_mtime >= source.stat().st_mtime:
+    required_mtime = source.stat().st_mtime_ns
+    if WATERMARK_PATH.is_file():
+        required_mtime = max(required_mtime, WATERMARK_PATH.stat().st_mtime_ns)
+    if not force and target.is_file() and target.stat().st_mtime_ns > required_mtime:
         return False
 
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -59,6 +63,19 @@ def save_variant(source: Path, relative_path: Path, output_root: Path, variant: 
             has_alpha = "A" in image.getbands() or "transparency" in original.info
             if image.mode not in ("RGB", "RGBA"):
                 image = image.convert("RGBA" if has_alpha else "RGB")
+
+            if WATERMARK_PATH.is_file():
+                with Image.open(WATERMARK_PATH) as watermark_source:
+                    watermark = watermark_source.convert("RGBA")
+                watermark_width = min(watermark.width, max(1, int(image.width * 0.24)))
+                watermark_height = max(1, int(watermark.height * watermark_width / watermark.width))
+                watermark = watermark.resize((watermark_width, watermark_height), Image.Resampling.LANCZOS)
+                image = image.convert("RGBA")
+                margin = max(8, int(min(image.size) * 0.02))
+                position = (max(0, image.width - watermark.width - margin), max(0, image.height - watermark.height - margin))
+                image.alpha_composite(watermark, position)
+                if not has_alpha:
+                    image = image.convert("RGB")
 
             image.save(
                 temporary_target,

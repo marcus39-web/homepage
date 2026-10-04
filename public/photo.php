@@ -42,19 +42,27 @@ function photo_variant_is_stale(string $sourcePath, string $variantPath): bool {
         return true;
     }
 
+    $watermarkPath = __DIR__ . '/assets/watermark/watermark.png';
     clearstatcache(true, $sourcePath);
     clearstatcache(true, $variantPath);
+    clearstatcache(true, $watermarkPath);
     $sourceMtime = filemtime($sourcePath);
     $variantMtime = filemtime($variantPath);
+    $watermarkMtime = is_file($watermarkPath) ? filemtime($watermarkPath) : false;
 
-    return $sourceMtime !== false && ($variantMtime === false || $sourceMtime > $variantMtime);
+    return ($sourceMtime !== false && ($variantMtime === false || $sourceMtime > $variantMtime))
+        || ($watermarkMtime !== false && ($variantMtime === false || $watermarkMtime >= $variantMtime));
 }
 
 /**
  * Wasserzeichen auf ein Bild legen (unten rechts)
  */
 function apply_watermark(string $targetImagePath, string $watermarkPath): bool {
-    if (!is_file($watermarkPath)) {
+    if (!is_file($watermarkPath)
+        || !function_exists('imagecreatefromwebp')
+        || !function_exists('imagecreatefrompng')
+        || !function_exists('imagecopyresampled')
+        || !function_exists('imagewebp')) {
         return false;
     }
 
@@ -71,18 +79,22 @@ function apply_watermark(string $targetImagePath, string $watermarkPath): bool {
     $wmWidth = imagesx($watermark);
     $wmHeight = imagesy($watermark);
 
-    // Position unten rechts mit 20px Abstand
-    $dstX = $imgWidth - $wmWidth - 20;
-    $dstY = $imgHeight - $wmHeight - 20;
+    $renderWidth = min($wmWidth, max(1, (int) round($imgWidth * 0.24)));
+    $scale = $renderWidth / $wmWidth;
+    $renderHeight = max(1, (int) round($wmHeight * $scale));
+    $margin = max(8, (int) round(min($imgWidth, $imgHeight) * 0.02));
+    $dstX = max(0, $imgWidth - $renderWidth - $margin);
+    $dstY = max(0, $imgHeight - $renderHeight - $margin);
 
-    imagecopy($image, $watermark, $dstX, $dstY, 0, 0, $wmWidth, $wmHeight);
+    imagealphablending($image, true);
+    imagecopyresampled($image, $watermark, $dstX, $dstY, 0, 0, $renderWidth, $renderHeight, $wmWidth, $wmHeight);
 
-    imagewebp($image, $targetImagePath, 80);
+    $saved = imagewebp($image, $targetImagePath, 80);
 
     imagedestroy($image);
     imagedestroy($watermark);
 
-    return true;
+    return $saved;
 }
 
 /**
@@ -185,21 +197,19 @@ function create_webp_variant(string $source, string $target, int $maxWidth): boo
  */
 if ($variant === 'preview') {
 
-    if (photo_variant_is_stale($filePath, $previewFile) && !create_webp_variant($filePath, $previewFile, 600)) {
-        $servedPath = $filePath;
-        $cacheDuration = 3600;
-    } else {
-        $previewIsCurrent = is_file($previewFile) && !photo_variant_is_stale($filePath, $previewFile);
-        $servedPath = $previewIsCurrent ? $previewFile : $filePath;
-        $cacheDuration = $previewIsCurrent ? 86400 : 3600;
+    if (photo_variant_is_stale($filePath, $previewFile)
+        && create_webp_variant($filePath, $previewFile, 600)) {
+        apply_watermark($previewFile, __DIR__ . '/assets/watermark/watermark.png');
     }
+    $previewIsCurrent = is_file($previewFile) && !photo_variant_is_stale($filePath, $previewFile);
+    $servedPath = $previewIsCurrent ? $previewFile : $filePath;
+    $cacheDuration = $previewIsCurrent ? 86400 : 3600;
 
 } elseif ($variant === 'gallery') {
 
     if (photo_variant_is_stale($filePath, $galleryFile)) {
         if (create_webp_variant($filePath, $galleryFile, 1600)) {
-            $watermarkPath = __DIR__ . '/assets/watermark/watermark.png';
-            apply_watermark($galleryFile, $watermarkPath);
+            apply_watermark($galleryFile, __DIR__ . '/assets/watermark/watermark.png');
         }
     }
 
@@ -209,14 +219,13 @@ if ($variant === 'preview') {
 
 } elseif ($variant === 'thumb') {
 
-    if (photo_variant_is_stale($filePath, $thumbFile) && !create_webp_variant($filePath, $thumbFile, 300)) {
-        $servedPath = $filePath;
-        $cacheDuration = 3600;
-    } else {
-        $thumbIsCurrent = is_file($thumbFile) && !photo_variant_is_stale($filePath, $thumbFile);
-        $servedPath = $thumbIsCurrent ? $thumbFile : $filePath;
-        $cacheDuration = $thumbIsCurrent ? 86400 : 3600;
+    if (photo_variant_is_stale($filePath, $thumbFile)
+        && create_webp_variant($filePath, $thumbFile, 300)) {
+        apply_watermark($thumbFile, __DIR__ . '/assets/watermark/watermark.png');
     }
+    $thumbIsCurrent = is_file($thumbFile) && !photo_variant_is_stale($filePath, $thumbFile);
+    $servedPath = $thumbIsCurrent ? $thumbFile : $filePath;
+    $cacheDuration = $thumbIsCurrent ? 86400 : 3600;
 
 } else {
 

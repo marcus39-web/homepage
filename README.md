@@ -29,7 +29,7 @@ Die Anwendung ist eine klassische PHP-Website ohne Build-Schritt. `index.php` is
 - PHP 8.1 oder neuer
 - PHP-Erweiterung `mbstring` fuer die Formularvalidierung
 - PHP-Erweiterung `exif` fuer Aufnahmezeit, GPS-Ort und Wetteranzeige (ohne EXIF laufen Galerie und Bilder weiter; es wird auf Dateizeit bzw. leere Metadaten zurueckgefallen)
-- PHP-Erweiterung GD nur zum Erzeugen fehlender WebP-Varianten zur Laufzeit; vorhandene Cachedateien funktionieren ohne GD
+- PHP-Erweiterung GD zum Erzeugen/Aktualisieren fehlender WebP-Varianten und zum Einbrennen des Wasserzeichens zur Laufzeit; vorhandene Cachedateien funktionieren ohne GD
 - Fuer Orts- und Wetterinformationen muessen aus dem Browser externe Anfragen an Nominatim und Open-Meteo moeglich sein
 - Apache mit `mod_rewrite` fuer den Produktivbetrieb
 - Schreibrechte fuer `data/logs/` und `data/messages/`
@@ -108,7 +108,9 @@ python -m pip install Pillow
 python tools/generate_photo_variants.py --source "D:\10_Fotoarchiv\Canon_R10_Bilder\01_Bibiothek_JPG"
 ```
 
-Die Varianten landen unter `data/photo-cache/preview/` und `data/photo-cache/gallery/`. Der Bild-Endpunkt erzeugt fehlende Varianten mit GD und erneuert sie, wenn das Original neuer ist. Bild-URLs enthalten Aenderungszeit und Dateigroesse der Quelle, damit Browser nach einem Austausch keine alte Variante aus dem Cache wiederverwenden. Ist GD nicht verfuegbar oder schlaegt die Erzeugung fehl, wird das Original ausgeliefert. Fuer kurze Ladezeiten sollten die erzeugten Cache-Dateien mit deployed werden. Einzelne Bilder lassen sich zum Test mit `--match Marcus_Sonnenblumen_2.JPG` verarbeiten.
+Die Varianten landen unter `data/photo-cache/preview/` und `data/photo-cache/gallery/`. Der Bild-Endpunkt erzeugt fehlende oder veraltete Varianten mit GD und versieht Vorschau, Galerie und Miniatur mit `public/assets/watermark/watermark.png`. Neue Bilder und ein geaendertes Wasserzeichen erneuern den Cache beim naechsten Abruf automatisch. Die Druck-Originale bleiben unveraendert. Bild-URLs enthalten Aenderungszeit und Dateigroesse der Quelle, damit Browser nach einem Austausch keine alte Variante aus dem Cache wiederverwenden. Ist GD nicht verfuegbar oder schlaegt die Erzeugung fehl, wird das Original ohne Wasserzeichen ausgeliefert; der Webspace muss GD daher aktiviert haben. Fuer kurze Ladezeiten sollten die erzeugten Cache-Dateien mit deployed werden. Einzelne Bilder lassen sich zum Test mit `--match Marcus_Sonnenblumen_2.JPG` verarbeiten.
+
+Das Wasserzeichen erschwert eine unveraenderte Weiterverwendung, verhindert aber keine Screenshots oder das Speichern eines im Browser angezeigten Bildes.
 
 Die Kalenderauswahl verwendet zusaetzlich vorbereitete WebP-Dateien unter `public/assets/images/galerie/natur/Ilm/`. Die JPG-Originale fuer den Druck bleiben davon unberuehrt.
 
