@@ -3,6 +3,33 @@
 $pageTitle = "Marcus Reiser – Fotografie & IT";
 $pageDescription = "Fotografie, Kalender, Projekte und IT – die persönliche Website von Marcus Reiser aus Weimar.";
 $navContext = "hero";
+$architectureCategory = '05_Weimar_und_Umgebung';
+$architectureImageUrl = null;
+$photoRoot = photo_library_root();
+if ($photoRoot !== null) {
+    $monumentDirectory = $photoRoot . DIRECTORY_SEPARATOR . $architectureCategory . DIRECTORY_SEPARATOR . 'Denkmaeler';
+    $monumentImages = glob($monumentDirectory . DIRECTORY_SEPARATOR . 'Schiller*') ?: [];
+    if ($monumentImages === []) {
+        $monumentImages = glob($monumentDirectory . DIRECTORY_SEPARATOR . '*') ?: [];
+    }
+
+    foreach ($monumentImages as $monumentImage) {
+        if (!is_file($monumentImage) || !photo_library_is_supported_file($monumentImage)) {
+            continue;
+        }
+
+        $relativePath = 'Denkmaeler/' . basename($monumentImage);
+        if (resolve_photo_library_file($architectureCategory, $relativePath) === null) {
+            continue;
+        }
+
+        $architectureImageUrl = photo_library_image_variant_url(
+            photo_library_image_url($architectureCategory, $relativePath),
+            'preview'
+        );
+        break;
+    }
+}
 require BASE_PATH . '/Components/layout/header.php';
 ?>
 
@@ -92,8 +119,10 @@ require BASE_PATH . '/Components/layout/header.php';
                 <h3>Natur</h3>
             </a>
 
-            <a href="/galerie?<?= e(http_build_query(['ordner' => '05_Weimar_und_Umgebung', 'unterordner' => 'Denkmaeler'])) ?>" class="gallery-card">
-                <img src="<?= e(photo_library_image_variant_url(photo_library_image_url('05_Weimar_und_Umgebung', 'Denkmaeler/Schiller_Goethe_Theater_27_08_2026.JPG'), 'preview')) ?>" alt="Schiller-und-Goethe-Denkmal">
+            <a href="/galerie?<?= e(http_build_query(['ordner' => $architectureCategory, 'unterordner' => 'Denkmaeler'])) ?>" class="gallery-card">
+                <?php if ($architectureImageUrl !== null): ?>
+                    <img src="<?= e($architectureImageUrl) ?>" alt="Schiller-und-Goethe-Denkmal">
+                <?php endif; ?>
                 <h3>Architektur</h3>
             </a>
 
