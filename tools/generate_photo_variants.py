@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import os
 import re
 import sys
@@ -17,6 +18,20 @@ VARIANTS = {
     "preview": (800, 78),
     "gallery": (1800, 82),
 }
+WATERMARK_CACHE_VERSION = "wm-v1"
+
+
+def watermark_signature(source: Path) -> str:
+    source_stat = source.stat()
+    watermark_stat = WATERMARK_PATH.stat()
+    payload = "|".join((
+        WATERMARK_CACHE_VERSION,
+        str(int(source_stat.st_mtime)),
+        str(source_stat.st_size),
+        str(int(watermark_stat.st_mtime)),
+        str(watermark_stat.st_size),
+    ))
+    return hashlib.sha256(payload.encode("ascii")).hexdigest()
 
 
 def is_private(name: str) -> bool:
@@ -55,14 +70,18 @@ def iter_photo_files(source_root: Path, only_web_export: bool = False):
 def save_variant(source: Path, relative_path: Path, output_root: Path, variant: str, max_dimension: int, quality: int, force: bool) -> bool:
     # Mirror the archive path so photo.php can find the variant without changing the original.
     target = output_root / variant / relative_path.parent / f"{relative_path.name}.webp"
-    required_mtime = source.stat().st_mtime_ns
-    if WATERMARK_PATH.is_file():
-        required_mtime = max(required_mtime, WATERMARK_PATH.stat().st_mtime_ns)
-    if not force and target.is_file() and target.stat().st_mtime_ns > required_mtime:
-        return False
+    metadata = target.with_name(target.name + ".wmmeta")
+    signature = watermark_signature(source)
+    if not force and target.is_file() and metadata.is_file():
+        try:
+            if metadata.read_text(encoding="ascii").strip() == signature:
+                return False
+        except OSError:
+            pass
 
     target.parent.mkdir(parents=True, exist_ok=True)
     temporary_target = target.with_name(target.name + ".tmp")
+    temporary_metadata = metadata.with_name(metadata.name + ".tmp")
 
     try:
         with Image.open(source) as original:
@@ -101,10 +120,14 @@ def save_variant(source: Path, relative_path: Path, output_root: Path, variant: 
             return False
 
         temporary_target.replace(target)
+        temporary_metadata.write_text(signature, encoding="ascii")
+        temporary_metadata.replace(metadata)
         return True
     except Exception as error:
         if temporary_target.exists():
             temporary_target.unlink()
+        if temporary_metadata.exists():
+            temporary_metadata.unlink()
         print(f"Skipped {source}: {error}", file=sys.stderr)
         return False
 
@@ -135,6 +158,8 @@ def main() -> int:
     source_root = args.source.resolve()
     if not source_root.is_dir():
         parser.error(f"Photo source directory does not exist: {source_root}")
+    if not WATERMARK_PATH.is_file():
+        parser.error(f"Watermark image does not exist: {WATERMARK_PATH}")
 
     files = list(iter_photo_files(source_root, args.only_web_export))
     if args.match:

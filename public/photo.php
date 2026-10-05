@@ -37,8 +37,73 @@ function ensure_dir(string $path): void {
     }
 }
 
+function photo_watermark_generation_available(): bool {
+    foreach ([
+        'imagecreatefromstring',
+        'imagecreatetruecolor',
+        'imagecopyresampled',
+        'imagewebp',
+        'imagecreatefromwebp',
+        'imagecreatefrompng',
+    ] as $function) {
+        if (!function_exists($function)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+function photo_variant_metadata_path(string $variantPath): string {
+    return $variantPath . '.wmmeta';
+}
+
+function photo_variant_signature(string $sourcePath): ?string {
+    $watermarkPath = __DIR__ . '/assets/watermark/watermark.png';
+    if (!is_file($sourcePath) || !is_file($watermarkPath)) {
+        return null;
+    }
+
+    clearstatcache(true, $sourcePath);
+    clearstatcache(true, $watermarkPath);
+    $sourceMtime = filemtime($sourcePath);
+    $sourceSize = filesize($sourcePath);
+    $watermarkMtime = filemtime($watermarkPath);
+    $watermarkSize = filesize($watermarkPath);
+    if ($sourceMtime === false || $sourceSize === false || $watermarkMtime === false || $watermarkSize === false) {
+        return null;
+    }
+
+    return hash('sha256', implode('|', ['wm-v1', $sourceMtime, $sourceSize, $watermarkMtime, $watermarkSize]));
+}
+
+function photo_variant_write_metadata(string $sourcePath, string $variantPath): bool {
+    $signature = photo_variant_signature($sourcePath);
+    if ($signature === null) {
+        return false;
+    }
+
+    return @file_put_contents(photo_variant_metadata_path($variantPath), $signature, LOCK_EX) !== false;
+}
+
 function photo_variant_is_stale(string $sourcePath, string $variantPath): bool {
     if (!is_file($variantPath)) {
+        return true;
+    }
+
+    $signature = photo_variant_signature($sourcePath);
+    $metadataPath = photo_variant_metadata_path($variantPath);
+    clearstatcache(true, $metadataPath);
+    if (is_file($metadataPath)) {
+        if ($signature === null) {
+            return true;
+        }
+
+        $storedSignature = @file_get_contents($metadataPath);
+        return !is_string($storedSignature) || !hash_equals($signature, trim($storedSignature));
+    }
+
+    if (photo_watermark_generation_available()) {
         return true;
     }
 
@@ -53,7 +118,6 @@ function photo_variant_is_stale(string $sourcePath, string $variantPath): bool {
     return ($sourceMtime !== false && ($variantMtime === false || $sourceMtime > $variantMtime))
         || ($watermarkMtime !== false && ($variantMtime === false || $watermarkMtime >= $variantMtime));
 }
-
 /**
  * Wasserzeichen auf ein Bild legen (unten rechts)
  */
@@ -184,10 +248,37 @@ function create_webp_variant(string $source, string $target, int $maxWidth): boo
     imagecopyresampled($resized, $image, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
 
     ensure_dir(dirname($target));
-    imagewebp($resized, $target, 80);
+    $saved = imagewebp($resized, $target, 80);
 
     imagedestroy($image);
     imagedestroy($resized);
+
+    return $saved;
+}
+
+function create_watermarked_webp_variant(string $source, string $target, int $maxWidth): bool {
+    $watermarkPath = __DIR__ . '/assets/watermark/watermark.png';
+    ensure_dir(dirname($target));
+    $temporaryTarget = tempnam(dirname($target), 'photo-');
+    if ($temporaryTarget === false) {
+        return false;
+    }
+
+    if (!create_webp_variant($source, $temporaryTarget, $maxWidth)
+        || !apply_watermark($temporaryTarget, $watermarkPath)) {
+        @unlink($temporaryTarget);
+        return false;
+    }
+
+    if (!rename($temporaryTarget, $target)) {
+        @unlink($temporaryTarget);
+        return false;
+    }
+
+    if (!photo_variant_write_metadata($source, $target)) {
+        @unlink(photo_variant_metadata_path($target));
+        return false;
+    }
 
     return true;
 }
@@ -197,9 +288,8 @@ function create_webp_variant(string $source, string $target, int $maxWidth): boo
  */
 if ($variant === 'preview') {
 
-    if (photo_variant_is_stale($filePath, $previewFile)
-        && create_webp_variant($filePath, $previewFile, 600)) {
-        apply_watermark($previewFile, __DIR__ . '/assets/watermark/watermark.png');
+    if (photo_variant_is_stale($filePath, $previewFile)) {
+        create_watermarked_webp_variant($filePath, $previewFile, 600);
     }
     $previewIsCurrent = is_file($previewFile) && !photo_variant_is_stale($filePath, $previewFile);
     $servedPath = $previewIsCurrent ? $previewFile : $filePath;
@@ -208,9 +298,7 @@ if ($variant === 'preview') {
 } elseif ($variant === 'gallery') {
 
     if (photo_variant_is_stale($filePath, $galleryFile)) {
-        if (create_webp_variant($filePath, $galleryFile, 1600)) {
-            apply_watermark($galleryFile, __DIR__ . '/assets/watermark/watermark.png');
-        }
+        create_watermarked_webp_variant($filePath, $galleryFile, 1600);
     }
 
     $galleryIsCurrent = is_file($galleryFile) && !photo_variant_is_stale($filePath, $galleryFile);
@@ -219,9 +307,8 @@ if ($variant === 'preview') {
 
 } elseif ($variant === 'thumb') {
 
-    if (photo_variant_is_stale($filePath, $thumbFile)
-        && create_webp_variant($filePath, $thumbFile, 300)) {
-        apply_watermark($thumbFile, __DIR__ . '/assets/watermark/watermark.png');
+    if (photo_variant_is_stale($filePath, $thumbFile)) {
+        create_watermarked_webp_variant($filePath, $thumbFile, 300);
     }
     $thumbIsCurrent = is_file($thumbFile) && !photo_variant_is_stale($filePath, $thumbFile);
     $servedPath = $thumbIsCurrent ? $thumbFile : $filePath;
