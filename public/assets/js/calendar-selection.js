@@ -206,7 +206,6 @@
     const label = card.querySelector('[data-calendar-label]');
     const folder = card.querySelector('[data-calendar-folder]');
     const hiddenInput = orderMotifs.find(input => input.dataset.orderMotif === month);
-
     if (image) {
       image.src = motif.dataset.motifUrl;
       image.alt = `${month}: ${motif.dataset.motifAlt}`;
@@ -267,25 +266,22 @@
     if (event.target === motifPicker) motifPicker.close();
   });
 
-  previewMonth.addEventListener('change', () => {
-    updatePreview();
-  });
-
   if (orderDialog instanceof HTMLDialogElement) {
     document.querySelectorAll('[data-open-calendar-order]').forEach((trigger) => {
-      trigger.addEventListener('click', (event) => {
-        event.preventDefault();
-        orderDialog.showModal();
-      });
+      trigger.addEventListener('click', () => orderDialog.showModal());
     });
 
     orderDialogClose?.addEventListener('click', () => orderDialog.close());
-    orderDialog.addEventListener('click', (event) => {
+    orderDialog.addEventListener('click', event => {
       if (event.target === orderDialog) orderDialog.close();
     });
 
     if (orderDialog.dataset.openOnLoad === 'true') orderDialog.showModal();
   }
+
+  previewMonth.addEventListener('change', () => {
+    updatePreview();
+  });
 
   stateSelect?.addEventListener('change', () => {
     renderAllCalendars();

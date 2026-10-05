@@ -44,6 +44,21 @@ h2 {
 }
 
 .wrap {
+
+.site-footer .footer-feedback-button {
+  display: block;
+  width: fit-content;
+  margin: 0 0 0.3rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--brand-dark);
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  text-decoration: underline;
+  cursor: pointer;
+}
   /* Breiter Container fuer ein flaechigeres, seitenfuellendes Layout. */
   width: min(1480px, 96vw);
   margin: 0 auto;
@@ -673,6 +688,21 @@ main section {
   color: var(--brand-dark);
   font-weight: 600;
   margin-bottom: 0.3rem;
+}
+
+.site-footer .footer-feedback-button {
+  display: block;
+  width: fit-content;
+  margin: 0 0 0.3rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--brand-dark);
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 .subpage {
@@ -1414,6 +1444,54 @@ main section {
 
 .legal-block p {
   color: var(--muted);
+}
+
+.legal-document {
+  max-width: 900px;
+}
+
+.legal-intro {
+  max-width: 68ch;
+  margin: 0 0 1.4rem;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.legal-toc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 1.1rem;
+  margin-bottom: 1rem;
+  padding: 0 0 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.legal-toc a {
+  color: var(--brand-dark);
+  font-weight: 600;
+  text-underline-offset: 0.18em;
+}
+
+.legal-section {
+  padding: 1.2rem 0;
+  border-bottom: 1px solid var(--line);
+  scroll-margin-top: 1.5rem;
+}
+
+.legal-section h2 {
+  margin-bottom: 0.55rem;
+  font-size: 1.5rem;
+}
+
+.legal-section p,
+.legal-section li {
+  max-width: 68ch;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.legal-section p:last-child {
+  margin-bottom: 0;
 }
 
 .contact-wrap {

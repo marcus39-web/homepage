@@ -72,6 +72,14 @@ function app_env(string $key, string $default = ''): string
 	return is_string($value) && $value !== '' ? $value : $default;
 }
 
+/**
+ * Kalenderbestellungen sind nur nach expliziter Aktivierung verfügbar.
+ */
+function calendar_orders_enabled(): bool
+{
+	return filter_var(app_env('CALENDAR_ORDERS_ENABLED', 'false'), FILTER_VALIDATE_BOOLEAN);
+}
+
 load_env_file(BASE_PATH . '/.env');
 require_once BASE_PATH . '/src/PhotoLibrary.php';
 
@@ -714,5 +722,120 @@ function handle_contact_form_submission(): void
 	csrf_token_rotate();
 
 	header('Location: /contact', true, 302);
+	exit;
+}
+
+/**
+ * Verarbeitet Feedback und leitet zur aufrufenden Seite zurück.
+ */
+function handle_feedback_submission(): void
+{
+	$name = trim((string) ($_POST['name'] ?? ''));
+	$email = trim((string) ($_POST['email'] ?? ''));
+	$message = trim((string) ($_POST['message'] ?? ''));
+	$website = trim((string) ($_POST['website'] ?? ''));
+	$privacyAccepted = (string) ($_POST['privacy_accepted'] ?? '');
+	$token = (string) ($_POST['_csrf'] ?? '');
+	$returnTo = trim((string) ($_POST['return_to'] ?? '/'));
+	$returnParts = parse_url($returnTo);
+	$returnPath = is_array($returnParts) ? ($returnParts['path'] ?? '/') : '/';
+	$returnQuery = is_array($returnParts) ? ($returnParts['query'] ?? '') : '';
+	if (!is_string($returnPath)
+		|| !str_starts_with($returnPath, '/')
+		|| str_starts_with($returnPath, '//')
+		|| str_contains($returnPath, '\\')
+		|| isset($returnParts['scheme'])
+		|| isset($returnParts['host'])
+		|| preg_match('/[\r\n]/', $returnTo) === 1) {
+		$returnPath = '/';
+		$returnQuery = '';
+	}
+	if (!is_string($returnQuery) || strlen($returnQuery) > 2048 || preg_match('/[\r\n]/', $returnQuery) === 1) {
+		$returnQuery = '';
+	}
+	$redirectTo = $returnPath . ($returnQuery !== '' ? '?' . $returnQuery : '') . '#feedback';
+
+	$errors = [];
+	if (!csrf_token_is_valid($token)) {
+		$errors[] = 'Sicherheitsprüfung fehlgeschlagen.';
+	}
+	if ($website !== '') {
+		$errors[] = 'Feedback konnte nicht verarbeitet werden.';
+	}
+	if ($name !== '' && mb_strlen($name) > 100) {
+		$errors[] = 'Der Name darf höchstens 100 Zeichen lang sein.';
+	}
+	if ($email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+		$errors[] = 'Bitte gib eine gültige E-Mail-Adresse ein oder lass das Feld leer.';
+	}
+	if (mb_strlen($message) < 10 || mb_strlen($message) > 4000) {
+		$errors[] = 'Bitte gib einen Kommentar mit 10 bis 4000 Zeichen ein.';
+	}
+	if ($privacyAccepted !== '1') {
+		$errors[] = 'Bitte stimme der Verarbeitung des Feedbacks zu.';
+	}
+
+	if ($errors !== []) {
+		$_SESSION['feedback_errors'] = $errors;
+		$_SESSION['feedback_old'] = [
+			'name' => $name,
+			'email' => $email,
+			'message' => $message,
+			'privacy_accepted' => $privacyAccepted === '1' ? '1' : '',
+		];
+		header('Location: ' . $redirectTo, true, 303);
+		exit;
+	}
+
+	$safeName = str_replace(["\r", "\n"], '', $name);
+	$safeEmail = str_replace(["\r", "\n"], '', $email);
+	$messagesDir = DATA_PATH . '/messages';
+	if (!is_dir($messagesDir) && !mkdir($messagesDir, 0775, true) && !is_dir($messagesDir)) {
+		$_SESSION['feedback_errors'] = ['Feedback konnte gerade nicht gespeichert werden. Bitte versuche es später erneut.'];
+		$_SESSION['feedback_old'] = ['name' => $safeName, 'email' => $safeEmail, 'message' => $message, 'privacy_accepted' => '1'];
+		header('Location: ' . $redirectTo, true, 303);
+		exit;
+	}
+
+	$entry = json_encode([
+		'timestamp' => date('c'),
+		'name' => $safeName,
+		'email' => $safeEmail,
+		'page' => $returnPath,
+		'message' => $message,
+	], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+	if (!is_string($entry) || @file_put_contents($messagesDir . '/feedback.log', $entry . PHP_EOL, FILE_APPEND | LOCK_EX) === false) {
+		$_SESSION['feedback_errors'] = ['Feedback konnte gerade nicht gespeichert werden. Bitte versuche es später erneut.'];
+		$_SESSION['feedback_old'] = ['name' => $safeName, 'email' => $safeEmail, 'message' => $message, 'privacy_accepted' => '1'];
+		header('Location: ' . $redirectTo, true, 303);
+		exit;
+	}
+
+	$replyTo = $safeEmail !== '' ? $safeEmail : 'info@marcusreiser.de';
+	$subject = 'Website-Feedback marcusreiser.de';
+	$emailBody = "Seite: {$returnPath}\nName: {$safeName}\nE-Mail: {$safeEmail}\n\nKommentar:\n{$message}";
+	$mailSent = false;
+	if (app_env('RESEND_API_KEY') !== '') {
+		$mailSent = send_contact_email_via_resend('info@marcusreiser.de', $replyTo, $subject, $emailBody);
+	} else {
+		$headers = "From: Marcus Reiser <info@marcusreiser.de>\r\n";
+		$headers .= "Reply-To: <{$replyTo}>\r\n";
+		$headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
+		try {
+			$mailSent = mail('info@marcusreiser.de', $subject, $emailBody, $headers);
+		} catch (\Throwable $exception) {
+			$mailSent = false;
+		}
+	}
+
+	set_flash(
+		'feedback_success',
+		$mailSent
+			? 'Danke! Dein Feedback wurde gesendet.'
+			: 'Danke! Dein Feedback wurde gespeichert. Der E-Mail-Versand konnte aktuell nicht bestätigt werden.'
+	);
+	unset($_SESSION['feedback_old'], $_SESSION['feedback_errors']);
+	csrf_token_rotate();
+	header('Location: ' . $redirectTo, true, 303);
 	exit;
 }

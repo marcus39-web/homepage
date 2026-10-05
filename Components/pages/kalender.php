@@ -4,8 +4,9 @@ $pageTitle = "Fotokalender 2027 – Marcus Reiser";
 $pageDescription = "Jahreskalender 2027 mit Motiven aus Weimar, Natur und Architektur.";
 $navContext = "subpage";
 $bodyClass = "subpage";
-$orderErrors = (array) ($_SESSION['order_errors'] ?? []);
-$orderSuccess = flash('order_success');
+$calendarOrdersEnabled = calendar_orders_enabled();
+$orderErrors = $calendarOrdersEnabled ? (array) ($_SESSION['order_errors'] ?? []) : [];
+$orderSuccess = $calendarOrdersEnabled ? flash('order_success') : null;
 $calendarMotifs = calendar_motif_catalog();
 $calendarMonths = calendar_month_defaults();
 $calendarFolders = array_values(array_unique(array_column($calendarMotifs, 'folder')));
@@ -18,11 +19,10 @@ require BASE_PATH . '/Components/layout/header.php';
     <?php require BASE_PATH . '/Components/layout/nav.php'; ?>
     <div class="wrap subpage-head">
         <p class="eyebrow-lite">Kalender 2027</p>
-        <h1>Fotokalender mit Motiven aus Weimar</h1>
+                <h1>Kalenderentwurf 2027</h1>
         <p>
-            Der Jahreskalender 2027 enthält 12 ausgewählte Fotografien aus Natur, Architektur,
-            Stadtmotiven und besonderen Momenten. Gedruckt auf hochwertigem Papier – ideal für die eigene Wand
-            oder als Geschenk.
+            Vorschau eines möglichen Jahreskalenders mit zwölf Motiven aus Natur, Architektur und Stadtansichten.
+            Die Monatsmotive lassen sich zur Ansicht individuell zusammenstellen.
         </p>
     </div>
 </div>
@@ -56,12 +56,29 @@ require BASE_PATH . '/Components/layout/header.php';
                 <p>Wähle für jeden Monat ein Bild. Deine Auswahl bleibt auf diesem Gerät gespeichert und kann jederzeit geändert werden.</p>
             </div>
 
-            <aside class="calendar-order-cta" aria-labelledby="calendar-order-cta-title">
-                <p class="eyebrow-lite">Schon entschieden?</p>
-                <h3 id="calendar-order-cta-title">Deinen Kalender anfragen</h3>
-                <p>Stückzahl und Monatsmotive kannst du im Formular angeben.</p>
-                <button class="btn btn-secondary" type="button" data-open-calendar-order>Zur Bestellanfrage</button>
-            </aside>
+            <?php if ($calendarOrdersEnabled): ?>
+                <aside class="calendar-order-cta" aria-labelledby="calendar-order-cta-title">
+                    <p class="eyebrow-lite">Schon entschieden?</p>
+                    <h3 id="calendar-order-cta-title">Deinen Kalender anfragen</h3>
+                    <p>Stückzahl und Monatsmotive kannst du im Formular angeben.</p>
+                    <button class="btn btn-secondary" type="button" data-open-calendar-order>Zur Bestellanfrage</button>
+                </aside>
+            <?php else: ?>
+                <?php if ($calendarOrdersEnabled): ?>
+                    <aside class="calendar-order-cta" aria-labelledby="calendar-order-cta-title">
+                        <p class="eyebrow-lite">Schon entschieden?</p>
+                        <h3 id="calendar-order-cta-title">Deinen Kalender anfragen</h3>
+                        <p>Stückzahl und Monatsmotive kannst du im Formular angeben.</p>
+                        <button class="btn btn-secondary" type="button" data-open-calendar-order>Zur Bestellanfrage</button>
+                    </aside>
+                <?php else: ?>
+                    <aside class="calendar-order-cta" aria-labelledby="calendar-order-cta-title">
+                        <p class="eyebrow-lite">Testversion</p>
+                        <h3 id="calendar-order-cta-title">Kalender in Vorbereitung</h3>
+                        <p>Eine Bestellung ist derzeit noch nicht möglich.</p>
+                    </aside>
+                <?php endif; ?>
+            <?php endif; ?>
 
             <div class="calendar-builder-controls">
                 <label for="calendar-preview-month">Kalendervorschau</label>
@@ -214,6 +231,7 @@ require BASE_PATH . '/Components/layout/header.php';
 
 </div>
 
+<?php if ($calendarOrdersEnabled): ?>
 <dialog class="calendar-order-dialog" id="calendar-order-dialog" aria-labelledby="order-title" data-open-on-load="<?= ($orderErrors !== [] || $orderSuccess !== null) ? 'true' : 'false' ?>">
     <button class="calendar-order-dialog-close" id="calendar-order-dialog-close" type="button" aria-label="Bestellanfrage schließen">&times;</button>
     <section class="calendar-order-content">
@@ -265,6 +283,61 @@ require BASE_PATH . '/Components/layout/header.php';
     </section>
 </dialog>
 <?php unset($_SESSION['order_errors'], $_SESSION['order_old']); ?>
+<?php endif; ?>
+
+<?php if ($calendarOrdersEnabled): ?>
+<dialog class="calendar-order-dialog" id="calendar-order-dialog" aria-labelledby="order-title" data-open-on-load="<?= ($orderErrors !== [] || $orderSuccess !== null) ? 'true' : 'false' ?>">
+    <button class="calendar-order-dialog-close" id="calendar-order-dialog-close" type="button" aria-label="Bestellanfrage schließen">&times;</button>
+    <section class="calendar-order-content">
+        <h2 id="order-title">Kalender anfragen</h2>
+        <p>Sende mir deine Anfrage. Ich melde mich zur Verfügbarkeit und zur finalen Abstimmung bei dir.</p>
+
+        <?php if ($orderSuccess !== null): ?>
+            <p class="notice success" role="status"><?= e($orderSuccess) ?></p>
+        <?php endif; ?>
+
+        <?php if ($orderErrors !== []): ?>
+            <div class="notice error" role="alert">
+                <strong>Bitte prüfe deine Anfrage:</strong>
+                <ul>
+                    <?php foreach ($orderErrors as $error): ?>
+                        <li><?= e((string) $error) ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        <?php endif; ?>
+
+        <form method="post" action="/kalender-bestellung" class="form-grid" novalidate>
+            <input type="hidden" name="_csrf" value="<?= e(csrf_token()) ?>">
+            <?php foreach ($calendarMonths as $month => $motifId): ?>
+                <input type="hidden" name="motifs[<?= e($month) ?>]" value="<?= e($motifId) ?>" data-order-motif="<?= e($month) ?>">
+            <?php endforeach; ?>
+
+            <label for="order_name">Name</label>
+            <input id="order_name" name="name" type="text" value="<?= order_old('name') ?>" required minlength="2" autocomplete="name">
+
+            <label for="order_email">E-Mail</label>
+            <input id="order_email" name="email" type="email" value="<?= order_old('email') ?>" required autocomplete="email">
+
+            <label for="order_quantity">Stückzahl</label>
+            <input id="order_quantity" name="quantity" type="number" min="1" max="20" value="<?= order_old('quantity') !== '' ? order_old('quantity') : '1' ?>" required>
+
+            <label for="order_message">Nachricht (optional)</label>
+            <textarea id="order_message" name="message" rows="4"><?= order_old('message') ?></textarea>
+
+            <div class="consent-wrap">
+                <input id="order_privacy_accepted" name="privacy_accepted" type="checkbox" value="1" required <?= order_old('privacy_accepted') === '1' ? 'checked' : '' ?>>
+                <label for="order_privacy_accepted">Ich akzeptiere die <a href="/datenschutz" target="_blank" rel="noopener noreferrer">Datenschutzhinweise</a> zur Bearbeitung meiner Anfrage.</label>
+            </div>
+
+            <input class="hp" type="text" name="website" value="" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+            <button type="submit" class="btn btn-secondary">Anfrage absenden</button>
+        </form>
+    </section>
+</dialog>
+<?php unset($_SESSION['order_errors'], $_SESSION['order_old']); ?>
+<?php endif; ?>
 
 <dialog class="photo-lightbox" id="lightbox">
     <img id="lightbox-img" class="photo-lightbox-image" src="" alt="">

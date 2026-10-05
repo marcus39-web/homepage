@@ -55,8 +55,9 @@ Anschliessend `http://127.0.0.1:8000/` im Browser oeffnen. Der eingebaute PHP-Se
 | `GET /galerie?ordner=05_Weimar_und_Umgebung&unterordner=Tiefurt` | Einen Unterordner anzeigen; verschachtelte Pfade werden ebenfalls unterstuetzt |
 | `GET /galerie?ordner=20.02_Web&unterordner=13_Zwiebelmarkt` | Sonderalbum fuer Zwiebelmarkt-Bilder aus dem Web-Exportordner |
 | `GET /public/photo.php?category=...&file=...` | Bildauslieferung nach Pfad- und Dateityppruefung |
-| `GET /kalender` | Kalenderblatt-Vorschau, zwölf bearbeitbare Monatsmotive im einheitlichen 4:3-Format, Bundesland-Feiertage, optional markierte Schulferien und Anfrageformular |
-| `POST /kalender-bestellung` | Kalenderanfrage validieren und in `data/messages/orders.log` speichern |
+| `GET /kalender` | Kalenderblatt-Vorschau, zwölf bearbeitbare Monatsmotive im einheitlichen 4:3-Format, Bundesland-Feiertage, optionale Schulferien und – bei aktiviertem Bestellschalter – Bestellformular |
+| `POST /kalender-bestellung` | Kalenderanfrage validieren und in `data/messages/orders.log` speichern; nur bei `CALENDAR_ORDERS_ENABLED=true` aktiv |
+| `POST /feedback` | Website-Feedback validieren, lokal speichern und per E-Mail weiterleiten |
 | `GET /contact`, `POST /contact` | Kontaktformular mit CSRF-Pruefung, Datenschutz-Zustimmung und Honeypot |
 | `GET /statistik-login`, `POST /statistik-login` | Anmeldung zum Statistikbereich |
 | `GET /statistik` | Passwortgeschuetzte Besucherstatistik und Kalenderanfragen |
@@ -130,7 +131,9 @@ Die Kalenderauswahl verwendet zusaetzlich vorbereitete WebP-Dateien unter `publi
 
 ## Formulare und gespeicherte Daten
 
-Kontakt- und Kalender-Anfrageformulare verwenden CSRF-Token, serverseitige Validierung, Datenschutz-Zustimmung und ein Honeypot-Feld. Kontaktanfragen werden lokal in `data/messages/contact.log` protokolliert und bei gesetztem `RESEND_API_KEY` ueber die Resend-API versendet; ohne API-Schluessel verwendet das Kontaktformular `mail()` als Server-Fallback. Fuer Resend muessen `RESEND_API_KEY` und eine verifizierte `RESEND_FROM_EMAIL` in `.env` gesetzt sein. Den API-Schluessel niemals committen oder weitergeben. Die Kalenderseite bietet eine Blattvorschau und eine Bildauswahl fuer jeden Monat. Die Auswahl wird im Browser gespeichert und mit der Anfrage uebermittelt. Kalenderanfragen werden vor dem Mailversand zeilenweise als JSON in `data/messages/orders.log` gespeichert; eine Benachrichtigung mit den gewaehlten Motiven geht an `info@marcusreiser.de`. Dies ist eine Anfrage, kein bezahlter Online-Kauf: Zahlung, Rechnungserstellung und automatische Uebergabe an eine Druckerei sind noch nicht integriert. Scheitert der Mailversand, bleibt die Anfrage gespeichert und die Rueckmeldung weist darauf hin. Die Statistikseite zeigt Besucherzahlen sowie gespeicherte Anfragen inklusive Monatsmotiven; sensible IP-Daten werden in der Tabelle nicht angezeigt.
+Kontakt-, Feedback- und Kalender-Anfragen verwenden CSRF-Token, serverseitige Validierung, Datenschutz-Zustimmung und ein Honeypot-Feld. Kontaktanfragen werden lokal in `data/messages/contact.log`, Website-Feedback in `data/messages/feedback.log` protokolliert. Feedbackname und Rueckmailadresse sind optional; der Kommentar wird an `info@marcusreiser.de` weitergeleitet. Bei gesetztem `RESEND_API_KEY` erfolgt der Versand ueber die Resend-API, andernfalls wird `mail()` als Server-Fallback verwendet. Fuer Resend muessen `RESEND_API_KEY` und eine verifizierte `RESEND_FROM_EMAIL` in `.env` gesetzt sein. Den API-Schluessel niemals committen oder weitergeben.
+
+Die Kalenderseite bietet auch bei deaktivierter Bestellfunktion eine Blattvorschau und Bildauswahl. Bestellanfragen sind standardmaessig ausgeschaltet: `CALENDAR_ORDERS_ENABLED=false` blendet Formular und Bestellbutton aus und weist auch den POST-Endpunkt ab. Zum spaeteren Reaktivieren in der Server-`.env` den Wert auf `true` setzen; Formular, Validierung und Speicherung in `data/messages/orders.log` bleiben im Code erhalten. Die Motivauswahl wird im Browser gespeichert und erst mit aktivierter Bestellanfrage uebermittelt. Bestellungen sind Anfragen, keine bezahlten Online-Kaeufe; Zahlung, Rechnungserstellung und automatische Uebergabe an eine Druckerei sind nicht integriert. Historische Anfragen bleiben gespeichert und in der Statistik sichtbar. Kontakt-, Feedback- und Kalenderanfragen werden nicht automatisch geloescht; fuer Auskunft oder Loeschung an `info@marcusreiser.de` wenden.
 
 Der Besucherzaehler speichert Gesamt-, Pfad-, Tages- und Session-Tageswerte in `data/logs/visits.json`. Die interne Statistik zeigt Besucherzahlen fuer heute, eindeutige Besuche heute, den aktuellen Monat, insgesamt, den Verlauf der letzten 14 Tage und gespeicherte Kalenderanfragen.
 
@@ -143,6 +146,7 @@ Der Besucherzaehler speichert Gesamt-, Pfad-, Tages- und Session-Tageswerte in `
 | `APP_ENV` | Beispielwert in `.env.example`; wird vom aktuellen Anwendungscode nicht ausgewertet |
 | `APP_NAME` | Beispielwert in `.env.example`; wird vom aktuellen Anwendungscode nicht ausgewertet |
 | `STATS_PASSWORD` | Passwort fuer den internen Statistikbereich; nicht fuer den WCP-Verzeichnisschutz verwenden |
+| `CALENDAR_ORDERS_ENABLED` | Kalenderbestellungen aktivieren; Standard `false`, fuer die Reaktivierung auf `true` setzen |
 | `PHOTO_LIBRARY_PATH` | Optionaler absoluter Pfad zur Fotoquelle; auf netcup leer lassen, um `data/photos/` zu verwenden |
 | `RESEND_API_KEY` | Geheim gehaltener API-Schluessel fuer den Versand von Kontaktanfragen ueber Resend |
 | `RESEND_FROM_EMAIL` | Absenderadresse auf einer bei Resend verifizierten Domain, z. B. `info@marcusreiser.de` |
@@ -160,7 +164,7 @@ Die Website laeuft als geschuetzter Test auf `https://marcusreiser.de/`. Der Dok
 5. Die WebP-Varianten liegen in `httpdocs/data/photo-cache/`; sie koennen vorab mit `tools/generate_photo_variants.py` erzeugt werden. Cache-Dateien nach einem JPG-Austausch werden vom Bild-Endpunkt anhand des Quell-Zeitstempels erneuert.
 6. Eine Server-`.env` mit eigenen Werten fuer Mailversand und Statistikpasswort anlegen. Lokale `.env`, `.git/`, `zugangslink.txt`, private Bilder und Anfragedateien nicht hochladen.
 7. Pruefen, dass `data/logs/` und `data/messages/` durch PHP beschreibbar sind. Keine pauschalen `777`-Rechte vergeben.
-8. Die geschuetzte Seite in einem privaten Browserfenster testen: Startseite, Immengoldkerzen-Kachel und Link, Galerie, Foto-Unterordner, Kalender, Kontaktformular und Impressum.
+8. Die Seite in einem privaten Browserfenster testen: Startseite, Immengoldkerzen-Kachel und Link, Galerie, Foto-Unterordner, Kalender-Motivauswahl, Feedbackdialog, Kontaktformular und Impressum. Sicherstellen, dass `/kalender-bestellung` bei `CALENDAR_ORDERS_ENABLED=false` nicht annimmt.
 
 Wenn Kategorien erscheinen, Bilder aber fehlen, zuerst Dateipfade und Gross-/Kleinschreibung der Originale, danach die WebP-Dateien in `data/photo-cache/preview/` und `data/photo-cache/gallery/` pruefen. Bei ersetzten Bildern muss der PHP-Cache-Fix aus `public/photo.php` live bereitgestellt sein.
 

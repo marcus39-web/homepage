@@ -15,26 +15,32 @@ require BASE_PATH . '/Components/layout/header.php';
     </div>
 </div>
 
-<div class="subpage-main wrap">
+<main class="subpage-main wrap legal-document">
 
-    <section class="panel">
-        <h2>Allgemeine Hinweise</h2>
+    <p class="legal-intro">Hier findest du kompakt, welche Daten beim Besuch der Website, bei Fotos und bei Formularen verarbeitet werden.</p>
+
+    <section class="legal-section" id="datenschutz-allgemein">
+        <h2>1. Allgemeine Hinweise</h2>
         <p>
             Der Schutz deiner persönlichen Daten ist mir wichtig. Personenbezogene Daten werden vertraulich
             und gemäß den gesetzlichen Datenschutzvorschriften behandelt.
         </p>
     </section>
 
-    <section class="panel">
-        <h2>Verantwortliche Stelle</h2>
+    <section class="legal-section" id="verantwortliche-stelle">
+        <h2>2. Verantwortliche Stelle</h2>
         <p>
             Marcus Klaus‑Dieter Reiser<br>
-            Fotografie & IT · Weimar
+            Fotografie & IT<br>
+            Lerchenweg 16<br>
+            99428 Weimar / Legefeld<br>
+            Deutschland<br>
+            E-Mail: <a href="mailto:info@marcusreiser.de">info@marcusreiser.de</a>
         </p>
     </section>
 
-    <section class="panel">
-        <h2>Hosting und Besucherstatistik</h2>
+    <section class="legal-section" id="hosting-statistik">
+        <h2>3. Hosting und Besucherstatistik</h2>
         <p>
             Beim Aufruf der Website verarbeitet der Hostinganbieter netcup technische Verbindungsdaten,
             insbesondere IP-Adresse, Zeitpunkt, angeforderte Adresse, Browserinformationen und Status der Anfrage,
@@ -49,8 +55,8 @@ require BASE_PATH . '/Components/layout/header.php';
         </p>
     </section>
 
-    <section class="panel">
-        <h2>Sitzungen und Cookies</h2>
+    <section class="legal-section" id="sitzungen-cookies">
+        <h2>4. Sitzungen und lokale Speicherung</h2>
         <p>
             Für Formulare, CSRF-Schutz und die sitzungsbasierte Besucherzählung verwendet die Website eine
             technisch notwendige PHP-Sitzung. Das Sitzungs-Cookie ist auf die Dauer der Browsersitzung begrenzt,
@@ -64,8 +70,8 @@ require BASE_PATH . '/Components/layout/header.php';
         </p>
     </section>
 
-    <section class="panel">
-        <h2>Fotos und EXIF-Daten</h2>
+    <section class="legal-section" id="fotos-exif">
+        <h2>5. Fotos und EXIF-Daten</h2>
         <p>
             Bei veröffentlichten Fotos können EXIF-Daten verarbeitet und in der vergrößerten Bildansicht angezeigt
             werden. Dazu gehören, soweit im Foto vorhanden, Aufnahmezeit, Kameramodell, Objektiv, Brennweite,
@@ -76,8 +82,8 @@ require BASE_PATH . '/Components/layout/header.php';
         </p>
     </section>
 
-    <section class="panel">
-        <h2>Open-Meteo und Nominatim</h2>
+    <section class="legal-section" id="externe-dienste">
+        <h2>6. Externe Dienste für Ort und Wetter</h2>
         <p>
             Wenn ein geöffnetes Foto GPS-Koordinaten enthält, fragt der Browser bei Nominatim den ungefähren Ortsnamen
             ab. Sind zusätzlich Aufnahmedatum und -zeit vorhanden, fragt der Browser bei Open-Meteo historische oder
@@ -87,28 +93,34 @@ require BASE_PATH . '/Components/layout/header.php';
         </p>
     </section>
 
-    <section class="panel">
-        <h2>Kontakt- und Kalenderanfragen</h2>
+    <section class="legal-section" id="anfragen-feedback">
+        <h2>7. Kontakt, Feedback und Kalenderanfragen</h2>
         <p>
             Bei einer Kontaktanfrage werden Name, E-Mail-Adresse und Nachricht in einer lokalen Protokolldatei
             gespeichert und zur Bearbeitung an info@marcusreiser.de versendet. Ist Resend konfiguriert, wird die
             Nachricht über diesen E-Mail-Dienst übermittelt; andernfalls nutzt der Server seinen Mailversand.
         </p>
         <p>
-            Bei einer Kalenderanfrage werden Name, E-Mail-Adresse, Stückzahl, Nachricht, ausgewählte Monatsmotive,
+            Website-Feedback wird mit dem optional angegebenen Namen und der optionalen E-Mail-Adresse sowie dem
+            Kommentar und der betreffenden Seitenadresse in <code>data/messages/feedback.log</code> gespeichert und an
+            info@marcusreiser.de übermittelt. Ohne Rückmailadresse kann auf den Kommentar nicht direkt geantwortet werden.
+        </p>
+        <p>
+            Kalenderanfragen werden nur angenommen, wenn <code>CALENDAR_ORDERS_ENABLED</code> serverseitig aktiviert ist. Dann
+            werden Name, E-Mail-Adresse, Stückzahl, Nachricht, ausgewählte Monatsmotive,
             Zeitpunkt und IP-Adresse in einer lokalen Datei gespeichert. Eine Benachrichtigung mit Name, E-Mail,
             Stückzahl, Nachricht und Monatsmotiven wird über Resend an info@marcusreiser.de gesendet; die IP-Adresse
             wird nicht in diese E-Mail aufgenommen. Es handelt sich derzeit um eine Anfrage, nicht um einen bezahlten
             Online-Kauf; Zahlung und automatische Druckerei-Beauftragung sind nicht integriert.
         </p>
         <p>
-            Kontakt- und Kalenderanfragen werden derzeit nicht automatisch gelöscht. Für Auskunft oder Löschung
+            Kontakt-, Feedback- und Kalenderanfragen werden derzeit nicht automatisch gelöscht. Für Auskunft oder Löschung
             kannst du dich an info@marcusreiser.de wenden.
         </p>
     </section>
 
-    <section class="panel">
-        <h2>Rechte der Nutzer</h2>
+    <section class="legal-section" id="betroffenenrechte">
+        <h2>8. Deine Rechte</h2>
         <ul class="project-list">
             <li>Auskunft über gespeicherte Daten</li>
             <li>Berichtigung fehlerhafter Daten</li>
@@ -119,6 +131,6 @@ require BASE_PATH . '/Components/layout/header.php';
         </ul>
     </section>
 
-</div>
+</main>
 
 <?php require BASE_PATH . '/Components/layout/footer.php'; ?>

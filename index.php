@@ -33,7 +33,17 @@ if ($path === '/contact' && $method === 'POST') {
 }
 
 if ($path === '/kalender-bestellung' && $method === 'POST') {
+    if (!calendar_orders_enabled()) {
+        http_response_code(404);
+        require __DIR__ . '/Components/pages/error-404.php';
+        exit;
+    }
+
     handle_calendar_order_submission();
+}
+
+if ($path === '/feedback' && $method === 'POST') {
+    handle_feedback_submission();
 }
 
 // Login/Logout-Endpoints fuer den internen Statistikbereich.
