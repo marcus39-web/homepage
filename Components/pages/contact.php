@@ -34,7 +34,7 @@ require BASE_PATH . '/Components/layout/header.php';
         <div>
             <h2>Marcus Reiser</h2>
             <p>Fotografie & IT · Weimar</p>
-            <p class="muted">Professionelle Fotografie, Kalenderproduktion und IT‑Dienstleistungen.</p>
+            <p class="muted">Hobbyfotografie aus Weimar, Kalenderprojekte und IT-Themen.</p>
         </div>
     </section>
 
