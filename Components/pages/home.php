@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
-$pageTitle = "Marcus Reiser – Fotografie & IT";
-$pageDescription = "Marcus Reiser aus Legefeld – Hobbyfotograf und IT-Entwickler. Fotogalerie, Kalender und kreative Projekte.";
+$pageTitle = "Marcus Reiser – Fotografie & IT aus Weimar";
+$pageDescription = "Marcus Reiser aus Legefeld bei Weimar – Hobbyfotograf und IT-Entwickler. Fotografie aus Weimar, Fotogalerie, Kalender und kreative Projekte.";
 $navContext = "hero";
 $architectureCategory = '05_Weimar_und_Umgebung';
 $architectureImageUrl = null;
@@ -47,7 +47,7 @@ require BASE_PATH . '/Components/layout/header.php';
         </div>
         <p class="hero-kicker">Fotografie · Kalender · Projekte</p>
 
-        <h1>Willkommen im schönen Weimar</h1>
+        <h1>Marcus Reiser – Fotografie aus Weimar</h1>
 
         <p class="hero-subline">
             Ich bin Marcus Reiser aus Legefeld – Hobbyfotograf, IT-Entwickler und ein kreativer Kopf.
@@ -68,7 +68,7 @@ require BASE_PATH . '/Components/layout/header.php';
     <!-- Intro-Panel -->
     <section>
         <div class="intro wrap">
-            <h1>Fotografie aus Weimar</h1>
+            <h2>Fotografie aus Weimar</h2>
             <p>
                 Fotografie ist eines meiner Hobbys und ein kreativer Ausgleich zu meiner Arbeit in der IT-Entwicklung.
                 Beide Bereiche verbinden für mich Neugier, Ideen und Freude am Ausprobieren: Bei IT-Projekten entstehen digitale Lösungen,
