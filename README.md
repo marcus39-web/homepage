@@ -1,6 +1,6 @@
 # marcusreiser.de
 
-Persoenliche Fotografie-Website von Marcus Reiser aus Weimar/Legefeld. Die Website praesentiert eine automatisch gepflegte Fotogalerie, einen Fotokalender und Projekte aus Fotografie und IT.
+Persoenliche Fotografie-Website von Marcus Reiser aus Legefeld – Hobbyfotograf und IT-Entwickler. Die Website praesentiert eine automatisch gepflegte Fotogalerie, einen Fotokalender und Projekte aus Fotografie und IT.
 
 ## Aufbau
 

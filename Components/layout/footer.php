@@ -19,7 +19,7 @@ if (is_string($feedbackQuery) && $feedbackQuery !== '') {
 
         <div>
             <h2>Marcus Reiser</h2>
-            <p>Fotografie & IT · Weimar</p>
+            <p>Fotografie & IT · Legefeld</p>
             <a href="https://www.instagram.com/Marcus_Fotografie_IT/" target="_blank" rel="noopener noreferrer">Instagram: @Marcus_Fotografie_IT</a>
             <button class="footer-feedback-button" type="button" data-open-feedback>Website-Feedback</button>
         </div>
