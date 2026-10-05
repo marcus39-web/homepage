@@ -132,6 +132,16 @@ h2 {
   font-weight: 600;
 }
 
+.site-nav-links .site-nav-feedback {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--brand-dark);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .hero {
   position: relative;
   display: grid;
@@ -720,6 +730,10 @@ main section {
 .subpage .brand,
 .subpage .site-nav-links a {
   color: var(--text);
+}
+
+.subpage .site-nav-links .site-nav-feedback {
+  color: var(--brand-dark);
 }
 
 .subpage-main {

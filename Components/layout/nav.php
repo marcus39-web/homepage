@@ -34,5 +34,6 @@ $isHomeHero  = $navContext === 'hero';
         <a href="/contact">Kontakt</a>
         <a href="/impressum">Impressum</a>
         <a href="/datenschutz">Datenschutz</a>
+        <button class="site-nav-feedback" type="button" data-open-feedback>Website-Feedback</button>
     </div>
 </nav>
