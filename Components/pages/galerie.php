@@ -110,7 +110,14 @@ require BASE_PATH . '/Components/layout/header.php';
     <p class="eyebrow-lite">Fotografie</p>
     <h1><?= $selectedSubfolder !== '' ? e(basename($selectedSubfolder)) : ($selectedCategory !== null ? e($selectedCategory['label']) : 'Galerie') ?></h1>
     <p><?= $selectedCategory !== null ? 'Fotografien aus ' . e($selectedSubfolder !== '' ? basename($selectedSubfolder) : $selectedCategory['label']) . '.' : 'Aufnahmen aus meinen Bilderordnern, nach Themen sortiert.' ?></p>
-    <a class="btn btn-primary" href="/#fotografie">Alle Fotoordner</a>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="<?= $selectedCategory !== null ? '/galerie' : '/' ?>">
+        <?= $selectedCategory !== null ? 'Alle Fotoordner' : 'Zur Startseite' ?>
+      </a>
+      <?php if ($selectedCategory !== null): ?>
+        <a class="btn btn-ghost" href="/">Zur Startseite</a>
+      <?php endif; ?>
+    </div>
   </section>
 
   <?php if ($photoCategories === []): ?>
