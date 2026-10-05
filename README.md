@@ -63,8 +63,14 @@ Anschliessend `http://127.0.0.1:8000/` im Browser oeffnen. Der eingebaute PHP-Se
 | `GET /statistik` | Passwortgeschuetzte Besucherstatistik und Kalenderanfragen |
 | `GET /statistik-logout` | Statistik abmelden |
 | `GET /impressum`, `GET /datenschutz` | Rechtliche Informationsseiten |
+| `GET /robots.txt` | Crawl-Regeln für Suchmaschinen und Sitemap-Verweis |
+| `GET /sitemap.xml` | Sitemap der öffentlichen Hauptseiten |
 
 Im Kalender lassen sich Wochenenden, gesetzliche Feiertage 2027 des gewaehlten Bundeslands und optional die Schulferien hervorheben. Das Bundesland und die Ferienoption werden lokal im Browser gespeichert. Die Ferienbereiche basieren auf den KMK-Ferienkalendern 2026/27 und 2027/28; bewegliche Ferientage und lokale Sonderregelungen sind nicht enthalten. Regionale Feiertage sind mit `*` gekennzeichnet.
+
+## Google-Suche
+
+`robots.txt` erlaubt das Crawling öffentlicher Seiten und verweist auf `https://marcusreiser.de/sitemap.xml`; interne Statistik- und POST-Endpunkte sind ausgeschlossen. Die Sitemap listet die sechs öffentlichen Hauptseiten. Canonical-URLs entfernen Trackingparameter und behalten bei der Galerie nur die ausgewählten Ordnerparameter. Google kann die Website erst crawlen, wenn der separate Passwortschutz im netcup-WCP aufgehoben ist. Danach die Domain in der Google Search Console bestätigen und dort `https://marcusreiser.de/sitemap.xml` einreichen. Eine Einreichung garantiert keine Indexierung oder ein bestimmtes Ranking.
 
 ## Fotogalerie und Bildablage
 
@@ -130,6 +136,8 @@ Das Wasserzeichen erschwert eine unveraenderte Weiterverwendung, verhindert aber
 Die Kalenderauswahl verwendet zusaetzlich vorbereitete WebP-Dateien unter `public/assets/images/galerie/natur/Ilm/`. Die JPG-Originale fuer den Druck bleiben davon unberuehrt.
 
 ## Formulare und gespeicherte Daten
+
+Kontakt- und Feedbackformulare begrenzen gültige Absendeversuche auf fünf pro IP-Adresse und Stunde. Ein HMAC der IP-Adresse und Zeitstempel werden in `data/logs/form-rate-limits.json` gespeichert; abgelaufene Zeitfenster werden beim nächsten gültigen Versuch bereinigt. Die Roh-IP wird vom Rate-Limiter nicht gespeichert.
 
 Kontakt-, Feedback- und Kalender-Anfragen verwenden CSRF-Token, serverseitige Validierung, Datenschutz-Zustimmung und ein Honeypot-Feld. Kontaktanfragen werden lokal in `data/messages/contact.log`, Website-Feedback in `data/messages/feedback.log` protokolliert. Feedbackname und Rueckmailadresse sind optional; der Kommentar wird an `info@marcusreiser.de` weitergeleitet. Bei gesetztem `RESEND_API_KEY` erfolgt der Versand ueber die Resend-API, andernfalls wird `mail()` als Server-Fallback verwendet. Fuer Resend muessen `RESEND_API_KEY` und eine verifizierte `RESEND_FROM_EMAIL` in `.env` gesetzt sein. Den API-Schluessel niemals committen oder weitergeben.
 

@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /statistik
+Disallow: /statistik-login
+Disallow: /statistik-logout
+Disallow: /kalender-bestellung
+Disallow: /feedback
+
+Sitemap: https://marcusreiser.de/sitemap.xml

@@ -121,6 +121,99 @@ function csrf_token_rotate(): void
 }
 
 /**
+ * Begrenzung gültiger Formularabsendungen pro Client und Zeitfenster.
+ */
+function form_submission_rate_limited(string $form, int $limit = 5, int $windowSeconds = 3600): bool
+{
+	$clientAddress = trim((string) ($_SERVER['REMOTE_ADDR'] ?? ''));
+	if ($clientAddress === '' || $limit < 1 || $windowSeconds < 1) {
+		return true;
+	}
+
+	$logDirectory = DATA_PATH . '/logs';
+	if (!is_dir($logDirectory) && !@mkdir($logDirectory, 0775, true) && !is_dir($logDirectory)) {
+		return true;
+	}
+
+	$keyHandle = @fopen($logDirectory . '/.form-rate-limit-key', 'c+');
+	if ($keyHandle === false || !flock($keyHandle, LOCK_EX)) {
+		if (is_resource($keyHandle)) {
+			fclose($keyHandle);
+		}
+		return true;
+	}
+
+	rewind($keyHandle);
+	$secret = trim((string) stream_get_contents($keyHandle));
+	if (strlen($secret) < 64) {
+		try {
+			$secret = bin2hex(random_bytes(32));
+		} catch (\Throwable $exception) {
+			flock($keyHandle, LOCK_UN);
+			fclose($keyHandle);
+			return true;
+		}
+		rewind($keyHandle);
+		ftruncate($keyHandle, 0);
+		if (fwrite($keyHandle, $secret) === false) {
+			flock($keyHandle, LOCK_UN);
+			fclose($keyHandle);
+			return true;
+		}
+		fflush($keyHandle);
+	}
+	flock($keyHandle, LOCK_UN);
+	fclose($keyHandle);
+
+	$clientKey = hash_hmac('sha256', $form . '|' . $clientAddress, $secret);
+	$rateLimitPath = $logDirectory . '/form-rate-limits.json';
+	$rateLimitHandle = @fopen($rateLimitPath, 'c+');
+	if ($rateLimitHandle === false || !flock($rateLimitHandle, LOCK_EX)) {
+		if (is_resource($rateLimitHandle)) {
+			fclose($rateLimitHandle);
+		}
+		return true;
+	}
+
+	rewind($rateLimitHandle);
+	$entries = json_decode((string) stream_get_contents($rateLimitHandle), true);
+	$entries = is_array($entries) ? $entries : [];
+	$now = time();
+	$cutoff = $now - $windowSeconds;
+	foreach ($entries as $key => $timestamps) {
+		if (!is_array($timestamps)) {
+			unset($entries[$key]);
+			continue;
+		}
+
+		$entries[$key] = array_values(array_filter(
+			$timestamps,
+			static fn ($timestamp): bool => is_int($timestamp) && $timestamp > $cutoff
+		));
+		if ($entries[$key] === []) {
+			unset($entries[$key]);
+		}
+	}
+
+	$attempts = $entries[$clientKey] ?? [];
+	$limited = count($attempts) >= $limit;
+	if (!$limited) {
+		$attempts[] = $now;
+		$entries[$clientKey] = $attempts;
+	}
+
+	$json = json_encode($entries, JSON_UNESCAPED_SLASHES);
+	rewind($rateLimitHandle);
+	ftruncate($rateLimitHandle, 0);
+	$written = is_string($json) ? fwrite($rateLimitHandle, $json) : false;
+	fflush($rateLimitHandle);
+	flock($rateLimitHandle, LOCK_UN);
+	fclose($rateLimitHandle);
+
+	return $written === false || $limited;
+}
+
+/**
  * Merkt sich alte Formulardaten über Redirect hinweg.
  *
  * @param array<string, string> $values
@@ -671,6 +764,9 @@ function handle_contact_form_submission(): void
 	if ($privacyAccepted !== '1') {
 		$errors[] = 'Bitte akzeptiere zuerst die Datenschutzrichtlinien.';
 	}
+	if ($errors === [] && form_submission_rate_limited('contact')) {
+		$errors[] = 'Du hast gerade mehrere Nachrichten gesendet. Bitte versuche es später erneut.';
+	}
 
 	if ($errors !== []) {
 		// Fehler werden in der Session gehalten und nach Redirect auf /contact angezeigt.
@@ -773,6 +869,9 @@ function handle_feedback_submission(): void
 	}
 	if ($privacyAccepted !== '1') {
 		$errors[] = 'Bitte stimme der Verarbeitung des Feedbacks zu.';
+	}
+	if ($errors === [] && form_submission_rate_limited('feedback')) {
+		$errors[] = 'Du hast gerade mehrere Feedback-Nachrichten gesendet. Bitte versuche es später erneut.';
 	}
 
 	if ($errors !== []) {

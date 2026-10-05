@@ -53,6 +53,12 @@ require BASE_PATH . '/Components/layout/header.php';
             dabei keine IP-Adresse. Die Statistikdaten werden derzeit nicht automatisch gelöscht. Daneben kann
             der Hostinganbieter eigene technische Serverprotokolle mit IP-Adresse nach seinen Speicherfristen führen.
         </p>
+        <p>
+            Zum Schutz der Kontakt- und Feedbackformulare werden gültige Absendeversuche auf fünf pro Stunde und
+            IP-Adresse begrenzt. Dafür wird die IP-Adresse mit einem nur lokal gespeicherten Schlüssel gehasht;
+            die Roh-IP wird nicht im Rate-Limit-Protokoll gespeichert. Abgelaufene Zeitstempel werden bei einem
+            späteren gültigen Formularversuch entfernt.
+        </p>
     </section>
 
     <section class="legal-section" id="sitzungen-cookies">

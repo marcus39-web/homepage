@@ -17,9 +17,24 @@ $bodyClassAttribute = $bodyClass !== ''
     ? ' class="' . htmlspecialchars($bodyClass, ENT_QUOTES, 'UTF-8') . '"'
     : '';
 
-// Aktuelle URL für Canonical / OG
-$currentPath = $_SERVER['REQUEST_URI'] ?? '/';
-$currentUrl  = 'https://marcusreiser.de' . $currentPath;
+// Canonical / OG ohne Trackingparameter; Galerieordner bleiben eigenständige URLs.
+$requestUri = (string) ($_SERVER['REQUEST_URI'] ?? '/');
+$currentPath = parse_url($requestUri, PHP_URL_PATH);
+$currentPath = is_string($currentPath) && $currentPath !== '' ? $currentPath : '/';
+$currentUrl = 'https://marcusreiser.de' . $currentPath;
+if ($currentPath === '/galerie') {
+    $requestQuery = parse_url($requestUri, PHP_URL_QUERY);
+    parse_str(is_string($requestQuery) ? $requestQuery : '', $queryParameters);
+    $canonicalParameters = [];
+    foreach (['ordner', 'unterordner'] as $parameter) {
+        if (isset($queryParameters[$parameter]) && is_string($queryParameters[$parameter]) && $queryParameters[$parameter] !== '') {
+            $canonicalParameters[$parameter] = $queryParameters[$parameter];
+        }
+    }
+    if ($canonicalParameters !== []) {
+        $currentUrl .= '?' . http_build_query($canonicalParameters);
+    }
+}
 
 ?>
 <!doctype html>
