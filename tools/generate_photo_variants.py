@@ -18,7 +18,7 @@ VARIANTS = {
     "preview": (800, 78),
     "gallery": (1800, 82),
 }
-WATERMARK_CACHE_VERSION = "wm-v1"
+WATERMARK_CACHE_VERSION = "wm-v2"
 
 
 def watermark_signature(source: Path) -> str:
@@ -113,11 +113,6 @@ def save_variant(source: Path, relative_path: Path, output_root: Path, variant: 
                 method=6,
                 icc_profile=icc_profile,
             )
-
-        # Let the endpoint fall back to the source if WebP would use more bytes.
-        if temporary_target.stat().st_size >= source.stat().st_size:
-            temporary_target.unlink()
-            return False
 
         temporary_target.replace(target)
         temporary_metadata.write_text(signature, encoding="ascii")

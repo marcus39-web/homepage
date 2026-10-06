@@ -74,7 +74,7 @@ function photo_variant_signature(string $sourcePath): ?string {
         return null;
     }
 
-    return hash('sha256', implode('|', ['wm-v1', $sourceMtime, $sourceSize, $watermarkMtime, $watermarkSize]));
+    return hash('sha256', implode('|', ['wm-v2', $sourceMtime, $sourceSize, $watermarkMtime, $watermarkSize]));
 }
 
 function photo_variant_write_metadata(string $sourcePath, string $variantPath): bool {
@@ -94,29 +94,12 @@ function photo_variant_is_stale(string $sourcePath, string $variantPath): bool {
     $signature = photo_variant_signature($sourcePath);
     $metadataPath = photo_variant_metadata_path($variantPath);
     clearstatcache(true, $metadataPath);
-    if (is_file($metadataPath)) {
-        if ($signature === null) {
-            return true;
-        }
-
-        $storedSignature = @file_get_contents($metadataPath);
-        return !is_string($storedSignature) || !hash_equals($signature, trim($storedSignature));
-    }
-
-    if (photo_watermark_generation_available()) {
+    if (!is_file($metadataPath) || $signature === null) {
         return true;
     }
 
-    $watermarkPath = __DIR__ . '/assets/watermark/watermark.png';
-    clearstatcache(true, $sourcePath);
-    clearstatcache(true, $variantPath);
-    clearstatcache(true, $watermarkPath);
-    $sourceMtime = filemtime($sourcePath);
-    $variantMtime = filemtime($variantPath);
-    $watermarkMtime = is_file($watermarkPath) ? filemtime($watermarkPath) : false;
-
-    return ($sourceMtime !== false && ($variantMtime === false || $sourceMtime > $variantMtime))
-        || ($watermarkMtime !== false && ($variantMtime === false || $watermarkMtime >= $variantMtime));
+    $storedSignature = @file_get_contents($metadataPath);
+    return !is_string($storedSignature) || !hash_equals($signature, trim($storedSignature));
 }
 /**
  * Wasserzeichen auf ein Bild legen (unten rechts)
@@ -283,43 +266,39 @@ function create_watermarked_webp_variant(string $source, string $target, int $ma
     return true;
 }
 
-/**
- * Varianten erzeugen (falls nicht vorhanden)
- */
-if ($variant === 'preview') {
-
-    if (photo_variant_is_stale($filePath, $previewFile)) {
-        create_watermarked_webp_variant($filePath, $previewFile, 600);
-    }
-    $previewIsCurrent = is_file($previewFile) && !photo_variant_is_stale($filePath, $previewFile);
-    $servedPath = $previewIsCurrent ? $previewFile : $filePath;
-    $cacheDuration = $previewIsCurrent ? 86400 : 3600;
-
-} elseif ($variant === 'gallery') {
-
-    if (photo_variant_is_stale($filePath, $galleryFile)) {
-        create_watermarked_webp_variant($filePath, $galleryFile, 1600);
-    }
-
-    $galleryIsCurrent = is_file($galleryFile) && !photo_variant_is_stale($filePath, $galleryFile);
-    $servedPath = $galleryIsCurrent ? $galleryFile : $filePath;
-    $cacheDuration = $galleryIsCurrent ? 86400 : 3600;
-
-} elseif ($variant === 'thumb') {
-
-    if (photo_variant_is_stale($filePath, $thumbFile)) {
-        create_watermarked_webp_variant($filePath, $thumbFile, 300);
-    }
-    $thumbIsCurrent = is_file($thumbFile) && !photo_variant_is_stale($filePath, $thumbFile);
-    $servedPath = $thumbIsCurrent ? $thumbFile : $filePath;
-    $cacheDuration = $thumbIsCurrent ? 86400 : 3600;
-
-} else {
-
-    // Original ausliefern
-    $servedPath = $filePath;
-    $cacheDuration = 3600;
+if ($variant === '') {
+    $variant = 'gallery';
 }
+
+$variantConfiguration = match ($variant) {
+    'preview' => [$previewFile, 600],
+    'gallery' => [$galleryFile, 1600],
+    'thumb' => [$thumbFile, 300],
+    default => null,
+};
+
+if ($variantConfiguration === null) {
+    http_response_code(404);
+    exit;
+}
+
+[$variantFile, $maxWidth] = $variantConfiguration;
+if (photo_variant_is_stale($filePath, $variantFile)
+    && (!photo_watermark_generation_available()
+        || !create_watermarked_webp_variant($filePath, $variantFile, $maxWidth))) {
+    http_response_code(503);
+    header('Cache-Control: no-store');
+    exit;
+}
+
+if (photo_variant_is_stale($filePath, $variantFile)) {
+    http_response_code(503);
+    header('Cache-Control: no-store');
+    exit;
+}
+
+$servedPath = $variantFile;
+$cacheDuration = 86400;
 
 /**
  * MIME-Type bestimmen

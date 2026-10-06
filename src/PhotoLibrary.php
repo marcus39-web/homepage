@@ -53,7 +53,7 @@ function photo_library_image_url(string $category, string $relativePath): string
         $modifiedAt = filemtime($sourcePath);
         $fileSize = filesize($sourcePath);
         if ($modifiedAt !== false && $fileSize !== false) {
-            $parameters['v'] = $modifiedAt . '-' . $fileSize;
+            $parameters['v'] = 'wm-v2-' . $modifiedAt . '-' . $fileSize;
         }
     }
 
