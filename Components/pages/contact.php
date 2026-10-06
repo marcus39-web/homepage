@@ -27,10 +27,6 @@ require BASE_PATH . '/Components/layout/header.php';
 
     <!-- Profilbereich -->
     <section class="panel contact-profile">
-        <img src="/public/assets/images/profil/marcus-freigestellt.png"
-               alt=""
-             class="contact-profile-img">
-
         <div>
             <h2>Marcus Reiser</h2>
             <p>Fotografie & IT · Weimar</p>

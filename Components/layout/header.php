@@ -60,13 +60,13 @@ if ($currentPath === '/galerie') {
     <meta property="og:description" content="<?= htmlspecialchars($pageDescription, ENT_QUOTES, 'UTF-8') ?>">
     <meta property="og:type" content="website">
     <meta property="og:url" content="<?= htmlspecialchars($currentUrl, ENT_QUOTES, 'UTF-8') ?>">
-    <meta property="og:image" content="https://marcusreiser.de/public/assets/images/galerie/natur/Ilm/Weimarpark_Allee.jpg">
+    <meta property="og:image" content="https://marcusreiser.de/public/assets/images/hero/marcus-sonnenblumen.jpg">
 
     <!-- Twitter Cards -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="<?= htmlspecialchars($pageTitle, ENT_QUOTES, 'UTF-8') ?>">
     <meta name="twitter:description" content="<?= htmlspecialchars($pageDescription, ENT_QUOTES, 'UTF-8') ?>">
-    <meta name="twitter:image" content="https://marcusreiser.de/public/assets/images/galerie/natur/Ilm/Weimarpark_Allee.jpg">
+    <meta name="twitter:image" content="https://marcusreiser.de/public/assets/images/hero/marcus-sonnenblumen.jpg">
 
     <link rel="stylesheet" href="/public/css/style.css?v=<?= filemtime(BASE_PATH . '/public/css/style.css') ?: 1 ?>">
     <link rel="stylesheet" href="/public/assets/css/style.css?v=<?= filemtime(BASE_PATH . '/public/assets/css/style.css') ?: 1 ?>">

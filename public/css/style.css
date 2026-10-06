@@ -542,7 +542,7 @@ main section {
 .folder-card-image {
   display: block;
   width: 100%;
-  aspect-ratio: 16 / 10;
+  height: 150px;
   object-fit: cover;
 }
 
@@ -550,15 +550,17 @@ main section {
   display: grid;
   place-items: center;
   width: 100%;
-  aspect-ratio: 16 / 10;
+  height: 150px;
   color: var(--muted);
   background: var(--surface);
   border-bottom: 1px solid var(--line);
 }
 
 .folder-card h3 {
+  min-width: 0;
   padding: 0.85rem 0.9rem 0.25rem;
   font-size: 1.35rem;
+  overflow-wrap: anywhere;
 }
 
 .folder-count {

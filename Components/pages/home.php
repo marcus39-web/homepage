@@ -5,30 +5,24 @@ $pageDescription = "Marcus Reiser aus Legefeld bei Weimar – Hobbyfotograf und 
 $navContext = "hero";
 $architectureCategory = '05_Weimar_und_Umgebung';
 $architectureImageUrl = null;
-$photoRoot = photo_library_root();
-if ($photoRoot !== null) {
-    $monumentDirectory = $photoRoot . DIRECTORY_SEPARATOR . $architectureCategory . DIRECTORY_SEPARATOR . 'Denkmaeler';
-    $monumentImages = glob($monumentDirectory . DIRECTORY_SEPARATOR . 'Schiller*') ?: [];
-    if ($monumentImages === []) {
-        $monumentImages = glob($monumentDirectory . DIRECTORY_SEPARATOR . '*') ?: [];
+foreach (get_photo_web_export_categories() as $webCategory) {
+    if ($webCategory['name'] !== $architectureCategory) {
+        continue;
     }
 
-    foreach ($monumentImages as $monumentImage) {
-        if (!is_file($monumentImage) || !photo_library_is_supported_file($monumentImage)) {
-            continue;
-        }
-
-        $relativePath = 'Denkmaeler/' . basename($monumentImage);
-        if (resolve_photo_library_file($architectureCategory, $relativePath) === null) {
-            continue;
-        }
-
-        $architectureImageUrl = photo_library_image_variant_url(
-            photo_library_image_url($architectureCategory, $relativePath),
-            'preview'
-        );
-        break;
+    $monumentPhotos = array_values(array_filter(
+        $webCategory['photos'],
+        static fn (array $photo): bool => str_starts_with((string) ($photo['path'] ?? ''), 'Denkmaeler/')
+    ));
+    $preferredMonumentPhotos = array_values(array_filter(
+        $monumentPhotos,
+        static fn (array $photo): bool => str_starts_with(strtolower(basename((string) ($photo['path'] ?? ''))), 'schiller')
+    ));
+    $architecturePhoto = $preferredMonumentPhotos[0] ?? $monumentPhotos[0] ?? null;
+    if ($architecturePhoto !== null) {
+        $architectureImageUrl = photo_library_image_variant_url((string) $architecturePhoto['url'], 'preview');
     }
+    break;
 }
 require BASE_PATH . '/Components/layout/header.php';
 ?>
@@ -114,20 +108,20 @@ require BASE_PATH . '/Components/layout/header.php';
 
         <div class="gallery-grid">
 
-            <a href="/galerie?<?= e(http_build_query(['ordner' => '05_Weimar_und_Umgebung', 'unterordner' => 'Weimar_Park'])) ?>" class="gallery-card">
-                <img src="<?= e(photo_library_image_variant_url(photo_library_image_url('05_Weimar_und_Umgebung', 'Weimar_Park/28_08_2026_Park_Allee/Weimarpark_Allee.jpg'), 'preview')) ?>" alt="Weimarpark-Allee">
+            <a href="/galerie?<?= e(http_build_query(['ordner' => '20.02_Web', 'unterordner' => $architectureCategory . '/Weimar_Park'])) ?>" class="gallery-card">
+                <img src="<?= e(photo_library_image_variant_url(photo_library_image_url('20.02_Web', $architectureCategory . '/Weimar_Park/28_08_2026_Park_Allee/Weimarpark_Allee.jpg'), 'preview')) ?>" alt="Weimarpark-Allee">
                 <h3>Natur</h3>
             </a>
 
-            <a href="/galerie?<?= e(http_build_query(['ordner' => $architectureCategory, 'unterordner' => 'Denkmaeler'])) ?>" class="gallery-card">
+            <a href="/galerie?<?= e(http_build_query(['ordner' => '20.02_Web', 'unterordner' => $architectureCategory . '/Denkmaeler'])) ?>" class="gallery-card">
                 <?php if ($architectureImageUrl !== null): ?>
                     <img src="<?= e($architectureImageUrl) ?>" alt="Schiller-und-Goethe-Denkmal">
                 <?php endif; ?>
                 <h3>Architektur</h3>
             </a>
 
-            <a href="/galerie?<?= e(http_build_query(['ordner' => '08_Tiere', 'unterordner' => 'Voegel'])) ?>" class="gallery-card">
-                <img src="<?= e(photo_library_image_variant_url(photo_library_image_url('08_Tiere', 'Voegel/Rotmilan/Legefeld/12_09_2026/Rotmilan_Legefeld_12_09_2026.JPG'), 'preview')) ?>" alt="Rotmilan im Flug">
+            <a href="/galerie?<?= e(http_build_query(['ordner' => '20.02_Web', 'unterordner' => '08_Tiere/Voegel'])) ?>" class="gallery-card">
+                <img src="<?= e(photo_library_image_variant_url(photo_library_image_url('20.02_Web', '08_Tiere/Voegel/Rotmilan/Legefeld/12_09_2026/Rotmilan_Legefeld_12_09_2026.JPG'), 'preview')) ?>" alt="Rotmilan im Flug">
                 <h3>Tiere</h3>
             </a>
 

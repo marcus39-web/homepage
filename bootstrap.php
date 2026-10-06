@@ -440,7 +440,7 @@ function calendar_motif_catalog(): array
 		'07_Blumen',
 		'08_Tiere',
 		'11_Weihnachten',
-		'12_Kerzen',
+		'12_Kerzen_Immengold_Isabelle_Kraemer',
 		'13_Zwiebelmarkt',
 	];
 	$defaultFiles = [
@@ -464,18 +464,15 @@ function calendar_motif_catalog(): array
 		$preferredIdsByFile[$motif['file']] = $motifId;
 	}
 
-	foreach (get_photo_categories(true) as $category) {
-		if ($category['name'] !== '20.02_Web') {
+	foreach (get_photo_web_export_categories() as $category) {
+		if (!in_array($category['name'], $allowedFolders, true)) {
 			continue;
 		}
 
 		foreach ($category['photos'] as $photo) {
 			$relativePath = str_replace('\\', '/', (string) ($photo['path'] ?? ''));
 			$segments = explode('/', $relativePath);
-			if (count($segments) < 2 || in_array('', $segments, true) || in_array('.', $segments, true) || in_array('..', $segments, true)) {
-				continue;
-			}
-			if (!in_array($segments[0], $allowedFolders, true)) {
+			if ($relativePath === '' || in_array('', $segments, true) || in_array('.', $segments, true) || in_array('..', $segments, true)) {
 				continue;
 			}
 			$excludedPath = count(array_filter($segments, static fn (string $segment): bool =>
@@ -488,7 +485,7 @@ function calendar_motif_catalog(): array
 			$fileName = basename($relativePath);
 			$motifId = $preferredIdsByFile[$fileName]
 				?? 'photo-' . substr(hash('sha256', $category['name'] . '/' . $relativePath), 0, 20);
-			$folder = str_replace(['_', '-'], ' ', $segments[0]);
+			$folder = $category['label'];
 			$imageUrl = photo_library_image_variant_url((string) $photo['url'], 'preview');
 
 			$motifs[$motifId] = [

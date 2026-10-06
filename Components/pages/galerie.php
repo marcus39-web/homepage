@@ -8,8 +8,9 @@ $bodyClass = 'subpage';
 $currentPage = 'galerie';
 $requestedFolder = isset($_GET['ordner']) && is_string($_GET['ordner']) ? $_GET['ordner'] : '';
 $requestedSubfolder = isset($_GET['unterordner']) && is_string($_GET['unterordner']) ? trim($_GET['unterordner'], '/') : '';
-$includeWebCategory = $requestedFolder === '20.02_Web' && $requestedSubfolder !== '';
+$includeWebCategory = $requestedFolder === '20.02_Web';
 $photoCategories = get_photo_categories($includeWebCategory);
+$webExportCategories = get_photo_web_export_categories();
 $selectedCategory = null;
 $selectedSubfolder = '';
 $subfolders = [];
@@ -21,9 +22,17 @@ foreach ($photoCategories as $category) {
     break;
   }
 }
-$webExportCategories = $selectedCategory === null
-  ? get_photo_web_export_categories(array_column($photoCategories, 'name'))
-  : [];
+
+if ($selectedCategory !== null && $requestedSubfolder !== '') {
+  $requestedSegments = explode('/', $requestedSubfolder);
+  $webFolderName = $requestedSegments[0] ?? '';
+  foreach ($webExportCategories as $webCategory) {
+    if ($webCategory['name'] === $webFolderName) {
+      $selectedCategory['label'] = $webCategory['label'];
+      break;
+    }
+  }
+}
 
 if ($selectedCategory !== null) {
   foreach ($selectedCategory['photos'] as &$photo) {
@@ -123,9 +132,7 @@ require BASE_PATH . '/Components/layout/header.php';
     </div>
   </section>
 
-  <?php if ($photoCategories === []): ?>
-    <p class="panel">Im Fotoarchiv sind noch keine öffentlichen Bilder verfügbar.</p>
-  <?php elseif ($selectedCategory !== null): ?>
+  <?php if ($selectedCategory !== null): ?>
     <?php
     $backSubfolder = $selectedSubfolder !== '' && str_contains($selectedSubfolder, '/')
       ? substr($selectedSubfolder, 0, strrpos($selectedSubfolder, '/'))
@@ -153,12 +160,11 @@ require BASE_PATH . '/Components/layout/header.php';
     <?php if ($visiblePhotos !== []): ?>
       <section class="photo-grid" aria-label="Fotografien aus <?= e($selectedSubfolder !== '' ? basename($selectedSubfolder) : $selectedCategory['label']) ?>">
         <?php foreach ($visiblePhotos as $photo): ?>
-          <?php $photoLabel = str_replace('Göthe', 'Goethe', $photo['alt']); ?>
           <figure class="photo-item">
-            <button class="photo-open" type="button" data-full-image="<?= e(photo_library_image_variant_url($photo['url'], 'gallery')) ?>" data-image-alt="<?= e($photoLabel) ?>" aria-label="Bild vergrößern: <?= e($photoLabel) ?>">
+            <button class="photo-open" type="button" data-full-image="<?= e(photo_library_image_variant_url($photo['url'], 'gallery')) ?>" data-image-alt="<?= e($photo['alt']) ?>" aria-label="Bild vergrößern: <?= e($photo['alt']) ?>">
               <img src="<?= e(photo_library_image_variant_url($photo['url'], 'preview')) ?>" alt="" loading="lazy">
             </button>
-            <figcaption><?= e($photoLabel) ?></figcaption>
+            <figcaption><?= e($photo['alt']) ?></figcaption>
           </figure>
         <?php endforeach; ?>
       </section>
@@ -167,15 +173,8 @@ require BASE_PATH . '/Components/layout/header.php';
     <?php if ($subfolders === [] && $visiblePhotos === []): ?>
       <p class="panel">Dieser Fotoordner enthält keine anzeigbaren Bilder.</p>
     <?php endif; ?>
-  <?php else: ?>
+  <?php elseif ($webExportCategories !== []): ?>
     <section class="folder-grid" aria-label="Fotoordner">
-      <?php foreach ($photoCategories as $category): ?>
-        <a class="folder-card" href="/galerie?<?= e(http_build_query(['ordner' => $category['name']])) ?>">
-          <img class="folder-card-image" src="<?= e(photo_library_image_variant_url($category['photos'][0]['url'], 'preview')) ?>" alt="" loading="lazy">
-          <h3><?= e($category['label']) ?></h3>
-          <p class="folder-count"><?= count($category['photos']) ?> Bilder</p>
-        </a>
-      <?php endforeach; ?>
       <?php foreach ($webExportCategories as $category): ?>
         <a class="folder-card" href="/galerie?<?= e(http_build_query(['ordner' => '20.02_Web', 'unterordner' => $category['name']])) ?>">
           <?php if ($category['photos'] !== []): ?>
@@ -188,6 +187,8 @@ require BASE_PATH . '/Components/layout/header.php';
         </a>
       <?php endforeach; ?>
     </section>
+  <?php else: ?>
+    <p class="panel">Im Web-Ordner sind noch keine freigegebenen Bilder vorhanden.</p>
   <?php endif; ?>
 </main>
 
