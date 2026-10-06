@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-$pageTitle = 'Galerie - Marcus Reiser';
-$pageDescription = 'Fotogalerie von Marcus Reiser: Natur, Architektur, Tiere und Portraits.';
+$pageTitle = 'Bilder aus Weimar – Fotogalerie von Marcus Reiser';
+$pageDescription = 'Fotogalerie von Hobbyfotograf Marcus Reiser mit Bildern aus Weimar und weiteren Motiven aus Natur, Architektur, Tierwelt und Portraits.';
 $bodyClass = 'subpage';
 $currentPage = 'galerie';
 $requestedFolder = isset($_GET['ordner']) && is_string($_GET['ordner']) ? $_GET['ordner'] : '';
