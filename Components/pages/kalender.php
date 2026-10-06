@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
-$pageTitle = "Fotokalender Weimar 2027 – Marcus Reiser";
-$pageDescription = "Jahreskalender 2027 mit Motiven aus Weimar, Natur und Architektur.";
+$pageTitle = "Weimar-Wandkalender 2027 – Marcus Reiser";
+$pageDescription = "Fotokalender mit zwölf Motiven aus Weimar, Natur und Architektur. Entwurf von Hobbyfotograf Marcus Reiser aus Legefeld.";
 $navContext = "subpage";
 $bodyClass = "subpage";
 $calendarOrdersEnabled = calendar_orders_enabled();
@@ -20,7 +20,7 @@ require BASE_PATH . '/Components/layout/header.php';
     <?php require BASE_PATH . '/Components/layout/nav.php'; ?>
     <div class="wrap subpage-head">
         <p class="eyebrow-lite">Kalender 2027</p>
-                <h1>Fotokalender Weimar 2027 – Entwurf</h1>
+                <h1>Weimar-Wandkalender 2027 – Entwurf</h1>
         <p>
             Vorschau eines möglichen Jahreskalenders mit zwölf Motiven aus Natur, Architektur und Stadtansichten.
             Die Monatsmotive lassen sich zur Ansicht individuell zusammenstellen.

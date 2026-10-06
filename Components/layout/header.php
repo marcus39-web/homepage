@@ -68,6 +68,19 @@ if ($currentPath === '/galerie') {
     <meta name="twitter:description" content="<?= htmlspecialchars($pageDescription, ENT_QUOTES, 'UTF-8') ?>">
     <meta name="twitter:image" content="https://marcusreiser.de/public/assets/images/hero/marcus-sonnenblumen.jpg">
 
+    <?php if ($currentPath === '/'): ?>
+        <script type="application/ld+json"><?= json_encode([
+            '@context' => 'https://schema.org',
+            '@type' => 'Person',
+            'name' => 'Marcus Reiser',
+            'url' => 'https://marcusreiser.de/',
+            'image' => 'https://marcusreiser.de/public/assets/images/hero/marcus-sonnenblumen.jpg',
+            'description' => $pageDescription,
+            'knowsAbout' => ['Hobbyfotografie', 'Fotografie aus Weimar', 'IT-Entwicklung', 'Kalenderprojekte'],
+            'sameAs' => ['https://www.instagram.com/Marcus_Fotografie_IT/'],
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?></script>
+    <?php endif; ?>
+
     <link rel="stylesheet" href="/public/css/style.css?v=<?= filemtime(BASE_PATH . '/public/css/style.css') ?: 1 ?>">
     <link rel="stylesheet" href="/public/assets/css/style.css?v=<?= filemtime(BASE_PATH . '/public/assets/css/style.css') ?: 1 ?>">
 </head>
