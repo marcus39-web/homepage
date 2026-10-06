@@ -150,11 +150,12 @@ require BASE_PATH . '/Components/layout/header.php';
     <?php if ($visiblePhotos !== []): ?>
       <section class="photo-grid" aria-label="Fotografien aus <?= e($selectedSubfolder !== '' ? basename($selectedSubfolder) : $selectedCategory['label']) ?>">
         <?php foreach ($visiblePhotos as $photo): ?>
+          <?php $photoLabel = str_replace('Göthe', 'Goethe', $photo['alt']); ?>
           <figure class="photo-item">
-            <button class="photo-open" type="button" data-full-image="<?= e(photo_library_image_variant_url($photo['url'], 'gallery')) ?>" data-image-alt="<?= e($photo['alt']) ?>" aria-label="Bild vergrößern: <?= e($photo['alt']) ?>">
+            <button class="photo-open" type="button" data-full-image="<?= e(photo_library_image_variant_url($photo['url'], 'gallery')) ?>" data-image-alt="<?= e($photoLabel) ?>" aria-label="Bild vergrößern: <?= e($photoLabel) ?>">
               <img src="<?= e(photo_library_image_variant_url($photo['url'], 'preview')) ?>" alt="" loading="lazy">
             </button>
-            <figcaption><?= e($photo['alt']) ?></figcaption>
+            <figcaption><?= e($photoLabel) ?></figcaption>
           </figure>
         <?php endforeach; ?>
       </section>
