@@ -8,7 +8,7 @@ $bodyClass = 'subpage';
 $currentPage = 'galerie';
 $requestedFolder = isset($_GET['ordner']) && is_string($_GET['ordner']) ? $_GET['ordner'] : '';
 $requestedSubfolder = isset($_GET['unterordner']) && is_string($_GET['unterordner']) ? trim($_GET['unterordner'], '/') : '';
-$includeWebCategory = $requestedFolder === '20.02_Web' && $requestedSubfolder === '13_Zwiebelmarkt';
+$includeWebCategory = $requestedFolder === '20.02_Web' && $requestedSubfolder !== '';
 $photoCategories = get_photo_categories($includeWebCategory);
 $selectedCategory = null;
 $selectedSubfolder = '';
@@ -21,6 +21,9 @@ foreach ($photoCategories as $category) {
     break;
   }
 }
+$webExportCategories = $selectedCategory === null
+  ? get_photo_web_export_categories(array_column($photoCategories, 'name'))
+  : [];
 
 if ($selectedCategory !== null) {
   foreach ($selectedCategory['photos'] as &$photo) {
@@ -171,6 +174,17 @@ require BASE_PATH . '/Components/layout/header.php';
           <img class="folder-card-image" src="<?= e(photo_library_image_variant_url($category['photos'][0]['url'], 'preview')) ?>" alt="" loading="lazy">
           <h3><?= e($category['label']) ?></h3>
           <p class="folder-count"><?= count($category['photos']) ?> Bilder</p>
+        </a>
+      <?php endforeach; ?>
+      <?php foreach ($webExportCategories as $category): ?>
+        <a class="folder-card" href="/galerie?<?= e(http_build_query(['ordner' => '20.02_Web', 'unterordner' => $category['name']])) ?>">
+          <?php if ($category['photos'] !== []): ?>
+            <img class="folder-card-image" src="<?= e(photo_library_image_variant_url($category['photos'][0]['url'], 'preview')) ?>" alt="" loading="lazy">
+          <?php else: ?>
+            <div class="folder-card-placeholder" aria-label="Noch keine Bilder">Noch keine Bilder</div>
+          <?php endif; ?>
+          <h3><?= e($category['label']) ?></h3>
+          <p class="folder-count"><?= count($category['photos']) ?> <?= count($category['photos']) === 1 ? 'Bild' : 'Bilder' ?></p>
         </a>
       <?php endforeach; ?>
     </section>

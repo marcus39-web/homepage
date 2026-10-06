@@ -546,6 +546,16 @@ main section {
   object-fit: cover;
 }
 
+.folder-card-placeholder {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  color: var(--muted);
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
 .folder-card h3 {
   padding: 0.85rem 0.9rem 0.25rem;
   font-size: 1.35rem;
