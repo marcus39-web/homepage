@@ -433,16 +433,6 @@ function get_calendar_orders(): array
  */
 function calendar_motif_catalog(): array
 {
-	$allowedFolders = [
-		'01_Gebäude',
-		'02_Landschaft',
-		'05_Weimar_und_Umgebung',
-		'07_Blumen',
-		'08_Tiere',
-		'11_Weihnachten',
-		'12_Kerzen_Immengold_Isabelle_Kraemer',
-		'13_Zwiebelmarkt',
-	];
 	$defaultFiles = [
 		'flussbaum' => ['label' => 'Baum im Fluss', 'file' => 'Baum_im Fluss_Tiefurt06.09.2026.JPG'],
 		'ente-1' => ['label' => 'Ente am Fluss', 'file' => 'Ente_1.JPG'],
@@ -465,14 +455,13 @@ function calendar_motif_catalog(): array
 	}
 
 	foreach (get_photo_web_export_categories() as $category) {
-		if (!in_array($category['name'], $allowedFolders, true)) {
-			continue;
-		}
-
 		foreach ($category['photos'] as $photo) {
 			$relativePath = str_replace('\\', '/', (string) ($photo['path'] ?? ''));
 			$segments = explode('/', $relativePath);
-			if ($relativePath === '' || in_array('', $segments, true) || in_array('.', $segments, true) || in_array('..', $segments, true)) {
+			if ($relativePath === '' || count(array_filter($segments, static fn (string $segment): bool =>
+				$segment === '' || $segment === '.' || $segment === '..'
+				|| photo_library_is_private($segment) || str_contains(strtolower($segment), 'passbild')
+			)) > 0) {
 				continue;
 			}
 			$excludedPath = count(array_filter($segments, static fn (string $segment): bool =>

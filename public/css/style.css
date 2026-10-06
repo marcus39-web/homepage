@@ -1150,6 +1150,20 @@ main section {
   background: #dce5d6;
 }
 
+.calendar-motif-folder-placeholder {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  color: var(--muted);
+  background: var(--surface-2);
+}
+
+.calendar-motif-folder-card:disabled {
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
 .calendar-motif-folder-card-details,
 .calendar-motif-option-details {
   display: grid;

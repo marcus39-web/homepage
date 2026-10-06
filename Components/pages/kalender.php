@@ -9,9 +9,10 @@ $orderErrors = $calendarOrdersEnabled ? (array) ($_SESSION['order_errors'] ?? []
 $orderSuccess = $calendarOrdersEnabled ? flash('order_success') : null;
 $calendarMotifs = calendar_motif_catalog();
 $calendarMonths = calendar_month_defaults();
-$calendarFolders = array_values(array_unique(array_column($calendarMotifs, 'folder')));
-natcasesort($calendarFolders);
-$calendarFolders = array_values($calendarFolders);
+$calendarFolders = array_map(
+    static fn (array $category): string => $category['label'],
+    get_photo_web_export_categories()
+);
 require BASE_PATH . '/Components/layout/header.php';
 ?>
 
@@ -170,15 +171,16 @@ require BASE_PATH . '/Components/layout/header.php';
                     <?php
                     $folderMotifs = array_filter($calendarMotifs, static fn (array $motif): bool => $motif['folder'] === $folder);
                     $folderPreview = reset($folderMotifs);
-                    if (!is_array($folderPreview)) {
-                        continue;
-                    }
                     ?>
-                    <button class="calendar-motif-folder-card" type="button" data-motif-folder-open data-folder-name="<?= e($folder) ?>">
-                        <img src="<?= e($folderPreview['url']) ?>" alt="" loading="lazy" decoding="async">
+                    <button class="calendar-motif-folder-card" type="button" data-motif-folder-open data-folder-name="<?= e($folder) ?>" <?= $folderMotifs === [] ? 'disabled aria-disabled="true"' : '' ?>>
+                        <?php if (is_array($folderPreview)): ?>
+                            <img src="<?= e($folderPreview['url']) ?>" alt="" loading="lazy" decoding="async">
+                        <?php else: ?>
+                            <span class="calendar-motif-folder-placeholder">Noch keine Bilder</span>
+                        <?php endif; ?>
                         <span class="calendar-motif-folder-card-details">
                             <strong><?= e($folder) ?></strong>
-                            <span><?= count($folderMotifs) ?> <?= count($folderMotifs) === 1 ? 'Bild' : 'Bilder' ?></span>
+                            <span><?= count($folderMotifs) ?> <?= count($folderMotifs) === 1 ? 'Motiv' : 'Motive' ?></span>
                         </span>
                     </button>
                 <?php endforeach; ?>
