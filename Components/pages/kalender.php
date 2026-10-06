@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-$pageTitle = "Fotokalender 2027 – Marcus Reiser";
+$pageTitle = "Fotokalender Weimar 2027 – Marcus Reiser";
 $pageDescription = "Jahreskalender 2027 mit Motiven aus Weimar, Natur und Architektur.";
 $navContext = "subpage";
 $bodyClass = "subpage";
@@ -19,7 +19,7 @@ require BASE_PATH . '/Components/layout/header.php';
     <?php require BASE_PATH . '/Components/layout/nav.php'; ?>
     <div class="wrap subpage-head">
         <p class="eyebrow-lite">Kalender 2027</p>
-                <h1>Kalenderentwurf 2027</h1>
+                <h1>Fotokalender Weimar 2027 – Entwurf</h1>
         <p>
             Vorschau eines möglichen Jahreskalenders mit zwölf Motiven aus Natur, Architektur und Stadtansichten.
             Die Monatsmotive lassen sich zur Ansicht individuell zusammenstellen.

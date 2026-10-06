@@ -108,8 +108,8 @@ require BASE_PATH . '/Components/layout/header.php';
 <main class="subpage-main wrap">
   <section class="subpage-head panel">
     <p class="eyebrow-lite">Fotografie</p>
-    <h1><?= $selectedSubfolder !== '' ? e(basename($selectedSubfolder)) : ($selectedCategory !== null ? e($selectedCategory['label']) : 'Galerie') ?></h1>
-    <p><?= $selectedCategory !== null ? 'Fotografien aus ' . e($selectedSubfolder !== '' ? basename($selectedSubfolder) : $selectedCategory['label']) . '.' : 'Aufnahmen aus meinen Bilderordnern, nach Themen sortiert.' ?></p>
+    <h1><?= $selectedSubfolder !== '' ? e(basename($selectedSubfolder)) : ($selectedCategory !== null ? e($selectedCategory['label']) : 'Bilder aus Weimar') ?></h1>
+    <p><?= $selectedCategory !== null ? 'Fotografien aus ' . e($selectedSubfolder !== '' ? basename($selectedSubfolder) : $selectedCategory['label']) . '.' : 'Eine Auswahl meiner Bilder aus Weimar und weiteren Motiven, nach Themen sortiert.' ?></p>
     <div class="hero-actions">
       <a class="btn btn-primary" href="<?= $selectedCategory !== null ? '/galerie' : '/' ?>">
         <?= $selectedCategory !== null ? 'Alle Fotoordner' : 'Zur Startseite' ?>
