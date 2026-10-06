@@ -3,6 +3,7 @@
 $feedbackSuccess = flash('feedback_success');
 $feedbackErrors = (array) ($_SESSION['feedback_errors'] ?? []);
 $feedbackOld = (array) ($_SESSION['feedback_old'] ?? []);
+$totalPageViews = (int) get_visit_stats()['total'];
 unset($_SESSION['feedback_errors'], $_SESSION['feedback_old']);
 
 $feedbackRequestUri = (string) ($_SERVER['REQUEST_URI'] ?? '/');
@@ -20,6 +21,7 @@ if (is_string($feedbackQuery) && $feedbackQuery !== '') {
         <div>
             <h2>Marcus Reiser</h2>
             <p>Fotografie & IT · Legefeld</p>
+            <p class="stats-meta">Seitenaufrufe insgesamt: <?= number_format($totalPageViews, 0, ',', '.') ?></p>
             <a href="https://www.instagram.com/Marcus_Fotografie_IT/" target="_blank" rel="noopener noreferrer">Instagram: @Marcus_Fotografie_IT</a>
             <button class="footer-feedback-button" type="button" data-open-feedback>Website-Feedback</button>
         </div>
