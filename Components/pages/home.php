@@ -1,10 +1,12 @@
 <?php declare(strict_types=1);
 
+// Startseite; Fotomotive stammen aus 20.02_Web, das Hero-Bild aus dem festen Asset.
 $pageTitle = "Marcus Reiser – Fotografie & IT aus Weimar";
 $pageDescription = "Marcus Reiser aus Legefeld bei Weimar – Hobbyfotograf und IT-Entwickler. Fotografie aus Weimar, Fotogalerie, Kalender und kreative Projekte.";
 $navContext = "hero";
 $architectureCategory = '05_Weimar_und_Umgebung';
 $architectureImageUrl = null;
+// Das Architekturmotiv wird ausschließlich aus dem kuratierten Web-Export gewählt.
 foreach (get_photo_web_export_categories() as $webCategory) {
     if ($webCategory['name'] !== $architectureCategory) {
         continue;

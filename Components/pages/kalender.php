@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+// Kalenderentwurf; Ordner und auswählbare Motive werden dynamisch aus 20.02_Web geladen.
 $pageTitle = "Weimar-Wandkalender 2027 – Marcus Reiser";
 $pageDescription = "Fotokalender mit zwölf Motiven aus Weimar, Natur und Architektur. Entwurf von Hobbyfotograf Marcus Reiser aus Legefeld.";
 $navContext = "subpage";

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+// Geschützter Einstieg zur internen Besucherstatistik.
 $pageTitle = 'Statistik Login - Marcus Reiser';
 $pageDescription = 'Passwortgeschuetzter Zugang zur internen Statistik.';
 $bodyClass = 'subpage';

@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+// Einheitliche 404-Seite für unbekannte Routen des Frontcontrollers.
 $pageTitle = "Seite nicht gefunden – Marcus Reiser";
 $pageDescription = "Die angeforderte Seite wurde nicht gefunden.";
 $navContext = "subpage";

@@ -65,7 +65,7 @@
   .nav-toggle[aria-expanded="true"] .nav-toggle-icon::after {
     opacity: 0;
   }
-  /* Lazy Loading Fade-In */
+  /* Sichtbarer Zustand wird vom IntersectionObserver in lazyload.js gesetzt. */
 .lazy-img {
     opacity: 0;
     transform: scale(0.98);

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App;
 
+/** Minimale Template-Hilfe, die übergebene Daten als lokale Variablen bereitstellt. */
 final class View
 {
     public static function render(string $templatePath, array $data = []): void

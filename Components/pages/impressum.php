@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+// Impressum mit den rechtlich erforderlichen Anbieterangaben.
 $pageTitle = "Impressum – Marcus Reiser";
 $pageDescription = "Impressum gemäß § 5 TMG.";
 $navContext = "subpage";

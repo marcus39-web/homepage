@@ -1,4 +1,6 @@
+// Kalenderauswahl, Vorschau und persönliche Auswahl im Browser-Speicher.
 (() => {
+  // Gewählte Monatsmotive und Anzeigeoptionen werden getrennt gespeichert.
   const storageKey = 'marcusreiser-calendar-2027-motifs';
   const previewMonth = document.querySelector('#calendar-preview-month');
   const previewImage = document.querySelector('#calendar-preview-image');
@@ -32,6 +34,7 @@
     SL: 'Saarland', SN: 'Sachsen', ST: 'Sachsen-Anhalt',
     SH: 'Schleswig-Holstein', TH: 'Thüringen',
   };
+  // Feiertage und Ferien sind statische Kalenderdaten für 2027.
   const holidays = {
     '2027-01-01': { name: 'Neujahr', states: null },
     '2027-01-06': { name: 'Heilige Drei Könige', states: ['BW', 'BY', 'ST'] },
@@ -92,6 +95,7 @@
     savedMotifs = {};
   }
 
+  // Baut ein vollständiges 6-Wochen-Raster mit Feiertags- und Ferienmarkierungen.
   function renderMonthCalendar(month, calendarGrid = previewDays) {
     const monthIndex = monthNames.indexOf(month);
     if (monthIndex < 0 || !calendarGrid) return;
@@ -172,6 +176,7 @@
     });
   }
 
+  // Anzeigeoptionen und Motivwahl bleiben unabhängig voneinander erhalten.
   function persistDisplaySettings() {
     try {
       localStorage.setItem(displaySettingsKey, JSON.stringify({
@@ -196,6 +201,7 @@
     }
   }
 
+  // Synchronisiert Monatskarte, Vorschau, Formularwert und gespeicherte Auswahl.
   function updateMonth(card, motifId) {
     const motif = motifById.get(motifId);
     if (!motif) return;
@@ -219,6 +225,7 @@
     persistSelections();
   }
 
+  // Umschalten zwischen dynamischer Ordnerliste und Motiven eines Ordners.
   function showMotifFolder(folder) {
     if (motifActiveFolder) motifActiveFolder.textContent = folder;
     motifFolderGrid.hidden = true;

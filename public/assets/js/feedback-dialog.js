@@ -1,3 +1,4 @@
+// Öffnet und schließt den globalen Feedbackdialog.
 (() => {
   const dialog = document.querySelector('#feedback-dialog');
   const openButtons = [...document.querySelectorAll('[data-open-feedback]')];

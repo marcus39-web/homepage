@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+// Galerieordner und Bildpfade werden ausschließlich aus 20.02_Web geladen.
 $pageTitle = 'Bilder aus Weimar – Fotogalerie von Marcus Reiser';
 $pageDescription = 'Fotogalerie von Hobbyfotograf Marcus Reiser mit Bildern aus Weimar und weiteren Motiven aus Natur, Architektur, Tierwelt und Portraits.';
 $bodyClass = 'subpage';

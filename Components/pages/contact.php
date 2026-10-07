@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+// Kontaktformular; Validierung und Versand werden zentral in bootstrap.php verarbeitet.
 $pageTitle = "Kontakt – Marcus Reiser";
 $pageDescription = "Kontaktformular für Fotografie, Kalender und IT‑Anfragen.";
 $navContext = "subpage";

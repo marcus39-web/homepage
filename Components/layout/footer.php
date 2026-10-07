@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+// Gemeinsamer Footer mit Seitenaufruf-Zähler und Feedbackdialog.
 $feedbackSuccess = flash('feedback_success');
 $feedbackErrors = (array) ($_SESSION['feedback_errors'] ?? []);
 $feedbackOld = (array) ($_SESSION['feedback_old'] ?? []);

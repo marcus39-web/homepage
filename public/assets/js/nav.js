@@ -1,3 +1,4 @@
+// Steuert den barrierearmen mobilen Hauptmenü-Schalter.
 document.addEventListener("DOMContentLoaded", () => {
   const toggle = document.querySelector(".nav-toggle");
   const links = document.querySelector(".site-nav-links");

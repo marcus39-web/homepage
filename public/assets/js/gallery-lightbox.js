@@ -1,3 +1,4 @@
+// Lightbox der Galerie inklusive EXIF-, Orts- und Wetteranzeige.
 const lightbox = document.querySelector('.photo-lightbox');
 const lightboxImage = lightbox?.querySelector('.photo-lightbox-image');
 const closeButton = lightbox?.querySelector('.photo-lightbox-close');
@@ -178,7 +179,7 @@ async function openLightbox(imageUrl, imageAlt) {
     cameraSettingsElement.hidden = !hasCameraData;
   }
 
-  // Ortsname (Schritt 11)
+  // GPS-Koordinaten bei Bedarf in einen lesbaren Ortsnamen umwandeln.
   if (exif?.gps_lat && exif?.gps_lon) {
     const geo = await reverseGeocode(exif.gps_lat, exif.gps_lon);
 
@@ -195,7 +196,7 @@ async function openLightbox(imageUrl, imageAlt) {
     }
   }
 
-  // Wetter (Schritt 12)
+  // Wetterwerte zum Aufnahmezeitpunkt nur für Bilder mit GPS und EXIF-Zeit laden.
   if (exif?.gps_lat && exif?.gps_lon && exif?.datetime) {
     const weather = await loadWeather(exif.gps_lat, exif.gps_lon, exif.datetime);
 

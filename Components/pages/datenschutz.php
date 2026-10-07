@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+// Datenschutzhinweise zu den tatsächlich verwendeten Funktionen und Datenflüssen.
 $pageTitle = "Datenschutz – Marcus Reiser";
 $pageDescription = "Datenschutzerklärung gemäß DSGVO.";
 $navContext = "subpage";

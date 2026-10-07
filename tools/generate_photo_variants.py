@@ -1,3 +1,5 @@
+"""Erzeugt wasserzeichenmarkierte WebP-Caches, ohne Foto-Originale zu verändern."""
+
 from __future__ import annotations
 
 import argparse
@@ -22,6 +24,7 @@ WATERMARK_CACHE_VERSION = "wm-v2"
 
 
 def watermark_signature(source: Path) -> str:
+    """Signatur aus Quelle und Wasserzeichen für die Cache-Invalidierung bilden."""
     source_stat = source.stat()
     watermark_stat = WATERMARK_PATH.stat()
     payload = "|".join((
@@ -43,6 +46,7 @@ def is_excluded_category(name: str) -> bool:
 
 
 def iter_photo_files(source_root: Path, only_web_export: bool = False):
+    """Unterstützte und freigegebene Bilder rekursiv aus der Quelle liefern."""
     categories = [source_root / "20.02_Web"] if only_web_export else sorted(source_root.iterdir())
     for category in categories:
         is_selected_web_export = only_web_export and category.name == "20.02_Web"
@@ -68,6 +72,7 @@ def iter_photo_files(source_root: Path, only_web_export: bool = False):
 
 
 def save_variant(source: Path, relative_path: Path, output_root: Path, variant: str, max_dimension: int, quality: int, force: bool) -> bool:
+    """Eine Wasserzeichen-WebP-Variante atomar schreiben und ihren Marker ablegen."""
     # Mirror the archive path so photo.php can find the variant without changing the original.
     target = output_root / variant / relative_path.parent / f"{relative_path.name}.webp"
     metadata = target.with_name(target.name + ".wmmeta")

@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+// Gemeinsame Navigation; $navContext wählt zwischen Hero- und Unterseitenlayout.
 $currentPage = isset($currentPage) ? $currentPage : '';
 $navContext  = isset($navContext) ? $navContext : 'subpage';
 $isHomeHero  = $navContext === 'hero';

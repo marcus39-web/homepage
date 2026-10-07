@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+// Interne Auswertung von Seitenaufrufen und Kalenderanfragen.
 $pageTitle = "Statistik – Marcus Reiser";
 $pageDescription = "Besucherstatistik der Website.";
 $navContext = "subpage";

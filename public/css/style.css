@@ -1,3 +1,4 @@
+/* Farbpalette und globale Gestaltungsgrundlagen. */
 :root {
   --bg: #f1eee8;
   --bg-soft: #e9dfd1;
@@ -64,6 +65,7 @@ h2 {
   margin: 0 auto;
 }
 
+/* Markenbereich und Hauptnavigation. */
 .site-nav {
   position: relative;
   z-index: 3;
@@ -142,6 +144,7 @@ h2 {
   cursor: pointer;
 }
 
+/* Startseiten-Hero mit festem Titelbild und darüberliegender Navigation. */
 .hero {
   position: relative;
   display: grid;
@@ -393,6 +396,7 @@ main section {
   max-width: 44ch;
 }
 
+/* Startseiten-Teaser für Galerie und aktuelle Inhalte. */
 .gallery-grid {
   display: grid;
   gap: 1rem;
@@ -453,6 +457,7 @@ main section {
   max-width: 58ch;
 }
 
+/* Hervorgehobenes Angebots- und Veranstaltungsthema auf der Startseite. */
 .offer-band {
   margin-top: 2rem;
   padding: 4.2rem 0;
@@ -507,6 +512,7 @@ main section {
   margin-top: 2.4rem;
 }
 
+/* Galerieordner, Bildraster und Lightbox. */
 .folder-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
@@ -673,6 +679,7 @@ main section {
   font-size: 0.88rem;
 }
 
+/* Projektkarten und globaler Seitenabschluss. */
 .project-list {
   margin: 0 0 1.2rem;
   padding-left: 1.2rem;
@@ -727,6 +734,7 @@ main section {
   cursor: pointer;
 }
 
+/* Gemeinsamer Rahmen für alle Inhalts- und Unterseiten. */
 .subpage {
   background:
     radial-gradient(circle at 12% 12%, rgb(191 95 56 / 10%) 0, transparent 45%),
@@ -788,6 +796,7 @@ main section {
   margin-top: 1.2rem;
 }
 
+/* Kalenderblatt, Monatsraster und interaktive Motivauswahl. */
 .calendar-builder {
   display: grid;
   grid-template-columns: minmax(240px, 330px) minmax(0, 1fr);
@@ -874,8 +883,8 @@ main section {
 }
 
 .calendar-preview-days .calendar-day.is-saturday {
-  background: #e6f2dc;
-  color: #244a2c;
+  background: #b7d99e;
+  color: #18351e;
 }
 
 .calendar-preview-days .calendar-day.is-sunday {
@@ -884,8 +893,8 @@ main section {
 }
 
 .calendar-preview-days .calendar-day.is-holiday {
-  background: #ffe1df;
-  color: #8f2428;
+  background: #f3a6a6;
+  color: #5b1116;
   font-weight: 800;
 }
 
@@ -1248,7 +1257,7 @@ main section {
 }
 
 .calendar-legend-swatch.is-saturday {
-  background: #e6f2dc;
+  background: #b7d99e;
 }
 
 .calendar-legend-swatch.is-sunday {
@@ -1256,7 +1265,7 @@ main section {
 }
 
 .calendar-legend-swatch.is-holiday {
-  background: #ffe1df;
+  background: #f3a6a6;
 }
 
 .calendar-legend-swatch.is-school-break {
@@ -1477,6 +1486,7 @@ main section {
   outline-offset: 3px;
 }
 
+/* Rechtstexte, Kontaktseiten und interne Statistik. */
 .legal-block h1 {
   font-size: clamp(1.9rem, 4.6vw, 2.8rem);
   margin-bottom: 0.7rem;
@@ -1602,6 +1612,7 @@ main section {
   margin: 0.4rem 0;
 }
 
+/* Formulare, Dialoge und Zustandsmeldungen. */
 .form-grid {
   display: grid;
   gap: 0.7rem;

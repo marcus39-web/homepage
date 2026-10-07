@@ -427,7 +427,7 @@ function get_calendar_orders(): array
 }
 
 /**
- * Motive, die für die Kalenderauswahl freigegeben sind.
+ * Motive der Kalenderauswahl; Ordner und Bilddateien kommen aus 20.02_Web.
  *
  * @return array<string, array{label: string, url: string, folder: string}>
  */
