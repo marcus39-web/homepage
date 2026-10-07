@@ -18,7 +18,8 @@ Die Anwendung ist eine klassische PHP-Website ohne Build-Schritt. `index.php` is
 | `public/css/style.css` | Basislayout, Hero und responsive Gestaltung |
 | `public/assets/css/style.css` | Mobile Navigation und Lazy-Load-Uebergaenge |
 | `public/assets/js/` | Navigation, Lazy Loading und Galerie-Lightbox |
-| `public/assets/images/` | Oeffentliche Web-Assets und ausgewaehlte Galeriebilder |
+| `public/assets/images/` | Oeffentliche Web-Assets; das feste Startbild liegt unter `hero/` |
+| `public/favicon.png` | Website-Icon mit einem Ausschnitt aus dem Startbild |
 | `data/photos/` | Optionale Fotoquelle auf dem Webspace |
 | `data/photo-cache/` | Vorab erzeugte WebP-Vorschauen und Galerievarianten |
 | `data/logs/`, `data/messages/` | Besuchsstatistik, Kontaktanfragen und Kalenderanfragen |
@@ -29,7 +30,7 @@ Die Anwendung ist eine klassische PHP-Website ohne Build-Schritt. `index.php` is
 - PHP 8.1 oder neuer
 - PHP-Erweiterung `mbstring` fuer die Formularvalidierung
 - PHP-Erweiterung `exif` fuer Aufnahmezeit, GPS-Ort und Wetteranzeige (ohne EXIF laufen Galerie und Bilder weiter; es wird auf Dateizeit bzw. leere Metadaten zurueckgefallen)
-- PHP-Erweiterung GD zum Erzeugen/Aktualisieren fehlender WebP-Varianten und zum Einbrennen des Wasserzeichens zur Laufzeit; vorhandene Cachedateien funktionieren ohne GD
+- PHP-Erweiterung GD zum Erzeugen/Aktualisieren fehlender WebP-Varianten mit Wasserzeichen. Ohne GD funktionieren nur aktuell signierte Cachevarianten; fehlt eine verifizierte Variante, antwortet der Bild-Endpunkt mit HTTP 503 statt das Original ohne Wasserzeichen auszuliefern.
 - Fuer Orts- und Wetterinformationen muessen aus dem Browser externe Anfragen an Nominatim und Open-Meteo moeglich sein
 - Apache mit `mod_rewrite` fuer den Produktivbetrieb
 - Schreibrechte fuer `data/logs/` und `data/messages/`
@@ -50,10 +51,9 @@ Anschliessend `http://127.0.0.1:8000/` im Browser oeffnen. Der eingebaute PHP-Se
 | Methode und URL | Funktion |
 | --- | --- |
 | `GET /` | Startseite, Ordner-Vorschauen und eigener Projektabschnitt fuer Immengoldkerzen mit Link zu `immengold.com` |
-| `GET /galerie` | Oeffentliche Kategorien als Ordnerkarten; Bilder erscheinen nach Auswahl eines Ordners |
-| `GET /galerie?ordner=07_Blumen` | Nur die gewaehlte Kategorie |
-| `GET /galerie?ordner=05_Weimar_und_Umgebung&unterordner=Tiefurt` | Einen Unterordner anzeigen; verschachtelte Pfade werden ebenfalls unterstuetzt |
-| `GET /galerie?ordner=20.02_Web&unterordner=13_Zwiebelmarkt` | Sonderalbum fuer Zwiebelmarkt-Bilder aus dem Web-Exportordner |
+| `GET /galerie` | Ausschliesslich direkte Kategorien aus `20.02_Web` als Ordnerkarten; auch leere Ordner werden angezeigt |
+| `GET /galerie?ordner=20.02_Web&unterordner=07_Blumen` | Bilder eines Web-Export-Ordners anzeigen; verschachtelte Unterordner werden unterstuetzt |
+| `GET /galerie?ordner=20.02_Web&unterordner=13_Zwiebelmarkt` | Zwiebelmarkt-Bilder aus dem Web-Export anzeigen |
 | `GET /public/photo.php?category=...&file=...` | Bildauslieferung nach Pfad- und Dateityppruefung |
 | `GET /kalender` | Kalenderblatt-Vorschau, zwölf bearbeitbare Monatsmotive im einheitlichen 4:3-Format, Bundesland-Feiertage, optionale Schulferien und – bei aktiviertem Bestellschalter – Bestellformular |
 | `POST /kalender-bestellung` | Kalenderanfrage validieren und in `data/messages/orders.log` speichern; nur bei `CALENDAR_ORDERS_ENABLED=true` aktiv |
@@ -70,70 +70,48 @@ Im Kalender lassen sich Wochenenden, gesetzliche Feiertage 2027 des gewaehlten B
 
 ## Google-Suche
 
-`robots.txt` erlaubt das Crawling öffentlicher Seiten und verweist auf `https://marcusreiser.de/sitemap.xml`; interne Statistik- und POST-Endpunkte sind ausgeschlossen. Die Sitemap listet die sechs öffentlichen Hauptseiten. Canonical-URLs entfernen Trackingparameter und behalten bei der Galerie nur die ausgewählten Ordnerparameter. Google kann die Website erst crawlen, wenn der separate Passwortschutz im netcup-WCP aufgehoben ist. Danach die Domain in der Google Search Console bestätigen und dort `https://marcusreiser.de/sitemap.xml` einreichen. Eine Einreichung garantiert keine Indexierung oder ein bestimmtes Ranking.
+`robots.txt` erlaubt das Crawling öffentlicher Seiten und verweist auf `https://marcusreiser.de/sitemap.xml`; interne Statistik- und POST-Endpunkte sind ausgeschlossen. Die Sitemap listet sechs öffentliche Hauptseiten. Canonical-URLs entfernen Trackingparameter und behalten bei der Galerie die ausgewählten Ordnerparameter.
+
+Stand 07.10.2026: Die Property ist in der Google Search Console bestätigt; die Sitemap wurde ohne Fehler verarbeitet und sechs URLs wurden erkannt. Google-Suchen nach `site:marcusreiser.de` und „Marcus Reiser Weimar“ zeigen die Startseite und den Kalender. Die Kalenderseite erscheint auch bei „Weimar Wandkalender“ mit dem Titel „Weimar-Wandkalender 2027 – Marcus Reiser“. Google entscheidet weiterhin selbst über Indexierung, Suchausschnitt und Ranking.
+
+Die Startseite enthält `Person`-JSON-LD mit Name, Website, Themen und öffentlichem Instagram-Profil. Ein PNG-Favicon mit einem Ausschnitt aus dem Startbild ist unter `/public/favicon.png` eingebunden; Google kann sein Suchtreffer-Symbol zeitversetzt aktualisieren.
 
 ## Fotogalerie und Bildablage
 
-Der Scanner sucht die Fotoquelle in dieser Reihenfolge:
+Die öffentliche Galerie, Kalenderauswahl und Fototeaser verwenden **ausschließlich** Bilder aus `20.02_Web`. Andere Hauptordner der Fotobibliothek werden weder angezeigt noch vom Bild-Endpunkt ausgeliefert. Das einzige Foto außerhalb des Exports ist das fest eingebundene Startbild `public/assets/images/hero/marcus-sonnenblumen.jpg`; das Markenlogo ist ein Gestaltungselement.
+
+Die Fotoquelle wird in dieser Reihenfolge gesucht:
 
 1. Der in `.env` konfigurierte Pfad `PHOTO_LIBRARY_PATH`, sofern er existiert.
-2. `data/photos/` relativ zum Projektstamm. Dieser Pfad ist fuer den Webspace vorgesehen.
+2. `data/photos/` relativ zum Projektstamm; dies ist der vorgesehene Webspace-Pfad.
 3. Das lokale Standardarchiv `D:/10_Fotoarchiv/Canon_R10_Bilder/01_Bibiothek_JPG`.
 
-Die Kategorien sind direkte Unterordner der Quelle. Beispiel fuer netcup:
+Innerhalb der gefundenen Quelle ist nur `20.02_Web/` freigegeben. Dessen direkte Unterordner werden automatisch als Galeriekategorien und Kalenderordner eingelesen. Neue Ordner und unterstützte Bilder (`.jpg`, `.jpeg`, `.png`, `.webp`) erscheinen ohne Codeänderung nach dem Upload. Leere Ordner werden mit 0 Bildern angezeigt; im Kalender sind sie sichtbar, aber ohne Motive nicht auswählbar.
 
-```text
-R10/
-└── data/
-    └── photos/
-        ├── 01_Gebaeude/
-        │   └── Altstadt/Fassaden/Bild_01.JPG
-        ├── 05_Weimar_und_Umgebung/
-        │   └── Tiefurt/Ilm/Foto.JPG
-        ├── 07_Blumen/
-        │   └── Sonnenblumen/Legefeld/Foto.JPG
-        └── 11_Weihnachten/
-            └── Weihnachtsmarkt/Markt_01.JPG
-```
+Auf netcup lädt der FTP-Benutzer `foto-upload` nach `httpdocs/data/photos/`. Für die Website dürfen Bilder ausschließlich unter `httpdocs/data/photos/20.02_Web/<Kategorie>/...` abgelegt werden. Ordner oder Unterordner mit `Privat` im Namen sowie Pfade mit `Passbild` bleiben ausgeschlossen. Veröffentliche keine RAW-Dateien, Zeugnisse oder sonstigen privaten Aufnahmen.
 
-Unterordner werden rekursiv gelesen. In der Galerie werden sie zuerst als Ordnerkarten angeboten; nach Auswahl erscheint nur der ausgewaehlte Zweig. Unterstuetzte Formate sind `.jpg`, `.jpeg`, `.png` und `.webp`. Leere Kategorien erscheinen nicht.
+`data/` ist durch `.htaccess` gegen direkten HTTP-Zugriff gesperrt. Bilder werden ausschließlich über `public/photo.php` ausgeliefert. Der Endpunkt akzeptiert nur die Kategorie `20.02_Web`, prüft unterstützte Dateitypen und blockiert Pfad-Traversal.
 
-Ordner oder Unterordner, deren Name `Privat` enthaelt, werden sowohl beim Scannen als auch beim Bildabruf ausgeschlossen. Kategorien mit `Passbild` im Namen sowie reine Web-Ordner mit nummeriertem Namen und `Web` am Ende, zum Beispiel `20.02_Web`, werden nicht als Fotokategorien angezeigt. Lade nur Bilder hoch, die du auf der Website veroeffentlichen darfst; insbesondere keine RAW-Dateien, Zeugnisse, Passbilder oder privaten Aufnahmen.
-
-Die einzige Web-Ordner-Ausnahme ist das Sonderalbum `20.02_Web/13_Zwiebelmarkt`. Es wird nur ueber die oben gezeigte URL aufgerufen; die uebrigen Inhalte von `20.02_Web` bleiben aus der Galerie ausgeblendet.
-
-`data/` wird durch `.htaccess` gegen direkten HTTP-Zugriff gesperrt. Bilder aus `data/photos/` werden daher ausschliesslich durch `public/photo.php` ausgeliefert. Der Endpunkt erlaubt nur die unterstuetzten Bildtypen und blockiert private Ordner, Passbild-Kategorien sowie Pfad-Traversal.
-
-Bei `HEAD`-Anfragen liefert der Bild-Endpunkt EXIF-Daten im Header `X-Photo-Exif`. Die Lightbox zeigt daraus Aufnahmezeit und GPS-Ort an und fragt fuer GPS-Bilder historische bzw. aktuelle Stundenwerte bei Open-Meteo sowie Ortsnamen bei Nominatim ab. Verwendet wird der Wetterwert zur Aufnahmezeit in `Europe/Berlin`. Dafuer muessen EXIF-Daten vorhanden und externe Anfragen moeglich sein. GPS-Koordinaten oeffentlicher Bilder werden damit auch im HTTP-Header an Besucher ausgeliefert; veroeffentliche nur Fotos, deren Standortdaten du teilen moechtest.
+Bei `HEAD`-Anfragen liefert der Bild-Endpunkt EXIF-Daten im Header `X-Photo-Exif`. Die Galerie-Lightbox kann daraus Aufnahmezeit und GPS-Ort anzeigen und für GPS-Bilder Ortsnamen über Nominatim sowie Wetterwerte von Open-Meteo abrufen. Dafür müssen EXIF-Daten vorhanden und externe Anfragen möglich sein. GPS-Koordinaten öffentlicher Bilder werden im HTTP-Header an Besucher ausgeliefert; veröffentliche daher nur Fotos, deren Standortdaten du teilen möchtest.
 
 ### Optimierte Web-Fotos
 
-Die Druck-Originale bleiben unveraendert. Vor dem Deployment erzeugt Pillow WebP-Dateien: Vorschauen haben maximal 800 Pixel Kantenlaenge bei Qualitaet 78, Galerievarianten maximal 1800 Pixel bei Qualitaet 82.
+Die Druck-Originale bleiben unveraendert. Vorschauen, Galerievarianten und Miniaturen werden als WebP mit Wasserzeichen erzeugt. Der Endpunkt akzeptiert eine Variante nur mit passendem `wm-v2`-Marker fuer Quelle und Wasserzeichen.
 
 ```powershell
 python -m pip install Pillow
-python tools/generate_photo_variants.py --source "D:\10_Fotoarchiv\Canon_R10_Bilder\01_Bibiothek_JPG"
-```
-
-Fuer den Kalender-Webexport ausschliesslich aus `20.02_Web`:
-
-```powershell
 python tools/generate_photo_variants.py --source "D:\10_Fotoarchiv\Canon_R10_Bilder\01_Bibiothek_JPG" --only-web-export
 ```
 
-Die Varianten landen unter `data/photo-cache/preview/` und `data/photo-cache/gallery/`. Der Bild-Endpunkt erzeugt fehlende oder veraltete Varianten beim Abruf mit GD und versieht Vorschau, Galerie und Miniatur mit `public/assets/watermark/watermark.png`. Neue Bilder in vorhandenen oder neu angelegten Ordnern werden beim ersten Aufruf automatisch gefunden und verarbeitet. Eine neue Cachevariante wird nur übernommen, wenn sie erfolgreich erstellt und mit Wasserzeichen versehen wurde; ein erfolgloser Versuch überschreibt keine vorhandene Variante. Die Druck-Originale bleiben unverändert. Bild-URLs enthalten Änderungszeit und Dateigröße der Quelle, damit Browser nach einem Austausch keine alte Variante aus dem Cache wiederverwenden. Für automatische Wasserzeichen muss GD einschließlich PNG- und WebP-Unterstützung auf dem Webspace aktiviert sein. Ohne GD liefert der Bild-Endpunkt das Original ohne Wasserzeichen aus. Für kurze Ladezeiten können mit `tools/generate_photo_variants.py` vorab WebP-Varianten mit Wasserzeichen erzeugt werden. Einzelne Bilder lassen sich mit `--match Marcus_Sonnenblumen_2.JPG` verarbeiten.
+Der Cache liegt unter `data/photo-cache/` und enthält mit `--only-web-export` ausschliesslich Varianten fuer `20.02_Web`. Auf dem Webspace erzeugt `public/photo.php` fehlende oder veraltete Varianten beim ersten Abruf, sofern GD einschliesslich PNG- und WebP-Unterstuetzung verfuegbar ist. Schlaegt die Wasserzeichen-Erzeugung fehl oder fehlt eine gueltige Cache-Signatur, liefert der Endpunkt HTTP 503 statt ein unmarkiertes Original auszugeben. Ohne GD muessen die Varianten mit Pillow vorab erzeugt und nach `httpdocs/data/photo-cache/` hochgeladen werden. Die JPG-Originale werden nie veraendert.
 
-Die dynamische Kalenderauswahl liest ausschliesslich Bilder aus `data/photos/20.02_Web/` und darin nur aus `01_Gebäude`, `02_Landschaft`, `05_Weimar_und_Umgebung`, `07_Blumen`, `08_Tiere`, `11_Weihnachten`, `12_Kerzen` und `13_Zwiebelmarkt`. Wenn der Webspace WebP-Varianten nicht selbst erzeugt, lassen sich die Cachedateien fuer genau diese Auswahl lokal erstellen:
+Die Galerie und die Kalenderauswahl lesen dynamisch alle direkten Ordner aus `data/photos/20.02_Web/`, darunter `09_Instrumente` und `12_Kerzen_Immengold_Isabelle_Kraemer`. Neue Ordner und Bilder erscheinen nach dem Upload automatisch; leere Ordner werden angezeigt, aber haben noch keine auswählbaren Motive.
 
-```powershell
-python tools/generate_photo_variants.py --source "D:\10_Fotoarchiv\Canon_R10_Bilder\01_Bibiothek_JPG" --only-web-export
-```
-
-Der Projektabschnitt `Immengoldkerzen` auf der Startseite verwendet `data/photos/20.02_Web/12_Kerzen_Immengold_Isabelle_Kraemer/Kerzen_gemischt.jpg` als Kachelbild. Die Kachel verlinkt auf die Schwesterseite `https://immengold.com`.
+Der Projektabschnitt `Immengoldkerzen` auf der Startseite verwendet ein Bild aus `20.02_Web/12_Kerzen_Immengold_Isabelle_Kraemer/` und verlinkt auf `https://immengold.com`. Das Hero-Startbild bleibt als einzige Fotoausnahme ein festes Asset unter `public/assets/images/hero/`.
 
 Das Wasserzeichen erschwert eine unveraenderte Weiterverwendung, verhindert aber keine Screenshots oder das Speichern eines im Browser angezeigten Bildes.
 
-Die Kalenderauswahl verwendet zusaetzlich vorbereitete WebP-Dateien unter `public/assets/images/galerie/natur/Ilm/`. Die JPG-Originale fuer den Druck bleiben davon unberuehrt.
+Der Footer zeigt den Gesamtwert der Seitenaufrufe aus `data/logs/visits.json`. Der Zähler speichert selbst keine IP-Adresse.
 
 ## Formulare und gespeicherte Daten
 
@@ -163,16 +141,16 @@ Fuer den Webspace bei Bedarf eine eigene `.env` in `httpdocs/` ueber den Dateima
 
 ## Deployment bei netcup
 
-Die Website laeuft als geschuetzter Test auf `https://marcusreiser.de/`. Der Dokumentenstamm ist `/marcusreiser.de/httpdocs`; die Bewerbungsordner im Webroot bleiben erhalten. Das Plesk-Git-Repository `homepage.git` verfolgt den GitHub-Branch `main` und stellt nach `httpdocs/` bereit.
+Die Website ist unter `https://marcusreiser.de/` live. Der Dokumentenstamm ist `/marcusreiser.de/httpdocs`; vorhandene weitere Webroot-Ordner bleiben erhalten. Das Plesk-Git-Repository `homepage.git` verfolgt den GitHub-Branch `main` und stellt nach `httpdocs/` bereit.
 
 1. Aenderungen am Code gezielt stagen, committen und zu GitHub pushen. Keine `.env`, privaten Bilder oder lokalen Anfragedateien committen.
 2. In Plesk unter **Websites & Domains → marcusreiser.de → Git** zuerst **Jetzt Pull ausfuehren**, danach **Jetzt bereitstellen** waehlen. Das Repository-Ziel ist `/marcusreiser.de/httpdocs`.
-3. Der Verzeichnisschutz fuer `httpdocs` wird separat im netcup WCP verwaltet. Zugangsdaten nicht in Git ablegen.
-4. Oeffentliche Fotokategorien separat per FTP in `httpdocs/data/photos/` laden. Der FTP-Benutzer `foto-upload` ist auf diesen Fotoordner beschraenkt. Normale Kategorien liegen direkt in `photos/`; das Zwiebelmarkt-Sonderalbum liegt in `photos/20.02_Web/13_Zwiebelmarkt/`.
-5. Die WebP-Varianten liegen in `httpdocs/data/photo-cache/`; sie koennen vorab mit `tools/generate_photo_variants.py` erzeugt werden. Cache-Dateien nach einem JPG-Austausch werden vom Bild-Endpunkt anhand des Quell-Zeitstempels erneuert.
+3. Den Passwortschutz fuer die oeffentliche Website nicht wieder aktivieren. Geheimnisse und Server-Zugangsdaten gehoeren nicht in Git.
+4. Oeffentliche Fotos per FTP ausschliesslich nach `httpdocs/data/photos/20.02_Web/<Kategorie>/` laden. Der FTP-Benutzer `foto-upload` ist auf `httpdocs/data/photos/` beschraenkt. Andere Archiv-Hauptordner werden vom Website-Bildendpunkt abgewiesen.
+5. Wasserzeichen-WebPs liegen in `httpdocs/data/photo-cache/`. Bei aktivem GD erzeugt der Bild-Endpunkt fehlende oder veraltete Varianten beim Abruf. Ohne GD zuerst lokal ausschliesslich `20.02_Web` mit `tools/generate_photo_variants.py --only-web-export` verarbeiten und den Cache hochladen.
 6. Eine Server-`.env` mit eigenen Werten fuer Mailversand und Statistikpasswort anlegen. Lokale `.env`, `.git/`, `zugangslink.txt`, private Bilder und Anfragedateien nicht hochladen.
 7. Pruefen, dass `data/logs/` und `data/messages/` durch PHP beschreibbar sind. Keine pauschalen `777`-Rechte vergeben.
-8. Die Seite in einem privaten Browserfenster testen: Startseite, Immengoldkerzen-Kachel und Link, Galerie, Foto-Unterordner, Kalender-Motivauswahl, Feedbackdialog, Kontaktformular und Impressum. Sicherstellen, dass `/kalender-bestellung` bei `CALENDAR_ORDERS_ENABLED=false` nicht annimmt.
+8. Die Seite in einem privaten Browserfenster testen: Startseite, festes Hero-Bild, alle `20.02_Web`-Ordner einschliesslich leerer Ordner, Galerie-Bildabruf mit Wasserzeichen, Kalender-Motivauswahl, Favicon, Feedbackdialog, Kontaktformular und Impressum. Sicherstellen, dass `/kalender-bestellung` bei `CALENDAR_ORDERS_ENABLED=false` nicht annimmt und Bildanfragen ausserhalb `20.02_Web` 404 liefern.
 
 Wenn Kategorien erscheinen, Bilder aber fehlen, zuerst Dateipfade und Gross-/Kleinschreibung der Originale, danach die WebP-Dateien in `data/photo-cache/preview/` und `data/photo-cache/gallery/` pruefen. Bei ersetzten Bildern muss der PHP-Cache-Fix aus `public/photo.php` live bereitgestellt sein.
 
