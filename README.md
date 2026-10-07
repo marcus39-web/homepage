@@ -154,10 +154,11 @@ Die Website ist unter `https://marcusreiser.de/` live. Der Dokumentenstamm ist `
 
 Wenn Kategorien erscheinen, Bilder aber fehlen, zuerst Dateipfade und Gross-/Kleinschreibung der Originale, danach die WebP-Dateien in `data/photo-cache/preview/` und `data/photo-cache/gallery/` pruefen. Bei ersetzten Bildern muss der PHP-Cache-Fix aus `public/photo.php` live bereitgestellt sein.
 
-## Vor der Veroeffentlichung
+## Nach einem Deployment pruefen
 
-- Impressum und Datenschutzerklaerung mit den endgueltigen Angaben vervollstaendigen.
-- Alle Galerie-, Unterordner-, Kontakt- und Bestellwege testen.
-- Sicherstellen, dass keine privaten Aufnahmen im Fotoverzeichnis liegen.
-- WCP-Testschutz entfernen oder passend anpassen, wenn die Website oeffentlich gehen soll.
-- In netcup-Logs nach PHP-Fehlern sehen und Schreibrechte fuer Datenordner pruefen.
+- Startseite und Unterseiten ohne Passwortschutz aufrufen; insbesondere `/`, `/galerie`, `/kalender` und `/contact`.
+- `robots.txt` und `sitemap.xml` auf HTTP 200 pruefen; in der Search Console den Sitemap-Status kontrollieren.
+- Sicherstellen, dass die Galerie nur direkte Ordner aus `20.02_Web` zeigt und leere Web-Ordner mit 0 Bildern sichtbar sind.
+- Ein Web-Export-Bild in Vorschau und Galerie oeffnen und das Wasserzeichen kontrollieren. Bei fehlender GD-Unterstuetzung den Cache mit `--only-web-export` neu erzeugen und deployen.
+- Kontakt- und Feedbackformulare testen; `/kalender-bestellung` muss bei `CALENDAR_ORDERS_ENABLED=false` weiterhin abgewiesen werden.
+- Bei Problemen netcup-Logs pruefen und Schreibrechte fuer `data/logs/`, `data/messages/` und `data/photo-cache/` kontrollieren.
